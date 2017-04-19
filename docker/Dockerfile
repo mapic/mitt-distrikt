@@ -9,9 +9,10 @@ RUN apt-get -y update
 RUN apt-get -y install build-essential curl wget fish htop sudo
 
 # install nodejs
-RUN curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
-RUN sudo apt-get install -y nodejs
+ADD ./install-node.sh /tmp
+RUN sh /tmp/install-node.sh
 
 # install redis
 ADD ./install-redis.sh /tmp
 RUN sh /tmp/install-redis.sh
+

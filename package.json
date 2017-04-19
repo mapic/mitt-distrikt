@@ -1,7 +1,7 @@
 {
-  "name": "geografisk-samfunnsdialog",
+  "name": "Geografisk Samfunnsdialog",
   "version": "1.0.0",
-  "description": "",
+  "description": "Kart- og medvirkningsapp for Lier kommune",
   "main": "server.js",
   "scripts": {
     "test": "npm test"
@@ -10,7 +10,7 @@
     "type": "git",
     "url": "git+https://github.com/mapic/geografisk-samfunnsdialog.git"
   },
-  "author": "@kosjoli",
+  "author": "knutole@mapic.io",
   "license": "AGPL-3.0",
   "bugs": {
     "url": "https://github.com/mapic/geografisk-samfunnsdialog/issues"

@@ -16,3 +16,7 @@ RUN sh /tmp/install-node.sh
 ADD ./install-redis.sh /tmp
 RUN sh /tmp/install-redis.sh
 
+# install nginx
+ADD ./install-nginx.sh /tmp
+RUN sh /tmp/install-nginx.sh
+

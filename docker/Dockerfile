@@ -12,6 +12,10 @@ RUN apt-get -y install build-essential curl wget fish htop sudo
 ADD ./install-node.sh /tmp
 RUN sh /tmp/install-node.sh
 
+# install yarn
+ADD ./install-yarn.sh /tmp
+RUN sh /tmp/install-yarn.sh
+
 # install redis
 ADD ./install-redis.sh /tmp
 RUN sh /tmp/install-redis.sh
@@ -19,4 +23,7 @@ RUN sh /tmp/install-redis.sh
 # install nginx
 ADD ./install-nginx.sh /tmp
 RUN sh /tmp/install-nginx.sh
+
+# install node tools
+RUN npm install -g nodemon forever
 

@@ -1,0 +1,19 @@
+{
+  "name": "geografisk-samfunnsdialog",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mapic/geografisk-samfunnsdialog.git"
+  },
+  "author": "@kosjoli",
+  "license": "AGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/mapic/geografisk-samfunnsdialog/issues"
+  },
+  "homepage": "https://github.com/mapic/geografisk-samfunnsdialog#readme"
+}

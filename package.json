@@ -4,7 +4,8 @@
   "description": "Kart- og medvirkningsapp for Lier kommune",
   "main": "server.js",
   "scripts": {
-    "test": "npm test"
+    "test": "npm test",
+    "start" : "./start-server.sh"
   },
   "repository": {
     "type": "git",

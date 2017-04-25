@@ -2,4 +2,4 @@
 
 # start compose
 cd docker
-docker-compose # todo...
+docker-compose -f app.yml up

@@ -1,20 +1,24 @@
 {
-  "name": "Geografisk Samfunnsdialog",
+  "name": "kart-og-medvirkning",
   "version": "1.0.0",
   "description": "Kart- og medvirkningsapp for Lier kommune",
   "main": "server.js",
   "scripts": {
     "test": "npm test",
-    "start" : "./start-server.sh"
+    "start": "./start-server.sh"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mapic/geografisk-samfunnsdialog.git"
+    "url": "git+https://github.com/mapic/kart-og-medvirkning.git"
   },
   "author": "knutole@mapic.io",
   "license": "AGPL-3.0",
   "bugs": {
-    "url": "https://github.com/mapic/geografisk-samfunnsdialog/issues"
+    "url": "https://github.com/mapic/kart-og-medvirkning/issues"
   },
-  "homepage": "https://github.com/mapic/geografisk-samfunnsdialog#readme"
+  "homepage": "https://github.com/mapic/kart-og-medvirkning#readme",
+  "dependencies": {
+    "express": "^4.15.2",
+    "lodash": "^4.17.4"
+  }
 }

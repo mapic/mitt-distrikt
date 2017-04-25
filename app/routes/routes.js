@@ -21,4 +21,14 @@ router.get('/admin', function(req, res, next) {
 });
 
 
+router.get('/*', function(req, res, next) {
+    // console.log('Cookies: ', req.cookies);
+    // console.log('Signed Cookies: ', req.signedCookies)
+    res.render('index', { 
+        title: 'Wildcard',
+        text : "Check this shit out!" 
+    });
+});
+
+
 module.exports = router;

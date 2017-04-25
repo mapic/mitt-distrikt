@@ -12,11 +12,22 @@ services:
     # command: npm start
     command: nodemon app.js
   
-  # # wordpress
-  # wordpress:
-  #   image: "lier/blog:latest"
-  #   expose:
-  #     - 3002
+  # wordpress
+  wordpress:
+    image: wordpress
+    # ports:
+      # - 3002:80
+    expose:
+      - 3002
+    environment:
+      WORDPRESS_DB_PASSWORD: example
+    links:
+      - mysql
+
+  mysql:
+    image: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: example
 
   # key storage
   redis:
@@ -30,6 +41,7 @@ services:
     image: "lier/nginx:latest"
     links:
       - web
+      - wordpress
     ports:
       - 80:80
       - 443:443

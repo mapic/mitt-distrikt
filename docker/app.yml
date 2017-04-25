@@ -15,14 +15,10 @@ services:
   # wordpress
   wordpress:
     image: wordpress
-    # ports:
-      # - 3002:80
-    expose:
-      - 3002
+    ports:
+      - 3002:80
     environment:
       WORDPRESS_DB_PASSWORD: example
-    links:
-      - mysql
 
   mysql:
     image: mariadb

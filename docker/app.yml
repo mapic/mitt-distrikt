@@ -1,25 +1,37 @@
 version: '3'
 services:
-  
+
+  # webserver
   web:
     image: "lier/web:latest"
     expose:
      - 3001
     volumes:
-     - ../app:/app
-    working_dir: /app
+     - ../:/entrypoint
+    working_dir: /entrypoint/app
+    command: forever server.js
   
+  # # wordpress
+  # wordpress:
+  #   image: "lier/blog:latest"
+  #   expose:
+  #     - 3002
+
+  # key storage
   redis:
     image: "redis"
     volumes:
       - ../config/redis.conf:/usr/local/etc/redis/redis.conf:ro
     command: redis-server /usr/local/etc/redis/redis.conf
   
+  # reverse-proxy
   nginx:
-    image: "nginx"
+    image: "lier/nginx:latest"
+    links:
+      - web
     ports:
-      - 80
-      - 443
+      - 80:80
+      - 443:443
     volumes:
       - ../config/nginx.conf:/etc/nginx/nginx.conf:ro
     command: nginx

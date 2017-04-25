@@ -9,7 +9,8 @@ services:
     volumes:
      - ../app:/entrypoint
     working_dir: /entrypoint
-    command: npm start
+    # command: npm start
+    command: nodemon app.js
   
   # # wordpress
   # wordpress:

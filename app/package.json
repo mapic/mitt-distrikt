@@ -1,11 +1,11 @@
 {
   "name": "kart-og-medvirkning",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Kart- og medvirkningsapp for Lier kommune",
   "main": "server.js",
   "scripts": {
     "test": "npm test",
-    "start": "./start-server.sh"
+    "start": "forever app.js"
   },
   "repository": {
     "type": "git",
@@ -19,10 +19,16 @@
   "homepage": "https://github.com/mapic/kart-og-medvirkning#readme",
   "dependencies": {
     "async": "^2.3.0",
+    "body-parser": "^1.17.1",
     "cookie-parser": "^1.4.3",
+    "debug": "^2.6.4",
     "express": "^4.15.2",
+    "forever": "^0.15.3",
     "helmet": "^3.5.0",
     "lodash": "^4.17.4",
-    "redis": "^2.7.1"
+    "morgan": "^1.8.1",
+    "pug": "^2.0.0-beta.12",
+    "redis": "^2.7.1",
+    "serve-favicon": "^2.4.2"
   }
 }

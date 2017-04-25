@@ -7,9 +7,9 @@ services:
     expose:
      - 3001
     volumes:
-     - ../:/entrypoint
-    working_dir: /entrypoint/app
-    command: forever server.js
+     - ../app:/entrypoint
+    working_dir: /entrypoint
+    command: npm start
   
   # # wordpress
   # wordpress:

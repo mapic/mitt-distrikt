@@ -1,7 +1,8 @@
 var express = require('express');
 var router = express.Router();
 
-/* GET home page. */
+
+// root
 router.get('/', function(req, res, next) {
     // console.log('Cookies: ', req.cookies);
     // console.log('Signed Cookies: ', req.signedCookies)
@@ -11,19 +12,16 @@ router.get('/', function(req, res, next) {
     });
 });
 
+// admin
 router.get('/admin', function(req, res, next) {
-    // console.log('Cookies: ', req.cookies);
-    // console.log('Signed Cookies: ', req.signedCookies)
     res.render('admin', { 
         title: 'Admin',
         text : "Check this shit out!" 
     });
 });
 
-
+// wildcard
 router.get('/*', function(req, res, next) {
-    // console.log('Cookies: ', req.cookies);
-    // console.log('Signed Cookies: ', req.signedCookies)
     res.render('index', { 
         title: 'Wildcard',
         text : "Check this shit out!" 

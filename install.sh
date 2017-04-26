@@ -24,7 +24,13 @@ sudo apt-get install -y nodejs
 sudo npm i nsp -g
 sudo npm install -g snyk
 
+# install certbot
+sudo add-apt-repository ppa:certbot/certbot
+sudo apt-get update -y
+sudo apt-get install -y certbot 
 
 # build all images
+cd docker/build
+sh build-all.sh
 # build it!
 #

@@ -20,13 +20,13 @@ router.get('/admin', function(req, res, next) {
     });
 });
 
-// wildcard
-router.get('/*', function(req, res, next) {
-    res.render('index', { 
-        title: 'Wildcard',
-        text : "Check this shit out!" 
-    });
-});
+// // wildcard
+// router.get('/*', function(req, res, next) {
+//     res.render('index', { 
+//         title: 'Wildcard',
+//         text : "Check this shit out!" 
+//     });
+// });
 
 
 module.exports = router;

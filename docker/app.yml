@@ -1,39 +1,30 @@
 version: '3'
 services:
 
-  # webserver
   web:
-    image: "lier/web:latest"
-    expose:
-     - 3001
+    image: lier/web:latest
     volumes:
      - ../app:/entrypoint
-    working_dir: /entrypoint
-    # command: npm start
     command: sh start-server.sh
       
-  # wordpress
   wordpress:
     image: lier/wordpress:latest
     environment:
       WORDPRESS_DB_PASSWORD: example
   
-  # wordpress storage
   mysql:
     image: mariadb
     environment:
       MYSQL_ROOT_PASSWORD: example
 
-  # key storage
   redis:
-    image: "redis"
+    image: redis
     volumes:
       - ../config/redis.conf:/usr/local/etc/redis/redis.conf:ro
     command: redis-server /usr/local/etc/redis/redis.conf
   
-  # reverse-proxy
   nginx:
-    image: "lier/nginx:latest"
+    image: lier/nginx:latest
     links:
       - web
       - wordpress

@@ -7,3 +7,6 @@ fi
 
 # dev
 nodemon app.js
+
+# prod
+# forever app.js

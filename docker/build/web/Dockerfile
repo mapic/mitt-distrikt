@@ -22,3 +22,6 @@ RUN sh /tmp/install-redis.sh
 
 # install node tools
 RUN npm install -g nodemon forever
+
+EXPOSE 3001
+WORKDIR /entrypoint

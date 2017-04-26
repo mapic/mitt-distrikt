@@ -5,6 +5,12 @@ installing () {
     echo "Installing $1..."
 }
 
+clear
+echo "Installing all depenedencies needed to run this project."
+echo "--------------------------------------------------------"
+echo ""
+
+
 # update/upgrade
 installing "updates"
 apt-get update -y
@@ -45,5 +51,5 @@ sudo apt-get install -y certbot
 
 # build all images
 installing "images"
-cd docker/build
+cd build
 sh build-all.sh

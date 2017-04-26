@@ -10,14 +10,15 @@ services:
      - ../app:/entrypoint
     working_dir: /entrypoint
     # command: npm start
-    command: nodemon app.js
-  
+    command: sh start-server.sh
+      
   # wordpress
   wordpress:
     image: lier/wordpress:latest
     environment:
       WORDPRESS_DB_PASSWORD: example
-
+  
+  # wordpress storage
   mysql:
     image: mariadb
     environment:

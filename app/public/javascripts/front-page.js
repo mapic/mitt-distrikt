@@ -163,8 +163,12 @@ L.MapContent = L.Class.extend({
         mapboxgl.accessToken = 'pk.eyJ1IjoibWFwaWMiLCJhIjoiY2l2MmE1ZW4wMDAwZTJvcnhtZGI4YXdlcyJ9.rD_-Ou1OdKQsHqEqL6FJLg';
         this._map = new mapboxgl.Map({
             container: 'map',
-            style: 'mapbox://styles/mapbox/streets-v9'
+            style: 'mapbox://styles/mapbox/streets-v9',
+            center: [10.234364120842656, 59.795007354532544],
+            zoom : 12
         });
+
+        window.debug_map = this._map;
     },
 
     resize : function () {

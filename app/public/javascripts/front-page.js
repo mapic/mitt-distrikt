@@ -15,8 +15,11 @@ L.App = L.Class.extend({
 
         L.setOptions(this, options);
 
+        // set locale
+        this.locale = window.locale[options.locale];
+
         // get html
-        this._getContent();
+        this._initContent();
 
         // set events
         this._setEvents();
@@ -28,7 +31,7 @@ L.App = L.Class.extend({
         this._show('info');
     },
 
-    _getContent : function () {
+    _initContent : function () {
         
         // get content
         this._content.info = L.DomUtil.get('content-info');
@@ -39,6 +42,12 @@ L.App = L.Class.extend({
         this._buttons.info.div  = L.DomUtil.get('button-info');
         this._buttons.map.div  = L.DomUtil.get('button-kart');
         this._buttons.media.div = L.DomUtil.get('button-media');
+
+        // set button text
+        this._buttons.info.div.innerHTML = this.locale.buttons.info;
+        this._buttons.map.div.innerHTML = this.locale.buttons.map;
+        this._buttons.media.div.innerHTML = this.locale.buttons.media;
+
     },
 
     _setEvents : function () {

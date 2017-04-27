@@ -12,6 +12,21 @@
 #                                                                                               #
 #################################################################################################
 
+check_ubuntu () {
+    OS="$(lsb_release -rs)"
+    # OS="16.04" # uncomment for manual override
+    if [ "$OS" == "16.04" ] || [ "$OS" == "17.04"  ] || [ "$OS" == "14.04" ] ; then
+        echo "Ubuntu version $OS"
+    else
+        echo "You're not running Ubuntu versions 14.04, 16.04 or 17.04. This script probably won't work for you."
+        echo "Please see the wiki for manual installation: https://github.com/mapic/kart-og-medvirkning/wiki/Install"
+        exit 1
+    fi
+}
+
+# check ubuntu version
+check_ubuntu
+
 # update/upgrade
 apt-get update -y
 apt-get upgrade -y

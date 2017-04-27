@@ -41,9 +41,6 @@ fi
 # edit config
 ./edit-config.sh $DOMAIN $SUBDOMAIN || abort "Couldn't edit config."
 
-# build images
-./build-images.sh || abort "Couldn't build images."
-
 # celebrate
 echo ""
 echo "Installation successful!"

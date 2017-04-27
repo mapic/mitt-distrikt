@@ -1,13 +1,15 @@
-version: '3'
+version: '2'
 services:
 
   web:
+    build: build/web
     image: lier/web:latest
     volumes:
      - ../app:/entrypoint
     command: sh start-server.sh
       
   wordpress:
+    build: build/wordpress
     image: lier/wordpress:latest
     environment:
       WORDPRESS_DB_PASSWORD: example
@@ -24,6 +26,7 @@ services:
     command: redis-server /usr/local/etc/redis/redis.conf
   
   nginx:
+    build: build/nginx
     image: lier/nginx:latest
     links:
       - web

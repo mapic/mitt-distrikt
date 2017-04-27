@@ -47,7 +47,6 @@ L.App = L.Class.extend({
         this._buttons.info.div.innerHTML = this.locale.buttons.info;
         this._buttons.map.div.innerHTML = this.locale.buttons.map;
         this._buttons.media.div.innerHTML = this.locale.buttons.media;
-
     },
 
     _setEvents : function () {
@@ -62,7 +61,6 @@ L.App = L.Class.extend({
         this._buttons.info.event.on('tap', this._showInfo.bind(this));
         this._buttons.map.event.on('tap', this._showMap.bind(this));
         this._buttons.media.event.on('tap', this._showMedia.bind(this));
-
     },
 
     // create tab content
@@ -82,7 +80,6 @@ L.App = L.Class.extend({
         this.media = new L.Media({
             container : this._content.media
         });
-
     },
 
     // helper fn to show/hide the three tabs
@@ -115,7 +112,6 @@ L.App = L.Class.extend({
         };
         L.DomUtil.addClass(this._buttons[highlighted].div, 'highlighted');
     },
-
 });
 
 
@@ -130,7 +126,6 @@ L.Info = L.Class.extend({
 
         // init content
         this._initContent();
-
     },
 
     _initContent : function () {
@@ -143,6 +138,8 @@ L.Info = L.Class.extend({
     },
 }); 
 
+
+
 L.MapContent = L.Class.extend({
     initialize : function (options) {
 
@@ -154,12 +151,18 @@ L.MapContent = L.Class.extend({
 
         // init content
         this._initContent();
+
+        // debug
+        window.debug = window.debug || {};
+        window.debug.map = this._map;
     },
 
     _initContent : function () {
 
+        // get map container
         this._content = L.DomUtil.get('map');
 
+        // initialize mapboxgl
         mapboxgl.accessToken = 'pk.eyJ1IjoibWFwaWMiLCJhIjoiY2l2MmE1ZW4wMDAwZTJvcnhtZGI4YXdlcyJ9.rD_-Ou1OdKQsHqEqL6FJLg';
         this._map = new mapboxgl.Map({
             container: 'map',
@@ -167,8 +170,6 @@ L.MapContent = L.Class.extend({
             center: [10.234364120842656, 59.795007354532544],
             zoom : 12
         });
-
-        window.debug_map = this._map;
     },
 
     resize : function () {
@@ -188,7 +189,6 @@ L.Media = L.Class.extend({
 
         // init contetn
         this._initContent();
-
     },
 
      _initContent : function () {

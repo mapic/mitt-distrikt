@@ -6,7 +6,7 @@ installing () {
 }
 
 clear
-echo "Installing all depenedencies needed to run this project."
+echo "Installing all dependencies needed to run this project."
 echo "--------------------------------------------------------"
 
 # update/upgrade

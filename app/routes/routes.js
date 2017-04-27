@@ -1,31 +1,18 @@
 var express = require('express');
 var router = express.Router();
 
-
-// root
 router.get('/', function(req, res, next) {
-    // console.log('Cookies: ', req.cookies);
-    // console.log('Signed Cookies: ', req.signedCookies)
-    res.render('front-page', { 
-        title: 'Express',
-        text : "Check this shit out!" 
-    });
+    res.render('front-page');
 });
 
 // admin
 router.get('/admin', function(req, res, next) {
-    res.render('admin-page', { 
-        title: 'Admin',
-        text : "Check this shit out!" 
-    });
+    res.render('admin-page');
 });
 
 // // wildcard
 // router.get('/*', function(req, res, next) {
-//     res.render('index', { 
-//         title: 'Wildcard',
-//         text : "Check this shit out!" 
-//     });
+//     res.render('index');
 // });
 
 

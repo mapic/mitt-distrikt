@@ -16,7 +16,7 @@ L.App = L.Class.extend({
         L.setOptions(this, options);
 
         // set locale
-        this.locale = window.locale[options.locale];
+        this.locale = window.locale[options.locale || 'NO'];
 
         // get html
         this._initContent();

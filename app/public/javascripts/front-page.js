@@ -83,8 +83,8 @@ L.App = L.Class.extend({
     },
 
     // helper fn to show/hide the three tabs
-    _showInfo : function () { this._show('info');},
-    _showMap : function () { this._show('map');},
+    _showInfo  : function () { this._show('info');},
+    _showMap   : function () { this._show('map');},
     _showMedia : function () { this._show('media');},
     _show : function (page) {
 

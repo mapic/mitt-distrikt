@@ -1,9 +1,19 @@
 #!/bin/bash
 
-DOMAIN=meon.io
-SUBDOMAIN=blog.meon.io
-EMAIL=hello@mapic.io
-    
+usage () {
+    echo "Usage: ./create-ssl.sh example.com blog.example.com your@email.com"
+    exit 1
+}
+
+# check for proper usage
+[ -z "$1" ] && usage
+[ -z "$2" ] && usage
+[ -z "$3" ] && usage
+
+DOMAIN=$1
+SUBDOMAIN=$2
+EMAIL=$3
+
 certbot certonly \
     --standalone \
     --agree-tos \
@@ -13,7 +23,8 @@ certbot certonly \
     --non-interactive \
     --force-renewal \
     --domain "$DOMAIN" \
-    --domain "$SUBDOMAIN"
+    --domain "$SUBDOMAIN" || exit 1
 
+cd ../docker/build/nginx
 cp /etc/letsencrypt/live/$DOMAIN/privkey.pem ssl_certificate.key
 cp /etc/letsencrypt/live/$DOMAIN/fullchain.pem ssl_certificate.pem

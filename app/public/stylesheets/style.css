@@ -6,3 +6,73 @@ body {
 a {
   color: #00B7FF;
 }
+
+
+.btn-group button {
+    background-color: #f74c4c;
+    border: 2px solid white;
+    color: white;
+    padding: 10px 24px;
+    cursor: pointer;
+    float: left;
+    height: 3em;
+    font-size: 40px;
+    font-family: Helvetica Neue;
+    font-weight: 300;
+    outline: none;
+}
+
+.btn-group button:not(:last-child) {
+    border-right: none; /* Prevent double borders */
+}
+
+/* Clear floats (clearfix hack) */
+.btn-group:after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+
+/*rounded corners*/
+.btn-group button:first-child {
+    border-radius: 5000px 0 0 5000px;
+}
+.btn-group button:last-child {
+    border-radius: 0 5000px 5000px 0;
+}
+
+/*main window placeholder*/
+.content {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    /*border: 20px solid red;*/
+    top: 0;
+    left: 0;
+    margin: 0;
+    padding: 0;
+    z-index: 100;
+}
+
+#buttons-container {
+    position: fixed;
+    width: 80%;
+    margin: 10%;
+    left: 0;
+    top: 0;
+    z-index: 200;
+    opacity: 0.9;
+}
+
+.highlighted {
+    background-color: white !important;
+    color: #f74c4c !important;
+}
+
+
+#info-iframe {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}

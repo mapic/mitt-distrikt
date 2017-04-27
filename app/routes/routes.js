@@ -6,7 +6,7 @@ var router = express.Router();
 router.get('/', function(req, res, next) {
     // console.log('Cookies: ', req.cookies);
     // console.log('Signed Cookies: ', req.signedCookies)
-    res.render('index', { 
+    res.render('front-page', { 
         title: 'Express',
         text : "Check this shit out!" 
     });
@@ -14,7 +14,7 @@ router.get('/', function(req, res, next) {
 
 // admin
 router.get('/admin', function(req, res, next) {
-    res.render('admin', { 
+    res.render('admin-page', { 
         title: 'Admin',
         text : "Check this shit out!" 
     });

@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+
+// load modules
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
@@ -8,7 +10,7 @@ var bodyParser = require('body-parser');
 var helmet = require('helmet');
 var debug = require('debug')('app:server');
 
-// require routes
+// set routes
 var routes = require('./routes/routes');
 
 // set port
@@ -20,11 +22,19 @@ var app = express();
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
-app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+
+// set logger
 app.use(logger('dev'));
+
+// set parsing
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+
+// set cookie parser
 app.use(cookieParser());
+
+// set favicon
+app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 
 // set public path
 app.use(express.static(path.join(__dirname, 'public')));
@@ -35,13 +45,6 @@ app.disable('x-powered-by');
 
 // set routes
 app.use('/', routes);
-
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-    var err = new Error('Not Found');
-    err.status = 404;
-    next(err);
-});
 
 // middleware, error handler
 app.use(function(err, req, res, next) {
@@ -54,6 +57,7 @@ app.use(function(err, req, res, next) {
     res.render('error');
 });
 
+// start server
 app.listen(port, function () {
     console.log('Listening on port', port)
 });

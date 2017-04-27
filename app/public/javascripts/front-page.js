@@ -11,7 +11,6 @@ L.App = L.Class.extend({
 
     _content : {},
 
-
     initialize : function (options) {
 
         L.setOptions(this, options);
@@ -94,6 +93,10 @@ L.App = L.Class.extend({
         // highlight button
         this._highlightButton(page);
 
+        // fix resize problem
+        if (page == 'map') {
+            this.map.resize();
+        }
     },
 
     // highlight selected button
@@ -146,9 +149,18 @@ L.MapContent = L.Class.extend({
 
     _initContent : function () {
 
+        this._content = L.DomUtil.get('map');
 
+        mapboxgl.accessToken = 'pk.eyJ1IjoibWFwaWMiLCJhIjoiY2l2MmE1ZW4wMDAwZTJvcnhtZGI4YXdlcyJ9.rD_-Ou1OdKQsHqEqL6FJLg';
+        this._map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v9'
+        });
     },
 
+    resize : function () {
+        this._map.resize();
+    },
 
 });
 

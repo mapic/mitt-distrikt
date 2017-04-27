@@ -1,6 +1,7 @@
 doctype html
 html
     head
+        <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
         title= title
         link(rel='stylesheet', href='/stylesheets/style.css')
         script(src='/javascripts/bowser.js')
@@ -8,6 +9,8 @@ html
         script(src='/javascripts/hammer-time.min.js')
         script(src='/javascripts/class.js')
         script(src='/javascripts/instafeed.min.js')
-
+        <script src='https://api.mapbox.com/mapbox-gl-js/v0.36.0/mapbox-gl.js'></script>
+        <link href='https://api.mapbox.com/mapbox-gl-js/v0.36.0/mapbox-gl.css' rel='stylesheet' />
+        
     body
         block content

@@ -1,6 +1,7 @@
 body {
-  padding: 50px;
+  /*padding: 50px;*/
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  background-color: #fafaef;
 }
 
 a {
@@ -75,4 +76,34 @@ a {
     position: absolute;
     width: 100%;
     height: 100%;
+}
+
+
+
+
+
+
+/*instagram*/
+.i-wrapper {
+    background: white;
+    margin-top: 40px;
+    border-radius: 0 0 10px 10px;
+    border: 10px solid white;
+}
+
+
+.i-image {
+}
+.i-image img {
+    height: 100%;
+    width: 100%;
+}
+.i-caption {
+    padding: 10px;
+    overflow: hidden;
+    color: #2c2c2c;
+}
+.instagram-content {
+        width: 500px;
+    margin: 0 auto;
 }

@@ -57,25 +57,30 @@ L.App = L.Class.extend({
 
     },
 
+    // create tab content
     _fillContent : function () {
 
+        // info tab
         this.info = new L.Info({
             container : this._content.info
         });
+
+        // map tab
         this.map = new L.MapContent({
             container : this._content.map
         });
+
+        // media tab
         this.media = new L.Media({
             container : this._content.media
         });
 
     },
 
-
+    // helper fn to show/hide the three tabs
     _showInfo : function () { this._show('info');},
     _showMap : function () { this._show('map');},
     _showMedia : function () { this._show('media');},
-
     _show : function (page) {
 
         // hide all
@@ -89,7 +94,6 @@ L.App = L.Class.extend({
         // highlight button
         this._highlightButton(page);
 
-        console.log('_show', page);
     },
 
     // highlight selected button
@@ -105,26 +109,38 @@ L.App = L.Class.extend({
 
 L.Info = L.Class.extend({
     initialize : function (options) {
+
+        // set options
         L.setOptions(this, options);
 
+        // set container
         this._container = options.container;
 
+        // init content
         this._initContent();
 
     },
 
     _initContent : function () {
+
+        // get blog url for iframe
         var blogSource = 'https://blog.meon.io';
+
+        // create iframe
         this._container.innerHTML = '<iframe id="info-iframe" src="' + blogSource + '"></iframe>'
     },
 }); 
 
 L.MapContent = L.Class.extend({
     initialize : function (options) {
+
+        // set options
         L.setOptions(this, options);
 
+        // set container
         this._container = options.container;
 
+        // init content
         this._initContent();
     },
 
@@ -138,24 +154,55 @@ L.MapContent = L.Class.extend({
 
 L.Media = L.Class.extend({
     initialize : function (options) {
+        
+        // set options
         L.setOptions(this, options);
 
+        // set container
+        this._container = options.container;
+
+        // init contetn
         this._initContent();
 
     },
 
      _initContent : function () {
 
-        this._content = L.DomUtil.create('instagram-content');
+        // create div
+        this._content = L.DomUtil.create('div', 'instagram-content', this._container);
         this._content.id = 'instagram-content';
 
-        var feed = new Instafeed({
+        // get instagram template
+        var template = this._instagramTemplate();
+
+        // init feed
+        this._feed = new Instafeed({
             get: 'tagged',
-            tagName: 'awesome',
-            accessToken: '21416541.3d76c98.9887274b4bc649dfa096fd6d45172647',
-            target : 'instagram-content'
+            tagName: 'firestartah',
+            accessToken: '21416541.ba4c844.8efa3e551006456fb59330eadb7f2c41',
+            target : 'instagram-content',
+            resolution: 'standard_resolution',
+            links: false,
+            template : template
         });
-        feed.run();
+        // access token: https://github.com/stevenschobert/instafeed.js/issues/408#issuecomment-297696860
+        
+        // start feed
+        this._feed.run();
+    },
+
+    _instagramTemplate : function () {
+        // template for instagram feed
+        // see http://instafeedjs.com/#templating
+        var html =  '<div class="i-wrapper">';
+        html +=         '<div class="i-image">'
+        html +=             '<img src="{{image}}" />';
+        html +=         '</div>';
+        html +=         '<div class="i-caption">'
+        html +=             '{{caption}}';
+        html +=         '</div>';
+        html +=     '</div>';
+        return html;
     },
 
 

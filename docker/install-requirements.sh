@@ -8,8 +8,6 @@ installing () {
 clear
 echo "Installing all depenedencies needed to run this project."
 echo "--------------------------------------------------------"
-echo ""
-
 
 # update/upgrade
 installing "updates"

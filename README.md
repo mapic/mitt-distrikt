@@ -5,4 +5,4 @@
 Åpen kildekode prosjekt for Lier kommune.
 
 ## Bruk
-Se [wiki'en](https://github.com/mapic/kart-og-medvirkning/wiki) for mer informasjon.
+Se [wikien](https://github.com/mapic/kart-og-medvirkning/wiki) for mer informasjon.

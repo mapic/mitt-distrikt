@@ -44,3 +44,8 @@ fi
 # build images
 ./build-images.sh || abort "Couldn't build images."
 
+# celebrate
+echo ""
+echo "Installation successful!"
+echo ""
+echo "Start your server with ./restart-containers.sh in the root folder."

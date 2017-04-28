@@ -9,7 +9,7 @@
 
 body {
   /*padding: 50px;*/
-  font-family: 'Open Sans', sans-serif !important;
+  font-family: 'Open Sans Light', sans-serif !important;
   background-color: #fafaef;
 }
 
@@ -25,12 +25,12 @@ a {
     cursor: pointer;
     float: left;
     height: 3em;
-    font-size: 40px;
+    /*font-size: 40px;*/
     font-weight: 300;
     outline: none;
     width: 32%;
     text-align: center;
-    line-height: 47px;
+    line-height: 49px;
 }
 
 .btn-group .button:not(:last-child) {

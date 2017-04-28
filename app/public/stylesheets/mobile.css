@@ -3,9 +3,21 @@
 /*DESKTOP*/
 /* ----------- Non-Retina Screens ----------- */
 @media screen 
-  and (min-device-width: 1200px) 
-  and (max-device-width: 1600px) 
+  and (min-device-width: 800px) 
   and (-webkit-min-device-pixel-ratio: 1) { 
+
+    .btn-group .button {
+        device: 'desktop';
+        height: 48px;
+        font-size: 20px;
+    }
+
+    #buttons-container {
+        device: 'desktop';
+        width: 50%;
+        margin-left: 25%;
+        margin-top: 20px;
+    }
 }
 
 /*DESKTOP*/
@@ -15,6 +27,19 @@
   and (max-device-width: 1600px) 
   and (-webkit-min-device-pixel-ratio: 2)
   and (min-resolution: 192dpi) { 
+
+    .btn-group .button {
+        device: 'desktop retina';
+        height: 48px;
+        font-size: 20px;
+    }
+
+    #buttons-container {
+        device: 'desktop retina';
+        width: 50%;
+        margin-left: 25%;
+        margin-top: 20px;
+    }
 }
 
 
@@ -360,8 +385,8 @@ and (-webkit-min-device-pixel-ratio: 2) {
 
     #buttons-container {
         device: 'ipad pro landscape';
-        width: 50%;
-        margin-left: 25%;
+        width: 40%;
+        margin-left: 30%;
         margin-top: 50px;
     }
 

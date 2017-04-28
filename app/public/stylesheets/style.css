@@ -1,6 +1,15 @@
+/* Define the "system" font family */
+@font-face {
+  font-family: "system-ui";
+  font-style: normal;
+  font-weight: 300;
+  src: local(".Open Sans");
+}
+
+
 body {
   /*padding: 50px;*/
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  font-family: 'Open Sans', sans-serif !important;
   background-color: #fafaef;
 }
 
@@ -9,21 +18,22 @@ a {
 }
 
 
-.btn-group button {
-    background-color: #f74c4c;
+.btn-group .button {
+    background-color: #E74549;
     border: 2px solid white;
     color: white;
-    padding: 10px 24px;
     cursor: pointer;
     float: left;
     height: 3em;
     font-size: 40px;
-    font-family: Helvetica Neue;
     font-weight: 300;
     outline: none;
+    width: 32%;
+    text-align: center;
+    line-height: 47px;
 }
 
-.btn-group button:not(:last-child) {
+.btn-group .button:not(:last-child) {
     border-right: none; /* Prevent double borders */
 }
 
@@ -36,10 +46,10 @@ a {
 
 
 /*rounded corners*/
-.btn-group button:first-child {
+.btn-group .button:first-child {
     border-radius: 5000px 0 0 5000px;
 }
-.btn-group button:last-child {
+.btn-group .button:last-child {
     border-radius: 0 5000px 5000px 0;
 }
 
@@ -48,7 +58,6 @@ a {
     width: 100%;
     height: 100%;
     position: absolute;
-    /*border: 20px solid red;*/
     top: 0;
     left: 0;
     margin: 0;
@@ -59,7 +68,7 @@ a {
 #buttons-container {
     position: fixed;
     width: 80%;
-    margin: 10%;
+    margin: 5% 10% 0 10%;
     left: 0;
     top: 0;
     z-index: 200;

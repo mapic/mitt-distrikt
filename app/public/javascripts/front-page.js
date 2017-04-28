@@ -15,6 +15,9 @@ L.App = L.Class.extend({
 
         L.setOptions(this, options);
 
+        // get browser
+        this._detectDevice();
+
         // set locale
         this.locale = window.locale[options.locale || 'NO'];
 
@@ -61,6 +64,21 @@ L.App = L.Class.extend({
         this._buttons.info.event.on('tap', this._showInfo.bind(this));
         this._buttons.map.event.on('tap', this._showMap.bind(this));
         this._buttons.media.event.on('tap', this._showMedia.bind(this));
+    },
+
+    _detectDevice : function  () {
+        
+        // see https://hgoebl.github.io/mobile-detect.js/doc/MobileDetect.html
+        this._md = new MobileDetect(window.navigator.userAgent);
+        // console.log('this._md', this._md);
+        // console.log(this._md.mobile());
+        // console.log(this._md.os());
+        // console.log(this._md.phone());
+        // console.log(this._md.tablet());
+        // console.log(this._md.version());
+
+        // decide if mobile (todo: test on lots of devices)
+        this._isMobile = this._md.mobile() || this._md.tablet();
     },
 
     // create tab content

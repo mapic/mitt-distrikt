@@ -13,6 +13,9 @@ L.App = L.Class.extend({
 
     initialize : function (options) {
 
+        // shortcut
+        window.app = this;
+
         L.setOptions(this, options);
 
         // get browser
@@ -67,18 +70,20 @@ L.App = L.Class.extend({
     },
 
     _detectDevice : function  () {
-        
         // see https://hgoebl.github.io/mobile-detect.js/doc/MobileDetect.html
         this._md = new MobileDetect(window.navigator.userAgent);
-        // console.log('this._md', this._md);
-        // console.log(this._md.mobile());
-        // console.log(this._md.os());
-        // console.log(this._md.phone());
-        // console.log(this._md.tablet());
-        // console.log(this._md.version());
+    },
 
-        // decide if mobile (todo: test on lots of devices)
-        this._isMobile = this._md.mobile() || this._md.tablet();
+    isJustMobile : function () {
+        return this._md.mobile() && !this._md.tablet();
+    },
+
+    isMobile : function () {
+        return this._md.mobile();
+    },
+
+    isTablet : function () {
+        return this._md.tablet();
     },
 
     // create tab content
@@ -196,6 +201,11 @@ L.MapContent = L.Class.extend({
 
 });
 
+
+
+
+
+
 L.Media = L.Class.extend({
     initialize : function (options) {
         
@@ -218,17 +228,20 @@ L.Media = L.Class.extend({
         // get instagram template
         var template = this._instagramTemplate();
 
+        // low res on small mobiles
+        var resolution = app.isJustMobile() ? 'low_resolution' : 'standard_resolution';
+
         // init feed
         this._feed = new Instafeed({
             get: 'tagged',
-            tagName: 'firestartah',
+            tagName: 'lier',
+            // access token, see: https://github.com/stevenschobert/instafeed.js/issues/408#issuecomment-297696860
             accessToken: '21416541.ba4c844.8efa3e551006456fb59330eadb7f2c41',
             target : 'instagram-content',
-            resolution: 'standard_resolution',
+            resolution: resolution,
+            template : template,
             links: false,
-            template : template
         });
-        // access token: https://github.com/stevenschobert/instafeed.js/issues/408#issuecomment-297696860
         
         // start feed
         this._feed.run();
@@ -237,12 +250,25 @@ L.Media = L.Class.extend({
     _instagramTemplate : function () {
         // template for instagram feed
         // see http://instafeedjs.com/#templating
+        // https://gist.github.com/knutole/9673b07ef26f038a5d7ea0e38e0311c6
         var html =  '<div class="i-wrapper">';
+        html +=         '<div class="i-avatar">'
+        html +=             '<div class="i-avatar-img">';
+        html +=                 '<img src="{{model.user.profile_picture}}" />';
+        html +=             '</div>';
+        html +=             '<div class="i-user">'
+        html +=                 '{{model.user.full_name}}';
+        html +=             '</div>';
+        html +=         '</div>';
         html +=         '<div class="i-image">'
         html +=             '<img src="{{image}}" />';
         html +=         '</div>';
         html +=         '<div class="i-caption">'
         html +=             '{{caption}}';
+        html +=         '</div>';
+        html +=         '<div class="i-likes">'
+        html +=             '<i class="fa fa-heart float-left" aria-hidden="true"></i>';
+        html +=             '<div class="i-likes-count">{{likes}}</div>';
         html +=         '</div>';
         html +=     '</div>';
         return html;

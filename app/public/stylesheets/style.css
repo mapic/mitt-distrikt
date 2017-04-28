@@ -1,7 +1,8 @@
 
 body {
   font-family: 'Open Sans', sans-serif !important;
-  background-color: rgba(225, 211, 179, 0.25);
+  /*background-color: rgba(225, 211, 179, 0.25);*/
+  background-color: white;
 }
 
 a {
@@ -21,7 +22,8 @@ a {
 */
 .btn-group .button {
     background-color: #E74549;
-    border: 2px solid white;
+    /*border: 2px solid white;*/
+    border: 1px solid #E74549;
     color: white;
     cursor: pointer;
     float: left;

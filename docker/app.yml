@@ -1,4 +1,13 @@
-version: '2'
+version: '3'
+
+volumes:
+  wordpress_storage:
+    external: false
+  mariadb_storage:
+    external: false
+  redis_storage:
+    external: false
+
 services:
 
   web:
@@ -13,17 +22,23 @@ services:
     image: lier/wordpress:latest
     environment:
       WORDPRESS_DB_PASSWORD: example
+    volumes:
+      - wordpress_storage:/var/www/html/wp-content/uploads
   
   mysql:
     image: mariadb
     environment:
       MYSQL_ROOT_PASSWORD: example
+    volumes:
+      - mariadb_storage:/var/lib/mysql
 
   redis:
-    image: redis
+    build: build/redis
+    image: lier/redis:latest
     volumes:
-      - ../config/redis.conf:/usr/local/etc/redis/redis.conf:ro
-    command: redis-server /usr/local/etc/redis/redis.conf
+      - ../config/redis.conf:/tmp/redis.conf:ro
+      - redis_storage:/redis_storage
+    command: redis-server /tmp/redis.conf
   
   nginx:
     build: build/nginx
@@ -37,3 +52,4 @@ services:
     volumes:
       - ../config/nginx.conf:/etc/nginx/nginx.conf:ro
     command: nginx
+

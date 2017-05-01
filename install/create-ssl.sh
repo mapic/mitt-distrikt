@@ -28,3 +28,5 @@ certbot certonly \
 cd ../docker/build/nginx
 cp /etc/letsencrypt/live/$DOMAIN/privkey.pem ssl_certificate.key
 cp /etc/letsencrypt/live/$DOMAIN/fullchain.pem ssl_certificate.pem
+
+# todo: must build nginx afterwards... so move to config or something..

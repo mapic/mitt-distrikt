@@ -154,7 +154,7 @@ L.Info = L.Class.extend({
     _initContent : function () {
 
         // get blog url for iframe
-        var blogSource = 'https://blog.meon.io';
+        var blogSource = 'https://blog.mittlier.no';
 
         // create iframe
         this._container.innerHTML = '<iframe id="info-iframe" src="' + blogSource + '"></iframe>'

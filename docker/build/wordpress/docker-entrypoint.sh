@@ -216,9 +216,9 @@ EOPHP
 	done
 fi
 
-###################
-### MAPIC EDITS ###
-###################
+#########################################################
+###################### MAPIC EDITS ######################
+#########################################################
 
 # chown storage
 chown www-data:www-data /var/www/html/wp-content/uploads
@@ -228,6 +228,6 @@ INSTALL_PLUGINS_FILE="/tmp/plugins/install-plugins.sh"
 chmod +x $INSTALL_PLUGINS_FILE
 sh $INSTALL_PLUGINS_FILE
 
-############# MAPIC EDITS END ##################
+#################### MAPIC EDITS END ####################
 
 exec "$@"

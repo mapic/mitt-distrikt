@@ -2,7 +2,9 @@ FROM wordpress:latest
 MAINTAINER knutole@mapic.io
 
 RUN apt-get update -y
-RUN apt-get install -y curl nmap wget
+RUN apt-get install -y curl nmap wget unzip
+
+COPY plugins /tmp/plugins
 
 EXPOSE 80 443
 

@@ -194,7 +194,7 @@ a {
 }
 
 #site-logo img {
-    height: 80px;
+    height: 170px;
 }
 
 
@@ -218,3 +218,9 @@ a {
 
 
 
+.admin-info-text {
+    position: absolute;
+    top: 20%;
+    width: 100%;
+    text-align: center;
+}

@@ -175,7 +175,46 @@ a {
 
 
 
-
+/*helper*/
 .float-left {
     float: left;
 }
+
+
+
+
+
+
+
+
+/*site logo*/
+#site-logo {
+    z-index: 300;
+    position: fixed;
+}
+
+#site-logo img {
+    height: 80px;
+}
+
+
+/*site footer*/
+#site-footer {
+    z-index: 300;
+    position: fixed;
+    bottom: 0px;
+    padding-bottom: 5px;
+    font-size: 10px;
+    font-weight: 200;
+    font-style: italic;
+    right: 0px;
+    padding-right: 10px;
+}
+#site-footer a {
+    color: black;
+}
+
+
+
+
+

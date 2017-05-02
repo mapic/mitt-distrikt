@@ -38,6 +38,9 @@ L.App = L.Class.extend({
     },
 
     _initContent : function () {
+
+        // get container
+        this._container = L.DomUtil.get('app-container');
         
         // get content
         this._content.info = L.DomUtil.get('content-info');
@@ -53,6 +56,23 @@ L.App = L.Class.extend({
         this._buttons.info.div.innerHTML = this.locale.buttons.info;
         this._buttons.map.div.innerHTML = this.locale.buttons.map;
         this._buttons.media.div.innerHTML = this.locale.buttons.media;
+
+        // logo and admin link on desktop
+        this._logo = L.DomUtil.get('site-logo');
+        this._footer = L.DomUtil.get('site-footer');
+
+        if (this.isDesktop()) {
+
+            // set logo
+            this._logo.style.display = 'block';
+            
+            // set footer
+            this._footer.style.display = 'block';
+            var link = '<a href="/admin" target="_blank">' + this.locale.footer.login + '</a>';
+            var text = this.locale.footer.text + link;
+            this._footer.innerHTML = text;
+        }
+
     },
 
     _setEvents : function () {
@@ -86,6 +106,11 @@ L.App = L.Class.extend({
         return this._md.tablet();
     },
 
+    isDesktop : function () {
+        var isDesktop = !this._md.tablet() && !this._md.mobile();
+        return isDesktop;
+    },
+
     // create tab content
     _fillContent : function () {
 
@@ -115,6 +140,9 @@ L.App = L.Class.extend({
         if (page != 'info') this._content.info.style.display = 'none';
         if (page != 'map') this._content.map.style.display = 'none';
         if (page != 'media') this._content.media.style.display = 'none';
+
+        // show/hide footer (should only show on info)
+        this._footer.style.display = (page == 'info') ? 'block' : 'none';
 
         // show selected
         this._content[page].style.display = 'block';

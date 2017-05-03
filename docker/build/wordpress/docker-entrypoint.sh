@@ -228,6 +228,9 @@ INSTALL_PLUGINS_FILE="/tmp/plugins/install-plugins.sh"
 chmod +x $INSTALL_PLUGINS_FILE
 sh $INSTALL_PLUGINS_FILE
 
+# install security measures
+cp /tmp/security/robots.txt /var/www/html/
+
 #################### MAPIC EDITS END ####################
 
 exec "$@"

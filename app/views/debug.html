@@ -1,0 +1,96 @@
+
+<div id='map'></div>
+
+<script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v0.17.4/mapbox-gl-draw.js'></script>
+<link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v0.17.4/mapbox-gl-draw.css' type='text/css'/>
+<script>
+mapboxgl.accessToken = 'pk.eyJ1IjoibWFwaWMiLCJhIjoiY2l2MmE1ZW4wMDAwZTJvcnhtZGI4YXdlcyJ9.rD_-Ou1OdKQsHqEqL6FJLg';
+var map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/mapbox/dark-v9',
+    center: [10.228705055524074, 59.78759570689999],
+    zoom: 13
+});
+
+// var draw = new MapboxDraw({
+//     displayControlsDefault: false,
+//     controls: {
+//         point : true,
+//     }
+// });
+// map.addControl(draw);
+
+// map.on('draw.create', function (e) {
+//     console.log('draw.create!', e);
+// })
+
+map.on('load', function() {
+    // Add a new source from our GeoJSON data and set the
+    // 'cluster' option to true. GL-JS will add the point_count property to your source data.
+    map.addSource("earthquakes", {
+        type: "geojson",
+        // Point to GeoJSON data. 
+        data: "https://gist.githubusercontent.com/anonymous/f3c2070745c574f57f4ef1241ef9e14b/raw/7329cbec2ec83e88ab6c8b9d1a91b0134143f42d/map.geojson",
+        // https://www.mapbox.com/mapbox-gl-js/style-spec/#sources-geojson-cluster
+        cluster: true,
+        clusterMaxZoom: 13, // Max zoom to cluster points on
+        clusterRadius: 20 // Radius of each cluster when clustering points (defaults to 50)
+    });
+
+
+    // clustering
+    map.addLayer({
+        id: "clusters",
+        type: "circle",
+        source: "earthquakes",
+        filter: ["has", "point_count"],
+        paint: {
+            "circle-color": {
+                property: "point_count",
+                type: "interval",
+                stops: [
+                    [0, "#51bbd6"],
+                    [2, "#f1f075"],
+                    [5, "#f28cb1"],
+                ]
+            },
+            "circle-radius": {
+                property: "point_count",
+                type: "interval",
+                stops: [
+                    [0, 20],
+                    [2, 30],
+                    [5, 40]
+                ]
+            }
+        }
+    });
+
+    // clustering numbers
+    map.addLayer({
+        id: "cluster-count",
+        type: "symbol",
+        source: "earthquakes",
+        filter: ["has", "point_count"],
+        layout: {
+            "text-field": "{point_count_abbreviated}",
+            "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
+            "text-size": 12
+        }
+    });
+
+    // unclustedered points
+    map.addLayer({
+        id: "unclustered-point",
+        type: "circle",
+        source: "earthquakes",
+        filter: ["!has", "point_count"],
+        paint: {
+            "circle-color": "#11b4da",
+            "circle-radius": 4,
+            "circle-stroke-width": 1,
+            "circle-stroke-color": "#fff"
+        }
+    });
+});
+</script>

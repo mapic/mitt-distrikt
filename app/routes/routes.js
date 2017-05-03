@@ -3,7 +3,7 @@ var router = express.Router();
 
 module.exports = router;
 
-
+// home
 router.get('/', function(req, res, next) {
     res.render('front-page');
 });
@@ -26,5 +26,14 @@ router.post('/login', function (req, res, next) {
         error : null
     });
 
+    // todo: redis handling of access_tokens
+    // todo: secure all sensitive endpoints with access_token verification
+    // todo: don't use cookies on admin.
+
 });
 
+
+// debug
+router.get('/debug', function(req, res, next) {
+    res.render('debug');
+});

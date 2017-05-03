@@ -34,7 +34,7 @@ L.App = L.Class.extend({
         this._fillContent();
 
         // set default pane
-        this._show('info');
+        this._show('map');
     },
 
     _initContent : function () {
@@ -215,12 +215,259 @@ L.MapContent = L.Class.extend({
 
         // initialize mapboxgl
         mapboxgl.accessToken = 'pk.eyJ1IjoibWFwaWMiLCJhIjoiY2l2MmE1ZW4wMDAwZTJvcnhtZGI4YXdlcyJ9.rD_-Ou1OdKQsHqEqL6FJLg';
-        this._map = new mapboxgl.Map({
+        var map = this._map = new mapboxgl.Map({
             container: 'map',
             style: 'mapbox://styles/mapbox/streets-v9',
             center: [10.234364120842656, 59.795007354532544],
-            zoom : 12
+            zoom : 12,
+            attributionControl : false,
         });
+
+        // map ready
+        map.on('load', this._onMapLoad.bind(this));
+    },
+
+    _onMapLoad : function () {
+       
+        // shortcut
+        var map = this._map;
+       
+        // set data url
+        var data_url = 'https://gist.githubusercontent.com/anonymous/edb86febf4f61176be3a695a999edcd6/raw/fad8092ded78fc5305f81b46afc474461f5d22e8/map.geojson';
+       
+        // Add a new source from our GeoJSON data and set the
+        // 'cluster' option to true. GL-JS will add the point_count property to your source data.
+        map.addSource("earthquakes", {
+            type: "geojson",
+            // Point to GeoJSON data. 
+            data: data_url, 
+            // https://www.mapbox.com/mapbox-gl-js/style-spec/#sources-geojson-cluster
+            cluster: true,
+            clusterMaxZoom: 13, // Max zoom to cluster points on
+            clusterRadius: 20 // Radius of each cluster when clustering points (defaults to 50)
+        });
+
+        // clustering
+        map.addLayer({
+            id: "clusters",
+            type: "circle",
+            source: "earthquakes",
+            filter: ["has", "point_count"],
+            paint: {
+                "circle-color": {
+                    property: "point_count",
+                    type: "interval",
+                    stops: [
+                        [0, "#51bbd6"],
+                        [2, "#f1f075"],
+                        [5, "#f28cb1"],
+                    ]
+                },
+                "circle-radius": {
+                    property: "point_count",
+                    type: "interval",
+                    stops: [
+                        [0, 20],
+                        [2, 30],
+                        [5, 40]
+                    ]
+                }
+            }
+        });
+
+        // clustering numbers
+        map.addLayer({
+            id: "cluster-count",
+            type: "symbol",
+            source: "earthquakes",
+            filter: ["has", "point_count"],
+            layout: {
+                "text-field": "{point_count_abbreviated}",
+                "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
+                "text-size": 12
+            }
+        });
+
+        // unclustedered points
+        map.addLayer({
+            id: "notes",
+            type: "circle",
+            source: "earthquakes",
+            filter: ["!has", "point_count"],
+            paint: {
+                "circle-color": "#11b4da",
+                "circle-radius": 10,
+                "circle-stroke-width": 1,
+                "circle-stroke-color": "#fff"
+            }
+        });
+
+        // when map moves
+        map.on('moveend', this._onMoveEnd.bind(this));
+
+        // debug
+        window.map = map;
+
+    },
+
+    _onMoveEnd : function () {
+        this._openPopups();
+    },
+
+    // set all popups for existing notes
+    _openPopups : function () {
+        
+        // map
+        var map = this._map;
+
+        // clear popups
+        _.forEach(this._popups || [], function (p) {
+            p.remove();
+        });
+
+        // remember
+        this._popups = [];
+
+        // get unique feature points
+        var features = _.uniqBy(map.queryRenderedFeatures({ layers: ['notes'] }), function (feat) {
+            return feat.properties.id;
+        });
+
+        _.forEach(features, function (f) {
+
+            cl('f',f);
+
+            var c = f.geometry.coordinates;
+            lngLat = [c[0], c[1]];
+
+            // create popup
+            var popup = new mapboxgl.Popup({
+                closeOnClick: false,
+                anchor : 'bottom-right',
+            })
+            .setLngLat(lngLat)
+            .setHTML(this._createPopupHTML(f.properties))
+            .addTo(map);
+
+            // save
+            this._popups.push(popup);
+
+        }.bind(this));
+
+        // resolve overlapping popups
+        this._resolvePopupCollisions();
+
+    },  
+
+    _createPopupHTML : function (p) {
+        
+        // parse tags
+        var tags = safeParse(p.tags);
+        var niceTags = tags ? tags.join(', ') : '';
+
+        // create html
+        var html = '<div class="notes-popup">';
+        html    += '    <div class="notes-text">'
+        html    +=          p.text
+        html    += '    </div>'
+        html    += '    <div class="notes-tags">'
+        html    +=          niceTags;
+        html    += '    </div>'
+        html    += '    <div class="notes-users">'
+        html    +=          p.user
+        html    += '    </div>'
+        html    += '</div>'
+        return html;
+    },
+
+    _resolvePopupCollisions : function () {
+        
+        var popups = this._popups;
+        var collisions = {};
+
+        if (popups.length < 2) return; // only one popup, no sweat
+
+        _.forEach(popups, function (p, n) {
+
+            console.log('CHECKING COLLISION');
+
+            // we're done
+            if (n+1 >= popups.length) return;
+
+            // get popups/rects
+            var popup1 = popups[n];
+            var popup2 = popups[n+1];
+            var rect1 = this._getRect(popup1);
+            var rect2 = this._getRect(popup2);
+
+            // determine collision
+            var collision = this._isColliding(rect1, rect2);
+           
+            // when colliding
+            if (collision) {
+                console.error('collision!')
+
+                collisions[n] = collisions[n] || {};
+                collisions[n].popup = popup1;
+                collisions[n].collisions = collisions[n].collisions || [];
+                collisions[n].collisions.push(popup2);
+            }
+            
+        }.bind(this));
+
+        this._dealWithCollisions(collisions);
+
+    },
+
+    _dealWithCollisions : function (collisions) {
+        if (!_.size(collisions)) return;
+
+        console.log('collisions:', collisions);
+
+        _.forEach(collisions, function (c) {
+
+            // dealing with two colliding boxes only
+            if (c.collisions.length <= 1) {
+
+                // determine which box is left-most and top-most
+
+
+            }
+
+
+
+        });
+
+
+    },
+
+    _getRect : function (popup) {
+        if (!popup) return;
+
+        // get DOM and bbox
+        var container = popup._content;
+        var r = container.getBoundingClientRect();
+
+        var rect = {
+            x : r.left,
+            y : r.top,
+            width : r.width, 
+            height : r.height
+        };
+
+        return rect;
+    },
+
+    // determine collision
+    _isColliding : function (rect1, rect2) {
+        if (!rect1 || !rect2) return;
+        if (rect1.x < rect2.x + rect2.width &&
+           rect1.x + rect1.width > rect2.x &&
+           rect1.y < rect2.y + rect2.height &&
+           rect1.height + rect1.y > rect2.y) {
+            return true;
+        }
+        return false;
     },
 
     resize : function () {
@@ -229,9 +476,16 @@ L.MapContent = L.Class.extend({
 
 });
 
-
-
-
+// shortcut
+var cl = console.log
+var safeParse = function (s) {
+    try {
+        var o = JSON.parse(s);
+        return o;
+    } catch (e) {
+        return false;
+    }
+}
 
 
 L.Media = L.Class.extend({

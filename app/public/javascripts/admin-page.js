@@ -21,25 +21,27 @@ L.Admin = L.Class.extend({
 
         // login first
         this._initLogin();
-        
     },
 
     _initLogin : function () {
 
-        // data to get from server:
-        // -----------------------
-        // 1. access token from user/password
-        // 2. notes from map
-        // 3. analytics
-        // 4. 
-
         // set events on login button
         var loginForm = L.DomUtil.get('login-form');
         L.DomEvent.on(loginForm, 'submit', this._logIn, this);
-
     },
 
     _logIn : function (e) {
+
+        // security:
+        // 1. lock all endpoints that actually yield sensitive information with access_token
+        // 2. it doesn't matter if hackers get access to admin page, if they can't update anything.
+        // 
+        // todo: add endpoints for 
+        //          1. get notes
+        //          2. get analytics
+        //          3. get media settings, etc.
+        //          4. add redis on server-side to handle access_tokens
+        //          5. only add users on server; simpler, safer.
         
         // stop default form action
         L.DomEvent.stop(e);
@@ -52,17 +54,14 @@ L.Admin = L.Class.extend({
         this.post('login', {
             username : username, 
             password : password
-        }, this._verifyLogin.bind(this));
-
-    },
-
-    _verifyLogin : function (err, response) {
-        if (err) return alert(err);
-        var res = JSON.parse(response);
-        if (res.error) return alert(res.error);
-        if (!res.access_token) return alert('Something went wrong. Please try again.')
-        this.access_token = res.access_token;
-        this._loggedIn(); // all good, let's go!
+        }, function (err, response) {
+            if (err) return alert(err);
+            var res = JSON.parse(response);
+            if (res.error) return alert(res.error);
+            if (!res.access_token) return alert('Something went wrong. Please try again.')
+            this.access_token = res.access_token;
+            this._loggedIn(); // all good, let's go! (todo: can also add single check of access_token)
+        }.bind(this));
     },
 
     _loggedIn : function () {

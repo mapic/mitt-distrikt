@@ -22,9 +22,6 @@ L.Admin = L.Class.extend({
         // login first
         this._initLogin();
         
-        // debug
-        this._loggedIn();
-
     },
 
     _initLogin : function () {
@@ -36,10 +33,43 @@ L.Admin = L.Class.extend({
         // 3. analytics
         // 4. 
 
+        // set events on login button
+        var loginForm = L.DomUtil.get('login-form');
+        L.DomEvent.on(loginForm, 'submit', this._logIn, this);
 
     },
 
+    _logIn : function (e) {
+        
+        // stop default form action
+        L.DomEvent.stop(e);
+
+        // get values
+        var username = L.DomUtil.get('login-username').value;
+        var password = L.DomUtil.get('login-password').value;
+
+        // send to server, check if valid
+        this.post('login', {
+            username : username, 
+            password : password
+        }, this._verifyLogin.bind(this));
+
+    },
+
+    _verifyLogin : function (err, response) {
+        if (err) return alert(err);
+        var res = JSON.parse(response);
+        if (res.error) return alert(res.error);
+        if (!res.access_token) return alert('Something went wrong. Please try again.')
+        this.access_token = res.access_token;
+        this._loggedIn(); // all good, let's go!
+    },
+
     _loggedIn : function () {
+
+        // hide login
+        var loginContainer = L.DomUtil.get('login-container');
+        loginContainer.style.display = 'none';
 
         // get browser
         this._detectDevice();
@@ -65,6 +95,7 @@ L.Admin = L.Class.extend({
 
         // get container
         this._container = L.DomUtil.get('app-container');
+        this._container.style.display = 'block';
         
         // get content
         this._content.info = L.DomUtil.get('content-info');
@@ -127,26 +158,20 @@ L.Admin = L.Class.extend({
     // create tab content
     _fillContent : function () {
 
-        var infoContent = L.DomUtil.create('div', 'admin-info-text', this._content.info);
+        // info tab
+        this._fillInfoContent();
 
+        // map tab
+
+        // media tab
+
+    },
+
+    _fillInfoContent : function () {
+        var infoContent = L.DomUtil.create('div', 'admin-info-text', this._content.info);
         var loginText = this.locale.admin.info.loginLinkText;
         var text = this.locale.admin.info.loginText;
         infoContent.innerHTML = '<a target="_blank" href="https://blog.mittlier.no/wp-admin/">' + loginText + '</a>' + ' ' + text;
-
-        // // info tab
-        // this.info = new L.Info({
-        //     container : this._content.info
-        // });
-
-        // // map tab
-        // this.map = new L.MapContent({
-        //     container : this._content.map
-        // });
-
-        // // media tab
-        // this.media = new L.Media({
-        //     container : this._content.media
-        // });
     },
 
     // helper fn to show/hide the three tabs
@@ -159,9 +184,6 @@ L.Admin = L.Class.extend({
         if (page != 'info') this._content.info.style.display = 'none';
         if (page != 'map') this._content.map.style.display = 'none';
         if (page != 'media') this._content.media.style.display = 'none';
-
-        // show/hide footer (should only show on info)
-        // this._footer.style.display = (page == 'info') ? 'block' : 'none';
 
         // show selected
         this._content[page].style.display = 'block';
@@ -177,5 +199,40 @@ L.Admin = L.Class.extend({
             L.DomUtil.removeClass(this._buttons[btn].div, 'highlighted')
         };
         L.DomUtil.addClass(this._buttons[highlighted].div, 'highlighted');
+    },
+
+    // helper fn
+    getBaseUrl : function () {
+        return 'https://mittlier.no/'; // todo
+    },
+    post : function (path, options, done) {
+        this._post(path, JSON.stringify(options), function (err, response) {
+            done && done(err, response);
+        });
+    },
+    _post : function (path, json, done, context, baseurl) {
+        var http = new XMLHttpRequest();
+        var url = this.getBaseUrl();
+        url += path;
+
+        // open
+        http.open("POST", url, true);
+
+        // set json header
+        http.setRequestHeader('Content-type', 'application/json');
+
+        // response
+        http.onreadystatechange = function() {
+            if (http.readyState == 4) {
+                if (http.status == 200) {
+                    done && done(null, http.responseText); 
+                } else {
+                    done && done(http.status, http.responseText);
+                }
+            }
+        };
+
+        // send
+        http.send(json);
     },
 });

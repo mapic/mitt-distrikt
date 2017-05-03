@@ -21,10 +21,21 @@ L.Admin = L.Class.extend({
 
         // login first
         this._initLogin();
+        
+        // debug
+        this._loggedIn();
 
     },
 
     _initLogin : function () {
+
+        // data to get from server:
+        // -----------------------
+        // 1. access token from user/password
+        // 2. notes from map
+        // 3. analytics
+        // 4. 
+
 
     },
 
@@ -34,7 +45,7 @@ L.Admin = L.Class.extend({
         this._detectDevice();
 
         // set locale
-        this.locale = window.locale[options.locale || 'NO'];
+        this.locale = window.locale[this.options.locale || 'NO'];
 
         // get html
         this._initContent();
@@ -72,7 +83,7 @@ L.Admin = L.Class.extend({
 
         // set logo
         if (this.isDesktop()) {
-            this._logo = L.DomUtil.get('site-logo');
+            this._logo = L.DomUtil.get('site-logo-admin');
             this._logo.style.display = 'block';
         }
     },

@@ -195,6 +195,23 @@ a {
 
 #site-logo img {
     height: 170px;
+    background: rgba(255, 255, 255, 0.86);
+    border-radius: 0 0 50px 50px;
+    padding: 5px;
+    padding-bottom: 30px;
+}
+
+#site-logo-admin {
+    z-index: 300;
+    position: fixed;
+}
+
+#site-logo-admin img {
+    height: 170px;
+    background: rgba(255, 255, 255, 0.86);
+    border-radius: 0 0 50px 50px;
+    padding: 5px;
+    padding-bottom: 30px;
 }
 
 

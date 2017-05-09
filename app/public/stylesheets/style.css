@@ -1,4 +1,11 @@
-
+/*
+___.              .___      
+\_ |__   ____   __| _/__.__.
+ | __ \ /  _ \ / __ <   |  |
+ | \_\ (  <_> ) /_/ |\___  |
+ |___  /\____/\____ |/ ____|
+     \/            \/\/     
+     */
 body {
   font-family: 'Open Sans', sans-serif !important;
   /*background-color: rgba(225, 211, 179, 0.25);*/
@@ -182,6 +189,10 @@ a.mapboxgl-ctrl-logo {
     display: none !important;
 }
 
+
+
+
+
 /*
 .__                        
 |  |   ____   ____   ____  
@@ -191,8 +202,6 @@ a.mapboxgl-ctrl-logo {
            /_____/         
 */
 
-
-/*site logo*/
 #site-logo {
     z-index: 300;
     position: fixed;
@@ -257,7 +266,6 @@ _____     __| _/_____ |__| ____
 |____/\____/\___  /|__|___|  /
            /_____/         \/ 
 */
-
 
 .login-page {
   width: 360px;
@@ -364,10 +372,14 @@ _____     __| _/_____ |__| ____
 
 
 
+                                         
+/*______   ____ ______  __ ________  ______
+\____ \ /  _ \\____ \|  |  \____ \/  ___/
+|  |_> >  <_> )  |_> >  |  /  |_> >___ \ 
+|   __/ \____/|   __/|____/|   __/____  >
+|__|          |__|         |__|       \/ 
 
-
-
-/*popups*/
+*/
 .mapboxgl-popup-content {
     padding: 0 !important;
     border-radius: 0 0 15px 14px !important;
@@ -396,8 +408,15 @@ _____     __| _/_____ |__| ____
 }
 
 
-/*add button*/
 
+
+/*               __                 
+  ____   _____/  |_  ____   ______
+ /    \ /  _ \   __\/ __ \ /  ___/
+|   |  (  <_> )  | \  ___/ \___ \ 
+|___|  /\____/|__|  \___  >____  >
+     \/                 \/     \/ 
+*/
 .add-button {
     width: 100px;
     height: 100px;
@@ -431,14 +450,123 @@ _____     __| _/_____ |__| ____
   background: #89AE4D;
 }
 
+.geo-marker {
+  width: 20px;
+  height: 20px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  background: red;
+  border-radius: 100px;
+}
+
+.accept-geo-button {
+  width: 100px;
+  height: 50px;
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  border: 1px solid red;
+  background: red;
+}
+
+.write-note-container {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  background: white;
+  z-index: 500;
+}
+
+.write-note-content {
+    width: 50%;
+    position: absolute;
+    margin-left: 25%;
+    margin-top: 10%;
+    margin-bottom: 10%;
+    height: 80%;
+    margin-right: 25%;
+}
+
+.write-note-title {
+    font-size: 2em;
+    font-weight: 600;
+    padding: 10px 10px 10px 0;
+}
+
+.write-note-address {
+    font-size: 1em;
+    font-weight: 200;
+    font-style: italic;
+    padding: 10px 10px 10px 0;
+}
+
+.write-note-photo-button {
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: -1;
+}
+
+.write-note-photo-button + label {
+    font-size: 1.25em;
+    font-weight: 700;
+    color: white;
+    background-color: black;
+    display: inline-block;
+}
+
+.write-note-photo-button:focus + label,
+.write-note-photo-button + label:hover {
+    background-color: red;
+}
+.write-note-photo-button + label {
+  cursor: pointer; /* "hand" cursor */
+}
+
+.write-note-photo-button:focus + label {
+  outline: 1px dotted #000;
+  outline: -webkit-focus-ring-color auto 5px;
+}
+.write-note-photo-button + label * {
+  pointer-events: none;
+}
+.write-note-explanation {
+    height: 100px;
+    text-align: center;
+    vertical-align: middle;
+    position: relative;
+    padding: 20px;
+}
+
+input.write-note-text-box {
+    height: 2em;
+    font-size: 1em;
+    padding: 5px;
+    width: 100%;
+    margin: 10px;
+}
+.write-note-ok-button {
+    border: 1px solid black;
+    width: 70px;
+    height: 30px;
+    padding: 5px;
+    text-align: center;
+    margin: 10px;
+}
 
 
+/*
+        __  .__.__          
+ __ ___/  |_|__|  |   ______
+|  |  \   __\  |  |  /  ___/
+|  |  /|  | |  |  |__\___ \ 
+|____/ |__| |__|____/____  >
+                         \/ */
 
-
-
-
-
-
-
-
+.display-none {
+  display: none;
+}
 

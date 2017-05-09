@@ -183,10 +183,25 @@ and (min-device-width : 320px)
 and (max-device-width : 568px) 
 and (orientation : portrait) { 
 
-     .btn-group .button {
+    .btn-group .button {
         device: 'iphone5 portrait';
         height: 48px;
         font-size: 20px;
+    }
+
+    .add-button {
+      width: 60px;
+      height: 60px;
+      bottom: 18px;
+      right: 18px;
+      background-size: 60px 60px;
+    }
+    .shadow-button {
+      width: 54px;
+      height: 54px;
+      bottom: 20px;
+      right: 20px;
+      background-size: 60px 60px;
     }
 
 }

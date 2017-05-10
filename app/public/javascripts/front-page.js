@@ -20,7 +20,7 @@ L.App = L.Class.extend({
         L.setOptions(this, options);
 
         // create api
-        L.api = new L.Api();
+        this.api = new L.Api();
 
         // get browser
         this._detectDevice();
@@ -180,6 +180,14 @@ var safeParse = function (s) {
         return o;
     } catch (e) {
         return false;
+    }
+}
+var safeStringify = function (o) {
+    try {
+        var s = JSON.stringify(o);
+        return s;
+    } catch (e) {
+        return 'false';
     }
 }
 

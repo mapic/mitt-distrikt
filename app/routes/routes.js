@@ -13,6 +13,16 @@ router.get('/admin', function(req, res, next) {
     res.render('admin-page');
 });
 
+// posts
+router.post('/v1/feature', function (req, res, next) {
+    console.log('post /v1/feature', req.body);
+
+    res.send({
+        err : null,
+        endpoint : '/v1/feature'
+    })
+});
+
 
 // login
 router.post('/login', function (req, res, next) {

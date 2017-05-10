@@ -1,5 +1,5 @@
 
-L.MapContent = L.Class.extend({
+L.MapContent = L.Evented.extend({
     initialize : function (options) {
 
         // set options
@@ -11,9 +11,16 @@ L.MapContent = L.Class.extend({
         // init content
         this._initContent();
 
+        // set events
+        this.listen();
+
         // debug
         window.debug = window.debug || {};
         window.debug.map = this._map;
+    },
+
+    listen : function () {
+        this.on('reverse-lookup', this._onReverseLookup);
     },
 
     _initContent : function () {
@@ -41,15 +48,16 @@ L.MapContent = L.Class.extend({
 
     _createAddButton : function () {
 
+        // create button
         this._addButton = L.DomUtil.create('div', 'add-button', this._container);
         this._shadowButton = L.DomUtil.create('div', 'shadow-button', this._container);
 
+        // add event
         L.DomEvent.on(this._addButton, 'click', this.addNote, this);
 
     },
 
     addNote : function () {
-        console.log('addNote');
 
         // 1. add a pin to map, so user can move
         // 2. add a button to accept position of pin
@@ -59,10 +67,7 @@ L.MapContent = L.Class.extend({
         
 
         // 1. hide other markers
-        _.each(this._layers, function (l) {
-            console.log('l', l);
-            map.setLayoutProperty(l.id, 'visibility', 'none');
-        });
+        this._hideMarkers();
 
         // hide (+) button
         L.DomUtil.addClass(this._addButton, 'display-none');
@@ -73,38 +78,80 @@ L.MapContent = L.Class.extend({
 
         // add "accept geo" button
         this._acceptPositionButton = L.DomUtil.create('div', 'accept-geo-button', this._container);
-        L.DomEvent.on(this._acceptPositionButton, 'click', this._getAddress, this);
+        L.DomEvent.on(this._acceptPositionButton, 'click', this._openNotesCreator, this);
 
     },
 
-    _getAddress : function (center) {
+    _hideMarkers : function () {
+        _.each(this._layers, function (l) {
+            map.setLayoutProperty(l.id, 'visibility', 'none');
+        });
+    },
+    _showMarkers : function () {
+        _.each(this._layers, function (l) {
+            map.setLayoutProperty(l.id, 'visibility', 'visible');
+        });
+    },
+
+    _getAddress : function () {
 
         // get position of marker
         var center = this._map.getCenter();
 
-        L.api.geocodeReverse({ 
+        // reverse lookup for address
+        app.api.geocodeReverse({ 
             lat: center.lat, 
             lng: center.lng
         }, function(err, res) {
-          // res is a GeoJSON document with geocoding matches
-          console.log('err, res', err, res);
+            if (err) console.error(err);
 
-        });
+            var results = safeParse(res);
+            console.log('_getAddress', results);
 
+            var features = results ? results.features : [];
+            if (!_.size(features)) console.error('no result');
+
+            // get address
+            var address = features[0] ? features[0].place_name : '';
+
+            // fire event
+            this.fire('reverse-lookup', {
+                address : address,
+                features : features
+            });
+
+        }.bind(this));
+
+    },
+
+    _onReverseLookup : function (options) {
+
+        // save
+        this.note.address = options.address;
+
+        // get div
+        var div = this._reverseLookupAddressDiv;
+        if (!div) return console.error('div not ready');
+
+        // set address
+        div.innerHTML = this.note.address;
     },
 
     _openNotesCreator : function (center) {
 
-        // todo: reverse lookup address
-        // var address = this._reverseLookup(center, function (err, address) {
+        var map = this._map;
 
-        // });
-
-
+        // object
         this.note = {};
 
+        // reverse lookup address
+        this._getAddress();
+      
         // get position of marker
-        this.note.center = this._map.getCenter();
+        this.note.center = map.getCenter();
+
+        // get zoom
+        this.note.zoom = map.getZoom();
 
         // container
         this.note.container = L.DomUtil.create('div', 'write-note-container', app._container);
@@ -122,31 +169,32 @@ L.MapContent = L.Class.extend({
 
         // title
         var title = L.DomUtil.create('div', 'write-note-title', container);
-        title.innerHTML = 'Skriv en lapp';
+        title.innerHTML = 'Skriv et forslag!';
 
         // address
-        var address = L.DomUtil.create('div', 'write-note-address', container);
-        address.innerHTML = 'Lierveien 14';
-        // todo: reverse lookup
+        var address = this._reverseLookupAddressDiv = L.DomUtil.create('div', 'write-note-address', container);
 
         // description
         var explanation = L.DomUtil.create('div', 'write-note-explanation', container);
-        explanation.innerHTML = 'Skriv inn ditt notat, legg ved tags og bilder, og trykk OK';
+        explanation.innerHTML = 'Skriv inn ditt forslag, legg ved tags og bilder, og trykk OK';
 
         // text input
-        var textBox = this.note.textbox = L.DomUtil.create('input', 'write-note-text-box', container);
-        textBox.setAttribute('type', 'text');
-        textBox.setAttribute('placeholder', 'Skriv ditt notat til #MittLier');
+        var textBox = this.note.textbox = L.DomUtil.create('textarea', 'write-note-textarea', container);
+        // textBox.setAttribute('type', 'textarea');
+        textBox.setAttribute('placeholder', 'Skriv ditt forslag til #MittLier');
 
-        // photo button
-        var photoBtn = L.DomUtil.create('input', 'write-note-photo-button', container);
-        photoBtn.setAttribute('id', 'file');
-        photoBtn.setAttribute('type', 'file');
-        photoBtn.setAttribute('accept', 'image/*');
+        // photo button (only if supported)
+        if (window.File && window.FileReader && window.FormData) {
+            var photoBtn = L.DomUtil.create('input', 'write-note-photo-button', container);
+            photoBtn.setAttribute('id', 'file');
+            photoBtn.setAttribute('type', 'file');
+            photoBtn.setAttribute('accept', 'image/*');
+            L.DomEvent.on(photoBtn, 'change', this._onPhotoBtnChange, this);
+        }
 
         var label = L.DomUtil.create('label', '', container);
         label.setAttribute('for', 'file');
-        label.innerHTML = 'Choose a fille';
+        label.innerHTML = 'Legg ved bilde';
 
         // ok button
         var okBtn = L.DomUtil.create('div', 'write-note-ok-button', container);
@@ -155,12 +203,123 @@ L.MapContent = L.Class.extend({
 
     },
 
+    _onPhotoBtnChange : function (e) {
+        console.log('_onPhotoBtnChange', e);
+        var file = e.target.files[0];
+        if (file) {
+            if (/^image\//i.test(file.type)) {
+                this._readFile(file);
+            } else {
+                alert('Not a valid image!');
+            }
+        }
+    },
+
+    _readFile : function (file) {
+        var reader = new FileReader();
+        var processFile = this._processFile.bind(this);
+
+        reader.onloadend = function () {
+            processFile(reader.result, file.type);
+        }
+
+        reader.onerror = function () {
+            alert('There was an error reading the file!');
+        }
+
+        reader.readAsDataURL(file);
+    },
+
+    _processFile : function (dataURL, fileType) {
+
+        console.log('_processFile cxt', this);
+
+        var maxWidth = 800;
+        var maxHeight = 800;
+
+        var image = new Image();
+        var sendFile = this._sendFile;
+
+        image.src = dataURL;
+
+        image.onload = function () {
+            var width = image.width;
+            var height = image.height;
+            var shouldResize = (width > maxWidth) || (height > maxHeight);
+
+            if (!shouldResize) {
+                sendFile(dataURL);
+                return;
+            }
+
+            var newWidth;
+            var newHeight;
+
+            if (width > height) {
+                newHeight = height * (maxWidth / width);
+                newWidth = maxWidth;
+            } else {
+                newWidth = width * (maxHeight / height);
+                newHeight = maxHeight;
+            }
+
+            var canvas = document.createElement('canvas');
+
+            canvas.width = newWidth;
+            canvas.height = newHeight;
+
+            var context = canvas.getContext('2d');
+
+            context.drawImage(this, 0, 0, newWidth, newHeight);
+
+            dataURL = canvas.toDataURL(fileType);
+
+            sendFile(dataURL);
+        
+        };
+
+        image.onerror = function () {
+            alert('There was an error processing your file!');
+        };
+
+    },
+
+
+    _sendFile : function (fileData) {
+        var formData = new FormData();
+
+        formData.append('imageData', fileData);
+
+        console.log('_sendFile', fileData);
+
+        return;
+
+        $.ajax({
+            type: 'POST',
+            url: '/your/upload/url',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (data) {
+                if (data.success) {
+                    alert('Your file was successfully uploaded!');
+                } else {
+                    alert('There was an error uploading your file!');
+                }
+            },
+            error: function (data) {
+                alert('There was an error uploading your file!');
+            }
+        });
+    },
+
     _sendNote : function () {
         console.log('send note!');
 
         var text = this.note.textbox.value;
         var center = this.note.center;
-        var address = 'Liervegen, osv';
+        var address = this.note.address;
+        var zoom = this.note.zoom;
         var username = 'anonymous';
         var image = 's3://etc';
         var tags = ['ok', 'lier'];
@@ -171,9 +330,7 @@ L.MapContent = L.Class.extend({
         // 1. user gps
         // 2. 
 
-        console.log('text, center', text, center);
-
-        var geojson = this._createGeoJSON({
+        var feature = this._createFeature({
             properties : {
                 text : text,
                 address : address,
@@ -184,46 +341,14 @@ L.MapContent = L.Class.extend({
             center : center
         });
 
+        console.log('feature', feature);
+
         // send note to server
-        this._postNote(geojson);
+        this._postFeature(feature);
 
     },
 
-    _postNote : function (geojson) {
-        console.log('_postNote', geojson);
-    },
-
-    _createGeoJSON : function (options) {
-
-        var existing_geojson = {
-          "type": "FeatureCollection",
-          "features": [
-            {
-              "type": "Feature",
-              "properties": {
-                "ok": "ok!"
-              },
-              "geometry": {
-                "type": "Point",
-                "coordinates": [
-                  29.8828125,
-                  58.99531118795094
-                ]
-              }
-            },
-            {
-              "type": "Feature",
-              "properties": {},
-              "geometry": {
-                "type": "Point",
-                "coordinates": [
-                  58.35937499999999,
-                  46.558860303117164
-                ]
-              }
-            }
-          ]
-        };
+    _createFeature : function (options) {
 
         // new note
         var feature = {
@@ -238,11 +363,19 @@ L.MapContent = L.Class.extend({
           }
         }
 
-        // push to existing
-        existing_geojson.features.push(feature);
-
         // return
-        return existing_geojson;
+        return feature;
+    },
+
+    _postFeature : function (feature) {
+        console.log('_postFeature', feature);
+
+        app.api.feature(feature, function (err, result) {
+            if (err) console.error(err);
+            console.log('feature result', result);
+        });
+
+        // continue with flow..
     },
 
     _onMapLoad : function () {

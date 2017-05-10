@@ -499,6 +499,7 @@ _____     __| _/_____ |__| ____
     font-weight: 200;
     font-style: italic;
     padding: 10px 10px 10px 0;
+    height: 2em;
 }
 
 .write-note-photo-button {
@@ -512,10 +513,16 @@ _____     __| _/_____ |__| ____
 
 .write-note-photo-button + label {
     font-size: 1.25em;
-    font-weight: 700;
+    font-weight: 400;
     color: white;
-    background-color: black;
+    background-color: #FCC149;
     display: inline-block;
+    height: 1.25em;
+    width: auto;
+    padding: 10px;
+    text-align: center;
+    vertical-align: middle;
+    border-radius: 10px;
 }
 
 .write-note-photo-button:focus + label,
@@ -541,7 +548,7 @@ _____     __| _/_____ |__| ____
     padding: 20px;
 }
 
-input.write-note-text-box {
+textarea.write-note-textarea {
     height: 2em;
     font-size: 1em;
     padding: 5px;

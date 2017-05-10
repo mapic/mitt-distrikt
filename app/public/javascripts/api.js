@@ -19,8 +19,13 @@ L.Api = L.Class.extend({
     },
 
     // post a feature
-    feature : function (options, callback) {
-        this._post('/feature', options, callback);
+    note : function (options, callback) {
+        this._post('/note', options, callback);
+    },
+
+    // upload image
+    upload : function (options, callback) {
+        this._post('/upload', options, callback);
     },
 
 
@@ -115,7 +120,8 @@ L.Api = L.Class.extend({
     },
 
     serverUrl : function () {
-        var url = 'https://mittlier.no/v1'; // todo: dynamic
+        var api_version = 'v1'
+        var url = 'https://mittlier.no/' + api_version; // todo: dynamic
         return url;
     },
 

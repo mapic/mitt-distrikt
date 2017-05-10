@@ -10,14 +10,15 @@ var bodyParser = require('body-parser');
 var helmet = require('helmet');
 var debug = require('debug')('app:server');
 
-// set routes
-var routes = require('./routes/routes');
-
 // set port
 var port = 3001;
 
 // create app
 var app = express();
+
+
+// set routes
+var routes = require('./routes/routes');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

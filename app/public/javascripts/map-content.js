@@ -292,25 +292,31 @@ L.MapContent = L.Evented.extend({
 
         console.log('_sendFile', fileData);
 
-        return;
-
-        $.ajax({
-            type: 'POST',
-            url: '/your/upload/url',
-            data: formData,
-            contentType: false,
-            processData: false,
-            success: function (data) {
-                if (data.success) {
-                    alert('Your file was successfully uploaded!');
-                } else {
-                    alert('There was an error uploading your file!');
-                }
-            },
-            error: function (data) {
-                alert('There was an error uploading your file!');
-            }
+        app.api.upload({
+            image : fileData,
+        }, function (err, result) {
+            console.log('upload err, res', err, result);
         });
+
+        // return;
+
+        // $.ajax({
+        //     type: 'POST',
+        //     url: '/your/upload/url',
+        //     data: formData,
+        //     contentType: false,
+        //     processData: false,
+        //     success: function (data) {
+        //         if (data.success) {
+        //             alert('Your file was successfully uploaded!');
+        //         } else {
+        //             alert('There was an error uploading your file!');
+        //         }
+        //     },
+        //     error: function (data) {
+        //         alert('There was an error uploading your file!');
+        //     }
+        // });
     },
 
     _sendNote : function () {
@@ -370,7 +376,7 @@ L.MapContent = L.Evented.extend({
     _postFeature : function (feature) {
         console.log('_postFeature', feature);
 
-        app.api.feature(feature, function (err, result) {
+        app.api.note(feature, function (err, result) {
             if (err) console.error(err);
             console.log('feature result', result);
         });

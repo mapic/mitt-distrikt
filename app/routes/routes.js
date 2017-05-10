@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var api = require('./api');
 
 module.exports = router;
 
@@ -13,15 +14,29 @@ router.get('/admin', function(req, res, next) {
     res.render('admin-page');
 });
 
-// posts
+// post note
 router.post('/v1/feature', function (req, res, next) {
     console.log('post /v1/feature', req.body);
+
+    // pipe
+    api.note(req, res);
+
+    // res.send({
+    //     err : null,
+    //     endpoint : '/v1/feature'
+    // });
+});
+
+// upload image
+router.post('/v1/upload', function (req, res, next) {
+    console.log('post /v1/image', req);
 
     res.send({
         err : null,
         endpoint : '/v1/feature'
-    })
+    });
 });
+
 
 
 // login

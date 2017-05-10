@@ -16,7 +16,11 @@ L.App = L.Class.extend({
         // shortcut
         window.app = this;
 
+        // set options
         L.setOptions(this, options);
+
+        // create api
+        L.api = new L.Api();
 
         // get browser
         this._detectDevice();

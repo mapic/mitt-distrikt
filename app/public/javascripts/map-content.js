@@ -79,10 +79,12 @@ L.MapContent = L.Class.extend({
 
     _getAddress : function (center) {
 
-        var mapboxClient = new MapboxGeocoding(mapboxgl.accessToken);
-        mapboxClient.geocodeReverse({ 
-            latitude: center.lat, 
-            longitude: center.lng
+        // get position of marker
+        var center = this._map.getCenter();
+
+        L.api.geocodeReverse({ 
+            lat: center.lat, 
+            lng: center.lng
         }, function(err, res) {
           // res is a GeoJSON document with geocoding matches
           console.log('err, res', err, res);

@@ -7,6 +7,8 @@ volumes:
     external: false
   redis_storage:
     external: false
+  image_storage:
+    external: false
 
 services:
 
@@ -14,8 +16,13 @@ services:
     build: build/web
     image: lier/web:latest
     volumes:
-     - ../app:/entrypoint
+      - ../app:/entrypoint
+      - ../config/app-config.js:/entrypoint/app-config.js:ro
+      - image_storage:/uploads
+    links: 
+      - redis
     command: sh start-server.sh
+
       
   wordpress:
     build: build/wordpress

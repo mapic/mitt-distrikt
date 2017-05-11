@@ -25,7 +25,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
 // set logger
-app.use(logger('dev'));
+// app.use(logger('dev'));
 
 // set parsing
 app.use(bodyParser.json());
@@ -47,15 +47,14 @@ app.disable('x-powered-by');
 // set routes
 app.use('/', routes);
 
-// middleware, check access_token
-app.use(function (err, req, res, next) {
+// // middleware, check access_token
+// app.use(function (err, req, res, next) {
 
-    console.log('middelware access token!');
+//     console.log('middelware access token!');
 
-    next();
+//     next();
 
-});
-
+// });
 
 
 

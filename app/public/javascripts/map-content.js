@@ -106,7 +106,6 @@ L.MapContent = L.Evented.extend({
             if (err) console.error(err);
 
             var results = safeParse(res);
-            console.log('_getAddress', results);
 
             var features = results ? results.features : [];
             if (!_.size(features)) console.error('no result');
@@ -185,16 +184,23 @@ L.MapContent = L.Evented.extend({
 
         // photo button (only if supported)
         if (window.File && window.FileReader && window.FormData) {
+
+            // button
             var photoBtn = L.DomUtil.create('input', 'write-note-photo-button', container);
             photoBtn.setAttribute('id', 'file');
             photoBtn.setAttribute('type', 'file');
+            photoBtn.setAttribute('name', 'file');
             photoBtn.setAttribute('accept', 'image/*');
             L.DomEvent.on(photoBtn, 'change', this._onPhotoBtnChange, this);
-        }
 
-        var label = L.DomUtil.create('label', '', container);
-        label.setAttribute('for', 'file');
-        label.innerHTML = 'Legg ved bilde';
+            // add to global
+            this.note.uploader = photoBtn;
+
+            // label
+            var label = L.DomUtil.create('label', '', container);
+            label.setAttribute('for', 'file');
+            label.innerHTML = 'Legg ved bilde';
+        }
 
         // ok button
         var okBtn = L.DomUtil.create('div', 'write-note-ok-button', container);
@@ -204,194 +210,105 @@ L.MapContent = L.Evented.extend({
     },
 
     _onPhotoBtnChange : function (e) {
-        console.log('_onPhotoBtnChange', e);
         var file = e.target.files[0];
         if (file) {
+            // only allow image uploads
             if (/^image\//i.test(file.type)) {
-                this._readFile(file);
+                this._uploadFile(file);
             } else {
                 alert('Not a valid image!');
             }
         }
     },
 
-    _readFile : function (file) {
-        var reader = new FileReader();
-        var processFile = this._processFile.bind(this);
+    _uploadFile : function (file) {
 
-        reader.onloadend = function () {
-            processFile(reader.result, file.type);
-        }
+        // mark uploading
+        this._uploading = true;
 
-        reader.onerror = function () {
-            alert('There was an error reading the file!');
-        }
-
-        reader.readAsDataURL(file);
-    },
-
-    _processFile : function (dataURL, fileType) {
-
-        console.log('_processFile cxt', this);
-
-        var maxWidth = 800;
-        var maxHeight = 800;
-
-        var image = new Image();
-        var sendFile = this._sendFile;
-
-        image.src = dataURL;
-
-        image.onload = function () {
-            var width = image.width;
-            var height = image.height;
-            var shouldResize = (width > maxWidth) || (height > maxHeight);
-
-            if (!shouldResize) {
-                sendFile(dataURL);
+        // upload
+        app.api.upload(file, function (err, results) {
+            if (err) {
+                console.error(err);
+                this._uploading = false;
                 return;
             }
 
-            var newWidth;
-            var newHeight;
+            // parse
+            var res = safeParse(results);
+            
+            // notify upload successful
+            this.note.image_url = res.image_url;
 
-            if (width > height) {
-                newHeight = height * (maxWidth / width);
-                newWidth = maxWidth;
-            } else {
-                newWidth = width * (maxHeight / height);
-                newHeight = maxHeight;
-            }
+            // done uploading
+            this._uploading = false;
 
-            var canvas = document.createElement('canvas');
+            // todo: show image?
 
-            canvas.width = newWidth;
-            canvas.height = newHeight;
-
-            var context = canvas.getContext('2d');
-
-            context.drawImage(this, 0, 0, newWidth, newHeight);
-
-            dataURL = canvas.toDataURL(fileType);
-
-            sendFile(dataURL);
-        
-        };
-
-        image.onerror = function () {
-            alert('There was an error processing your file!');
-        };
-
-    },
-
-
-    _sendFile : function (fileData) {
-        var formData = new FormData();
-
-        formData.append('imageData', fileData);
-
-        console.log('_sendFile', fileData);
-
-        app.api.upload({
-            image : fileData,
-        }, function (err, result) {
-            console.log('upload err, res', err, result);
-        });
-
-        // return;
-
-        // $.ajax({
-        //     type: 'POST',
-        //     url: '/your/upload/url',
-        //     data: formData,
-        //     contentType: false,
-        //     processData: false,
-        //     success: function (data) {
-        //         if (data.success) {
-        //             alert('Your file was successfully uploaded!');
-        //         } else {
-        //             alert('There was an error uploading your file!');
-        //         }
-        //     },
-        //     error: function (data) {
-        //         alert('There was an error uploading your file!');
-        //     }
-        // });
+        }.bind(this));
     },
 
     _sendNote : function () {
-        console.log('send note!');
 
+        // wait for upload to finish
+        if (this._uploading) {
+            return setTimeout(function () {
+                this._sendNote();
+            }.bind(this), 500);
+        }
+
+        // get values
         var text = this.note.textbox.value;
         var center = this.note.center;
         var address = this.note.address;
         var zoom = this.note.zoom;
         var username = 'anonymous';
-        var image = 's3://etc';
         var tags = ['ok', 'lier'];
-        var portal_tag = 'mittlier';
+        var portal_tag = 'mittlier'; // todo: from config
+        var image_url = this.note.image_url;
 
-
-        // get other meta:
-        // 1. user gps
-        // 2. 
-
-        var feature = this._createFeature({
-            properties : {
+        // create geojson feature
+        var feature = {
+            "type": "Feature",
+            "properties": {
                 text : text,
                 address : address,
                 username : username,
-                image : image,
-                tags : tags
-            }, 
-            center : center
-        });
-
-        console.log('feature', feature);
-
-        // send note to server
-        this._postFeature(feature);
-
-    },
-
-    _createFeature : function (options) {
-
-        // new note
-        var feature = {
-          "type": "Feature",
-          "properties": options.properties,
-          "geometry": {
-            "type": "Point",
-            "coordinates": [
-              options.center.lng,
-              options.center.lat
-            ]
-          }
+                tags : tags,
+                image_url : image_url,
+                zoom : zoom,
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    center.lng,
+                    center.lat
+                ]
+            }
         }
 
-        // return
-        return feature;
-    },
+        // prepare POST data
+        var data = {
+            feature: feature
+        }
 
-    _postFeature : function (feature) {
-        console.log('_postFeature', feature);
-
-        app.api.note(feature, function (err, result) {
+        // send note to server
+        app.api.note(data, function (err, result) {
             if (err) console.error(err);
             console.log('feature result', result);
         });
 
-        // continue with flow..
     },
+
 
     _onMapLoad : function () {
        
         // shortcut
         var map = this._map;
-       
+
         // set data url
-        var data_url = 'https://gist.githubusercontent.com/anonymous/edb86febf4f61176be3a695a999edcd6/raw/fad8092ded78fc5305f81b46afc474461f5d22e8/map.geojson';
-       
+        var data_url = window.location.href + 'v1/notes';
+
         // Add a new source from our GeoJSON data and set the
         // 'cluster' option to true. GL-JS will add the point_count property to your source data.
         map.addSource("earthquakes", {

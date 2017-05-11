@@ -20,16 +20,28 @@ L.Api = L.Class.extend({
 
     // post a feature
     note : function (options, callback) {
-        this._post('/note', options, callback);
+        this.post('/note', options, callback);
     },
 
     // upload image
-    upload : function (options, callback) {
-        this._post('/upload', options, callback);
+    upload : function (file, callback) {
+        var formData = new FormData();
+        formData.append("file", file);
+        var http = new XMLHttpRequest();
+        var url = window.location.href + 'v1/upload';
+        http.open("POST", url);
+        http.send(formData);
+        http.onreadystatechange = function() {
+            if (http.readyState == 4) {
+                if (http.status == 200) {
+                    // all good!
+                    callback && callback(null, http.responseText);
+                } else {
+                    callback && callback(http.status, http.responseText);
+                }
+            }
+        };
     },
-
-
-
 
 
 
@@ -77,14 +89,7 @@ L.Api = L.Class.extend({
         http.send();
     },
 
-    // helper fn's
-    post : function (path, options, done) {
-        this._post(path, JSON.stringify(options), function (err, response) {
-            done && done(err, response);
-        });
-    },
-
-    _post : function (path, json, done, context, baseurl) {
+    post : function (path, json, done, http_options) {
         
         // create request
         var http = new XMLHttpRequest();
@@ -96,7 +101,13 @@ L.Api = L.Class.extend({
         http.open("POST", url, true);
 
         // set json header
-        http.setRequestHeader('Content-type', 'application/json');
+        if (http_options) {
+            if (http_options.content_type) {
+                http.setRequestHeader('Content-type', http_options.content_type);
+            }
+        } else {
+            http.setRequestHeader('Content-type', 'application/json');
+        }
 
         // response
         http.onreadystatechange = function() {
@@ -121,12 +132,9 @@ L.Api = L.Class.extend({
 
     serverUrl : function () {
         var api_version = 'v1'
-        var url = 'https://mittlier.no/' + api_version; // todo: dynamic
+        var url = window.location.href + api_version;
         return url;
     },
 
 
-
-
-
-})
+});

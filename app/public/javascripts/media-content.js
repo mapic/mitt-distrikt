@@ -23,6 +23,9 @@ L.Media = L.Class.extend({
         // low res on small mobiles
         var resolution = app.isJustMobile() ? 'low_resolution' : 'standard_resolution';
 
+        // debug
+        return;
+
         // init feed
         this._feed = new Instafeed({
             get: 'tagged',

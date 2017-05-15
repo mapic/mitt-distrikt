@@ -471,18 +471,16 @@ _____     __| _/_____ |__| ____
 
 .geo-marker-text {
     background: white;
-    width: 100px;
-    height: 100px;
-    top: -130px;
+    width: 13em;
+    height: 2.5em;
+    top: -70px;
     position: absolute;
     padding: 10px;
-    left: -50px;
+    left: -100px;
     font-size: 1em;
     font-weight: 200;
     border-radius: 5px;
 }
-
-
 
 .accept-geo-button {
     width: 80px;
@@ -495,9 +493,11 @@ _____     __| _/_____ |__| ____
     font-size: 1.5em;
     text-align: center;
     cursor: pointer;
+    border-radius: 5px;
 }
 .accept-geo-button:hover {
-  background: gainsboro;
+    background: #89AE4D;
+    color: white;
 }
 
 .write-note-container {
@@ -595,8 +595,7 @@ textarea.write-note-textarea {
 }
 
 .write-note-image-container {
-  width: 100px;
-  height: 100px;
+  max-width: 100%;
   background: yellow;
 }
 

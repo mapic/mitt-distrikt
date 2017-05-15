@@ -9,6 +9,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var helmet = require('helmet');
 var debug = require('debug')('app:server');
+var compression = require('compression');
 
 // set port
 var port = 3001;
@@ -16,6 +17,8 @@ var port = 3001;
 // create app
 var app = express();
 
+// use compression
+app.use(compression());
 
 // set routes
 var routes = require('./routes/routes');

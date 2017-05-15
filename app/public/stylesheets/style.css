@@ -408,6 +408,13 @@ _____     __| _/_____ |__| ____
 }
 
 
+.notes-image img {
+    max-height: 100px;
+    height: 100%;
+    max-width: 100px;
+}
+
+
 
 
 /*               __                 
@@ -450,24 +457,47 @@ _____     __| _/_____ |__| ____
   background: #89AE4D;
 }
 
+
 .geo-marker {
-  width: 20px;
-  height: 20px;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  background: red;
-  border-radius: 100px;
+    width: 20px;
+    height: 20px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    background: #E1D3B3;
+    border-radius: 100px;
+    border: 2px solid white;
 }
 
+.geo-marker-text {
+    background: white;
+    width: 100px;
+    height: 100px;
+    top: -130px;
+    position: absolute;
+    padding: 10px;
+    left: -50px;
+    font-size: 1em;
+    font-weight: 200;
+    border-radius: 5px;
+}
+
+
+
 .accept-geo-button {
-  width: 100px;
-  height: 50px;
-  position: fixed;
-  bottom: 30px;
-  right: 30px;
-  border: 1px solid red;
-  background: red;
+    width: 80px;
+    height: 30px;
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: white;
+    padding: 10px;
+    font-size: 1.5em;
+    text-align: center;
+    cursor: pointer;
+}
+.accept-geo-button:hover {
+  background: gainsboro;
 }
 
 .write-note-container {
@@ -564,6 +594,16 @@ textarea.write-note-textarea {
     margin: 10px;
 }
 
+.write-note-image-container {
+  width: 100px;
+  height: 100px;
+  background: yellow;
+}
+
+img.note-image-container {
+  width: 100%;
+  height: 100%;
+}
 
 /*
         __  .__.__          
@@ -576,4 +616,5 @@ textarea.write-note-textarea {
 .display-none {
   display: none;
 }
+
 

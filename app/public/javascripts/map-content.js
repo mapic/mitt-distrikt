@@ -33,7 +33,8 @@ L.MapContent = L.Evented.extend({
         var map = this._map = new mapboxgl.Map({
             container: 'map',
             // style: 'mapbox://styles/mapbox/streets-v9',
-            style: 'mapbox://styles/mapbox/satellite-v9',
+            // style: 'mapbox://styles/mapbox/satellite-v9',
+            style: 'mapbox://styles/mapbox/satellite-streets-v9',
             center: [10.234364120842656, 59.795007354532544],
             zoom : 12,
             attributionControl : false,
@@ -43,7 +44,7 @@ L.MapContent = L.Evented.extend({
         map.on('load', this._onMapLoad.bind(this));
 
         // create (+) button
-        this._createAddButton();
+        this._showAddButton();
     },
 
     _createAddButton : function () {
@@ -59,38 +60,51 @@ L.MapContent = L.Evented.extend({
 
     addNote : function () {
 
-        // 1. add a pin to map, so user can move
-        // 2. add a button to accept position of pin
-        // 3. when accepted, open note screen
-        // 4. add upload/photo function
-        // 5. add button for posting note
-        
-
         // 1. hide other markers
         this._hideMarkers();
 
         // hide (+) button
-        L.DomUtil.addClass(this._addButton, 'display-none');
-        L.DomUtil.addClass(this._shadowButton, 'display-none');
+        this._hideAddButton();
 
         // add position marker
         this._addPositionMarker();
 
-       
+    },
+
+    _showAddButton : function () {
+        if (!this._addButton) this._createAddButton();
+
+        // show (+) button
+        L.DomUtil.removeClass(this._addButton, 'display-none');
+        L.DomUtil.removeClass(this._shadowButton, 'display-none');
+    },
+    _hideAddButton : function () {
+        if (!this._addButton) this._createAddButton();
+        
+        // hide (+) button
+        L.DomUtil.addClass(this._addButton, 'display-none');
+        L.DomUtil.addClass(this._shadowButton, 'display-none');
     },
 
     _addPositionMarker : function () {
+        
         // add marker in middle of screen
         this.note.geoMarker = L.DomUtil.create('div', 'geo-marker', this._container);
 
+        // add text box
+        this.note.geoMarkerText = L.DomUtil.create('div', 'geo-marker-text', this.note.geoMarker);
+        this.note.geoMarkerText.innerHTML = app.locale.notes.geoMarkerText;
+
         // add "accept geo" button
         this.note.acceptPositionButton = L.DomUtil.create('div', 'accept-geo-button', this._container);
+        this.note.acceptPositionButton.innerHTML = app.locale.notes.acceptPositionButton;
         L.DomEvent.on(this.note.acceptPositionButton, 'click', this._openNotesCreator, this);
 
     },
 
     _removePositionMarker : function () {
         L.DomUtil.remove(this.note.geoMarker);
+        L.DomUtil.remove(this.note.geoMarkerText);
         L.DomUtil.remove(this.note.acceptPositionButton);
         L.DomEvent.off(this.note.acceptPositionButton, 'click', this._openNotesCreator, this);
     },
@@ -119,6 +133,7 @@ L.MapContent = L.Evented.extend({
             if (err) console.error(err);
 
             var results = safeParse(res);
+            console.log('results:', results);
 
             var features = results ? results.features : [];
             if (!_.size(features)) console.error('no result');
@@ -183,22 +198,24 @@ L.MapContent = L.Evented.extend({
 
         // title
         var title = L.DomUtil.create('div', 'write-note-title', container);
-        title.innerHTML = 'Skriv et forslag!';
+        title.innerHTML = app.locale.notes.noteTitle;
 
         // address
         var address = this._reverseLookupAddressDiv = L.DomUtil.create('div', 'write-note-address', container);
 
         // description
         var explanation = L.DomUtil.create('div', 'write-note-explanation', container);
-        explanation.innerHTML = 'Skriv inn ditt forslag, legg ved tags og bilder, og trykk OK';
+        explanation.innerHTML = app.locale.notes.explanation;
+
+        // image container
+        if (this.uploadSupported()) this.note.imageContainer = L.DomUtil.create('div', 'write-note-image-container', container);
 
         // text input
         var textBox = this.note.textbox = L.DomUtil.create('textarea', 'write-note-textarea', container);
-        // textBox.setAttribute('type', 'textarea');
         textBox.setAttribute('placeholder', 'Skriv ditt forslag til #MittLier');
 
         // photo button (only if supported)
-        if (window.File && window.FileReader && window.FormData) {
+        if (this.uploadSupported()) {
 
             // button
             var photoBtn = L.DomUtil.create('input', 'write-note-photo-button', container);
@@ -214,14 +231,23 @@ L.MapContent = L.Evented.extend({
             // label
             var label = L.DomUtil.create('label', '', container);
             label.setAttribute('for', 'file');
-            label.innerHTML = 'Legg ved bilde';
+            label.innerHTML = app.locale.notes.addPhoto;
         }
 
         // ok button
         var okBtn = L.DomUtil.create('div', 'write-note-ok-button', container);
-        okBtn.innerHTML = 'ok!';
+        okBtn.innerHTML = app.locale.notes.send;
         L.DomEvent.on(okBtn, 'click', this._sendNote, this);
 
+        // cancel button
+        var cancelBtn = L.DomUtil.create('div', 'write-note-ok-button', container);
+        cancelBtn.innerHTML = app.locale.notes.cancel;
+        L.DomEvent.on(cancelBtn, 'click', this._cancelNote, this);
+
+    },
+
+    uploadSupported : function () {
+        return window.File && window.FileReader && window.FormData;
     },
 
     _onPhotoBtnChange : function (e) {
@@ -231,7 +257,7 @@ L.MapContent = L.Evented.extend({
             if (/^image\//i.test(file.type)) {
                 this._uploadFile(file);
             } else {
-                alert('Not a valid image!');
+                alert(app.locale.notes.invalidImage);
             }
         }
     },
@@ -259,6 +285,8 @@ L.MapContent = L.Evented.extend({
             this._uploading = false;
 
             // todo: show image?
+            console.log('upload done:', res);
+            this.note.imageContainer.innerHTML = '<img src="' + res.image_url + '" class="note-image-container">';
 
         }.bind(this));
     },
@@ -289,7 +317,7 @@ L.MapContent = L.Evented.extend({
         var address = this.note.address;
         var zoom = this.note.zoom;
         var username = 'anonymous';
-        var tags = ['ok', 'lier'];
+        var tags = ["ok", "lier"];
         var portal_tag = 'mittlier'; // todo: from config
         var image_url = this.note.image_url;
 
@@ -303,6 +331,7 @@ L.MapContent = L.Evented.extend({
                 tags : tags,
                 image_url : image_url,
                 zoom : zoom,
+                portal_tag : portal_tag,
             },
             "geometry": {
                 "type": "Point",
@@ -331,7 +360,6 @@ L.MapContent = L.Evented.extend({
     },
 
     _onNoteSent : function (err) {
-        console.log('_onNoteSent', err);
 
         // close note window
         L.DomUtil.remove(this.note.container);
@@ -343,6 +371,20 @@ L.MapContent = L.Evented.extend({
         // show markers
         this._showMarkers();
 
+        // show add button
+        this._showAddButton();
+
+    },
+
+    _cancelNote : function () {
+        // close note window
+        L.DomUtil.remove(this.note.container);
+    
+        // show markers
+        this._showMarkers();
+
+        // show add button
+        this._showAddButton();
     },
 
     _onMapLoad : function () {
@@ -377,8 +419,8 @@ L.MapContent = L.Evented.extend({
                     type: "interval",
                     stops: [
                         [0, "#51bbd6"],
-                        [2, "#f1f075"],
-                        [5, "#f28cb1"],
+                        [2, "rgba(252, 193, 73, 0.75)"],
+                        [5, "rgba(137, 174, 77, 0.75)"],
                     ]
                 },
                 "circle-radius": {
@@ -402,7 +444,11 @@ L.MapContent = L.Evented.extend({
             layout: {
                 "text-field": "{point_count_abbreviated}",
                 "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
-                "text-size": 26
+                "text-size": 26,
+            },
+            paint : {
+                "text-color" : "#ffffff"
+
             }
         }
 
@@ -413,7 +459,7 @@ L.MapContent = L.Evented.extend({
             source: "earthquakes",
             filter: ["!has", "point_count"],
             paint: {
-                "circle-color": "#11b4da",
+                "circle-color": "rgba(156, 214, 229, 0.75)",
                 "circle-radius": 10,
                 "circle-stroke-width": 1,
                 "circle-stroke-color": "#fff"
@@ -483,9 +529,14 @@ L.MapContent = L.Evented.extend({
 
     _createPopupHTML : function (p) {
         
+        console.log('create Popup', p);
+
         // parse tags
         var tags = safeParse(p.tags);
         var niceTags = tags ? tags.join(', ') : '';
+
+        // get image
+        var image = p.image_url || false;
 
         // create html
         var html = '<div class="notes-popup">';
@@ -496,8 +547,13 @@ L.MapContent = L.Evented.extend({
         html    +=          niceTags;
         html    += '    </div>'
         html    += '    <div class="notes-users">'
-        html    +=          p.user
+        html    +=          p.username;
         html    += '    </div>'
+        if (image) {
+        html    += '    <div class="notes-image">'
+        html    += '        <img src="' + image + '">'
+        html    += '    </div>'
+        }
         html    += '</div>'
         return html;
     },

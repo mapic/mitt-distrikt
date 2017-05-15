@@ -180,7 +180,7 @@ module.exports = api = {
         // check valid geojson
         var valid_geojson = GJV.valid(geojson);
 
-        // todo: check for other content
+        // todo: check for other keys
 
         // return
         return valid_geojson;
@@ -192,34 +192,34 @@ module.exports = api = {
     // route: /login
     login : function (req, res, next) {
 
-        // check user/pass and return access_token
-        console.log('/login');
-        console.log('body', req.body);
-
+        // get info
         var email = req.body.email;
         var password = req.body.password;
 
+        // check for user
         redis.get(email, function (err, result) {
             if (err) {
                 console.log('Login err: ', err);
                 return res.send({
                     access_token : null,
-                    error : err
+                    error : 'Noe feil skjedde. Vennligst prøv igjen.'
                 });
             }
 
+            // parse
             var user = safeParse(result);
 
+            // if no user 
             if (!user) {
                 console.log('No such user:', email);
                 return res.send({
                     access_token : null,
-                    error : 'Wrong combination of email and password. Please try again.'
+                    error : 'Feil kombinasjon av email og passord. Vennligst prøv igjen.'
                 });
             }
 
+            // if password matches
             if (user.password === password) {
-                // ok 
                 console.log('Login successful', user);
 
                 // create access token
@@ -232,7 +232,7 @@ module.exports = api = {
                 console.log('access_token', access_token);
 
                 redis.set(access_token, safeStringify({
-                    user : user,
+                    email : user.email,
                     privilege : 'admin',
                     access_token : access_token
                 }), function (err) {
@@ -244,19 +244,17 @@ module.exports = api = {
                 });
 
 
+            // if wrong password
             } else {
                 console.log('No such user:', email);
                 return res.send({
                     access_token : null,
-                    error : 'Wrong combination of email and password. Please try again.'
+                    error : 'Feil kombinasjon av email og passord. Vennligst prøv igjen.'
                 });
             };
 
-
-
         });
 
-       
         // todo: redis handling of access_tokens
         // todo: secure all sensitive endpoints with access_token verification
         // todo: don't use cookies on admin.

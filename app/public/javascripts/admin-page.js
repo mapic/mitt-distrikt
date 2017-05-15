@@ -47,20 +47,29 @@ L.Admin = L.Class.extend({
         L.DomEvent.stop(e);
 
         // get values
-        var username = L.DomUtil.get('login-username').value;
+        var email = L.DomUtil.get('login-username').value;
         var password = L.DomUtil.get('login-password').value;
 
         // send to server, check if valid
         this.post('login', {
-            username : username, 
+            email : email, 
             password : password
         }, function (err, response) {
+
+            // catch errors, invalid logins
             if (err) return alert(err);
             var res = JSON.parse(response);
             if (res.error) return alert(res.error);
             if (!res.access_token) return alert('Something went wrong. Please try again.')
+
+            // login ok
             this.access_token = res.access_token;
-            this._loggedIn(); // all good, let's go! (todo: can also add single check of access_token)
+
+            // This will open page if no error and existing access_token,
+            // but not actually check validity of access_token.
+            // This is not an issue as long as admin API endpoints check for validity.
+            this._loggedIn();
+
         }.bind(this));
     },
 

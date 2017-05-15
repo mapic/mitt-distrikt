@@ -1,5 +1,6 @@
 var fs = require('fs-extra');
 var GJV = require("geojson-validation");
+var generator = require('generate-password');
 var shortid = require('shortid');
 shortid.characters('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-');
 var config = require('../app-config.js');
@@ -7,7 +8,7 @@ var redis = require('redis').createClient({
     host : 'redis'
 });
 redis.on('error', function (err) {console.log('Redis error: ', err);});
-// redis.auth(config.redis.layers.auth);
+redis.auth(config.redis.auth);
 
 // storage handler
 var multer = require('multer');
@@ -195,11 +196,67 @@ module.exports = api = {
         console.log('/login');
         console.log('body', req.body);
 
-        res.send({
-            access_token : 'debug_access_token',
-            error : null
+        var email = req.body.email;
+        var password = req.body.password;
+
+        redis.get(email, function (err, result) {
+            if (err) {
+                console.log('Login err: ', err);
+                return res.send({
+                    access_token : null,
+                    error : err
+                });
+            }
+
+            var user = safeParse(result);
+
+            if (!user) {
+                console.log('No such user:', email);
+                return res.send({
+                    access_token : null,
+                    error : 'Wrong combination of email and password. Please try again.'
+                });
+            }
+
+            if (user.password === password) {
+                // ok 
+                console.log('Login successful', user);
+
+                // create access token
+                var access_token = generator.generate({
+                    length: 25,
+                    numbers: true,
+                    uppercase : false,
+                });
+
+                console.log('access_token', access_token);
+
+                redis.set(access_token, safeStringify({
+                    user : user,
+                    privilege : 'admin',
+                    access_token : access_token
+                }), function (err) {
+                    console.log('saved access_token', err);
+                    res.send({
+                        access_token : access_token,
+                        error : null
+                    });
+                });
+
+
+            } else {
+                console.log('No such user:', email);
+                return res.send({
+                    access_token : null,
+                    error : 'Wrong combination of email and password. Please try again.'
+                });
+            };
+
+
+
         });
 
+       
         // todo: redis handling of access_tokens
         // todo: secure all sensitive endpoints with access_token verification
         // todo: don't use cookies on admin.

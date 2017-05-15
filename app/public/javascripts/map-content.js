@@ -73,13 +73,26 @@ L.MapContent = L.Evented.extend({
         L.DomUtil.addClass(this._addButton, 'display-none');
         L.DomUtil.addClass(this._shadowButton, 'display-none');
 
+        // add position marker
+        this._addPositionMarker();
+
+       
+    },
+
+    _addPositionMarker : function () {
         // add marker in middle of screen
-        this._geoMarker = L.DomUtil.create('div', 'geo-marker', this._container);
+        this.note.geoMarker = L.DomUtil.create('div', 'geo-marker', this._container);
 
         // add "accept geo" button
-        this._acceptPositionButton = L.DomUtil.create('div', 'accept-geo-button', this._container);
-        L.DomEvent.on(this._acceptPositionButton, 'click', this._openNotesCreator, this);
+        this.note.acceptPositionButton = L.DomUtil.create('div', 'accept-geo-button', this._container);
+        L.DomEvent.on(this.note.acceptPositionButton, 'click', this._openNotesCreator, this);
 
+    },
+
+    _removePositionMarker : function () {
+        L.DomUtil.remove(this.note.geoMarker);
+        L.DomUtil.remove(this.note.acceptPositionButton);
+        L.DomEvent.off(this.note.acceptPositionButton, 'click', this._openNotesCreator, this);
     },
 
     _hideMarkers : function () {
@@ -136,12 +149,14 @@ L.MapContent = L.Evented.extend({
         div.innerHTML = this.note.address;
     },
 
+    note : {},
+
     _openNotesCreator : function (center) {
 
         var map = this._map;
 
-        // object
-        this.note = {};
+        // remove position markers
+        this._removePositionMarker();
 
         // reverse lookup address
         this._getAddress();
@@ -248,14 +263,25 @@ L.MapContent = L.Evented.extend({
         }.bind(this));
     },
 
+    _u : 0,
+
     _sendNote : function () {
 
         // wait for upload to finish
         if (this._uploading) {
+
+            // set counter
+            this._u += 1;
+            console.log('Waiting for upload to finish...', this._u);
+
+            // re-run
             return setTimeout(function () {
                 this._sendNote();
             }.bind(this), 500);
         }
+
+        // reset counter
+        this._u = 0;
 
         // get values
         var text = this.note.textbox.value;
@@ -296,10 +322,28 @@ L.MapContent = L.Evented.extend({
         app.api.note(data, function (err, result) {
             if (err) console.error(err);
             console.log('feature result', result);
-        });
+
+            // note sent ok
+            this._onNoteSent(err);
+
+        }.bind(this));
 
     },
 
+    _onNoteSent : function (err) {
+        console.log('_onNoteSent', err);
+
+        // close note window
+        L.DomUtil.remove(this.note.container);
+       
+        // update data
+        var data_url = window.location.href + 'v1/notes';
+        this._map.getSource('earthquakes').setData(data_url);
+
+        // show markers
+        this._showMarkers();
+
+    },
 
     _onMapLoad : function () {
        

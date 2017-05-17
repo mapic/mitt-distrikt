@@ -58,7 +58,7 @@ module.exports = api = {
             }
 
             // create image url
-            var image_url = 'https://mittlier.no/v1/image/' + filename;
+            var image_url = 'https://' + config.domain + '/v1/image/' + filename;
 
             // return to client
             res.send({

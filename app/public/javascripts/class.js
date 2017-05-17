@@ -1482,3 +1482,22 @@ L.DomEvent.addListener = L.DomEvent.on;
 L.DomEvent.removeListener = L.DomEvent.off;
 
 
+// shortcut
+var safeParse = function (s) {
+    try {
+        var o = JSON.parse(s);
+        return o;
+    } catch (e) {
+        return false;
+    }
+}
+var safeStringify = function (o) {
+    try {
+        var s = JSON.stringify(o);
+        return s;
+    } catch (e) {
+        return 'false';
+    }
+}
+
+

@@ -20,7 +20,7 @@ L.App = L.Class.extend({
         L.setOptions(this, options);
 
         // google analytics
-        this.ga();
+        app.ga();
 
         // create api
         this.api = new L.Api();
@@ -179,24 +179,5 @@ L.App = L.Class.extend({
 });
 
 
-
-// shortcut
-var cl = console.log
-var safeParse = function (s) {
-    try {
-        var o = JSON.parse(s);
-        return o;
-    } catch (e) {
-        return false;
-    }
-}
-var safeStringify = function (o) {
-    try {
-        var s = JSON.stringify(o);
-        return s;
-    } catch (e) {
-        return 'false';
-    }
-}
 
 

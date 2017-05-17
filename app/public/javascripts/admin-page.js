@@ -18,9 +18,20 @@ L.Admin = L.Class.extend({
 
         // set options
         L.setOptions(this, options);
+   
+        // create api
+        this.api = new L.Api();
+   
+        // google analytics
+        app.ga();
 
         // login first
         this._initLogin();
+    },
+
+    ga : function (event) {
+        ga('create', this.options.ga, 'auto');
+        ga('send', event || 'pageview');
     },
 
     _initLogin : function () {
@@ -63,7 +74,7 @@ L.Admin = L.Class.extend({
             if (!res.access_token) return this._failedLogin('Something went wrong. Please try again.')
 
             // login ok
-            this.access_token = res.access_token;
+            app.access_token = res.access_token;
 
             // This will open page if no error and existing access_token,
             // but not actually check validity of access_token.
@@ -77,6 +88,9 @@ L.Admin = L.Class.extend({
         // clear form
         L.DomUtil.get('login-username').value = '';
         L.DomUtil.get('login-password').value = '';
+
+        // send analytics: todo: fix event name
+        app.ga('login.failed')
 
         // alert
         alert(msg);
@@ -179,8 +193,27 @@ L.Admin = L.Class.extend({
         this._fillInfoContent();
 
         // map tab
+        this._fillMapContent();
 
         // media tab
+
+    },
+
+    _fillMapContent : function () {
+
+        // 1. get geojson
+        // 2. create table of all geojson
+
+        app.api.getTable(function (err, json) {
+            if (err) return console.error(err);
+            console.log('getTable', err, json);
+
+            var table_entries = safeParse(json);
+
+            if (!table_entries) return console.error('No table entries.');
+
+            console.log('table_entries', table_entries);
+        });
 
     },
 

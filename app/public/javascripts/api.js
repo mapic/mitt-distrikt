@@ -28,7 +28,7 @@ L.Api = L.Class.extend({
         var formData = new FormData();
         formData.append("file", file);
         var http = new XMLHttpRequest();
-        var url = window.location.href + 'v1/upload';
+        var url = window.location.origin + '/v1/upload';
         http.open("POST", url);
         http.send(formData);
         http.onreadystatechange = function() {
@@ -43,6 +43,14 @@ L.Api = L.Class.extend({
         };
     },
 
+    getTable : function (callback) {
+        var url = window.location.origin + '/v1/table';
+        url += '?access_token=' + app.access_token;
+
+        console.log('url', url);
+
+        this.get(url, callback);
+    },
 
 
 

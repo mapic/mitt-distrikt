@@ -19,6 +19,9 @@ L.App = L.Class.extend({
         // set options
         L.setOptions(this, options);
 
+        // google analytics
+        this.ga();
+
         // create api
         this.api = new L.Api();
 
@@ -39,6 +42,11 @@ L.App = L.Class.extend({
 
         // set default pane
         this._show('map');
+    },
+
+    ga : function (event) {
+        ga('create', this.options.ga, 'auto');
+        ga('send', event || 'pageview');
     },
 
     _initContent : function () {

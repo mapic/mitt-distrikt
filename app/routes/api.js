@@ -1,6 +1,7 @@
 var fs = require('fs-extra');
 var GJV = require("geojson-validation");
 var generator = require('generate-password');
+var _ = require('lodash');
 var shortid = require('shortid');
 shortid.characters('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-');
 var config = require('../app-config.js');
@@ -54,7 +55,7 @@ module.exports = api = {
         // store to disk
         upload(req, res, function (err, something) {
             if (err) {
-                return res.send({err : "Couldn't upload image!"});
+                return res.send({error : "Couldn't upload image!"});
             }
 
             // create image url
@@ -62,7 +63,7 @@ module.exports = api = {
 
             // return to client
             res.send({
-                err : null, 
+                error : null, 
                 endpoint : '/v1/upload',
                 image_url : image_url
             })
@@ -109,7 +110,7 @@ module.exports = api = {
         // if not valid
         if (!valid_feature) {
             return res.send({
-                err : 'Invalid Feature. This is not your fault.'
+                error : 'Invalid Feature. This is not your fault.'
             });
         }
 
@@ -118,7 +119,7 @@ module.exports = api = {
             if (err) {
                 console.log('api.note -> redis.get -> error: ', err);
                 return res.send({
-                    err : err
+                    error : err
                 });
             }
 
@@ -141,7 +142,7 @@ module.exports = api = {
 
                 // return to client 
                 res.send({
-                    err : err, 
+                    error : err, 
                     feature : feature,
                     fn : 'api.note',
                 });
@@ -158,7 +159,7 @@ module.exports = api = {
             if (err) {
                 console.log('api.note -> redis.get -> error: ', err);
                 return res.send({
-                    err : err
+                    error : err
                 });
             }
 
@@ -168,6 +169,39 @@ module.exports = api = {
             // send
             res.send(existing_geojson);
         });
+    },
+
+    // rout: GET /v1/table
+    getTable : function (req, res) {
+
+        redis.get(config.redis.geojson, function (err, json) {
+            if (err) {
+                console.log('api.note -> redis.get -> error: ', err);
+                return res.send({
+                    error : err
+                });
+            }
+
+            // parse
+            var existing_geojson = safeParse(json);
+
+            // parse into table format
+            var table = [];
+            _.each(existing_geojson.features, function (feature) {
+                console.log('feature:', feature);
+
+                // add properties and geometry
+                var table_entry = feature.properties;
+                table_entry.coordinates = feature.geometry.coordinates;
+
+                // push to stack
+                table.push(table_entry);
+            })
+
+            // send
+            res.send(table);
+        });
+
     },
 
     _checkValidFeature : function (feature) {

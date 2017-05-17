@@ -18,6 +18,9 @@ router.get('/v1/image/:filename', api.image);
 // get geojson
 router.get('/v1/notes', api.getNotes);
 
+// get geojson
+router.get('/v1/table', api.getTable); // todo: check access_token
+
 // login
 router.post('/login', api.login);
 

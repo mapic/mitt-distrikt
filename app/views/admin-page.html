@@ -1,6 +1,3 @@
-<!-- admin page -->
-
-
 <!-- Login -->
 <div id="login-container">
     <div class="login-logo"><img src="/stylesheets/login-logo.png"></div>
@@ -9,7 +6,7 @@
             <form id="login-form" class="login-form">
                 <input id="login-username" type="text" placeholder="Brukernavn"/>
                 <input id="login-password" type="password" placeholder="Passord"/>
-                <button id="login-button">login</button>
+                <input class="button" id="login-button" type="submit" value="Logg inn"></button>
             </form>
         </div>
     </div>
@@ -39,19 +36,3 @@
     <!-- Site footer -->
     <div id="site-footer" style="display:none"></div>
 </div>
-
-
-
-
-<script src="/javascripts/admin-page.js"></script>
-
-
-
-<script>
-    var app = new L.Admin({
-        title : "Lier kommune",
-        locale : 'NO'
-    });
-</script>
-
-

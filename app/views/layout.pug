@@ -9,23 +9,27 @@ html
         link(rel='stylesheet', href='/stylesheets/style.css')
         link(rel='stylesheet', href='/stylesheets/mobile.css')
 
-        script(src='/javascripts/lib/bowser.js')
+        script(src='/javascripts/lib/mobile-detect.js')
         script(src='/javascripts/lib/hammer.min.js')
         script(src='/javascripts/lib/hammer-time.min.js')
-        script(src='/javascripts/lib/instafeed.min.js')
-        script(src='/javascripts/lib/mobile-detect.js')
         script(src='/javascripts/lib/lodash.js')
-        script(src='/javascripts/lib/mapbox-sdk.js')
-
+        
         script(src='/javascripts/class.js')
         script(src='/javascripts/locale.js')
         script(src='/javascripts/api.js')
 
-        <script src='https://api.mapbox.com/mapbox-gl-js/v0.36.0/mapbox-gl.js'></script>
-        <link href='https://api.mapbox.com/mapbox-gl-js/v0.36.0/mapbox-gl.css' rel='stylesheet' />
+        //- google analytics
+        script.
+            (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+            })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
         title= "Mitt Lier"
 
+        block head
+
     body
         block content
+        block app
 

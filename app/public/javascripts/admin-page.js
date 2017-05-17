@@ -57,10 +57,10 @@ L.Admin = L.Class.extend({
         }, function (err, response) {
 
             // catch errors, invalid logins
-            if (err) return alert(err);
+            if (err) return this._failedLogin(err);
             var res = JSON.parse(response);
-            if (res.error) return alert(res.error);
-            if (!res.access_token) return alert('Something went wrong. Please try again.')
+            if (res.error) return this._failedLogin(res.error);
+            if (!res.access_token) return this._failedLogin('Something went wrong. Please try again.')
 
             // login ok
             this.access_token = res.access_token;
@@ -71,6 +71,15 @@ L.Admin = L.Class.extend({
             this._loggedIn();
 
         }.bind(this));
+    },
+
+    _failedLogin : function (msg) {
+        // clear form
+        L.DomUtil.get('login-username').value = '';
+        L.DomUtil.get('login-password').value = '';
+
+        // alert
+        alert(msg);
     },
 
     _loggedIn : function () {

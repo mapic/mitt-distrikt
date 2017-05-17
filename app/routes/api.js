@@ -187,8 +187,6 @@ module.exports = api = {
     },
 
 
-
-
     // route: /login
     login : function (req, res, next) {
 

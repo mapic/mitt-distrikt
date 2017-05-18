@@ -268,11 +268,14 @@ L.Admin = L.Class.extend({
         // hack to make <a> fn work
         window.mapnotectx = this;
 
+        console.log('entries', entries);
+
         // create table entries
         var table = [];
         _.each(entries, function (e) {
             var t = {};
 
+            console.log('e:', e);
             // add entries
             t.address = e.address || '';
             t.tags = e.tags.join(', ');

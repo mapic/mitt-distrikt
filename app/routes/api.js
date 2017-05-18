@@ -185,6 +185,11 @@ module.exports = api = {
             // parse
             var existing_geojson = safeParse(json);
 
+            // check if ANY notes exist
+            if (!existing_geojson || !_.size(existing_geojson) || !existing_geojson.features) {
+                return res.send();
+            }
+
             // parse into table format
             var table = [];
             _.each(existing_geojson.features, function (feature) {

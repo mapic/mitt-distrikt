@@ -239,6 +239,7 @@ L.Admin = L.Class.extend({
         table += '<th data-dynatable-column="username"> ' + this.locale.table.username + '</th>';
         table += '<th data-dynatable-column="time">     ' + this.locale.table.time + '</th>';
         table += '<th data-dynatable-column="domain">   ' + this.locale.table.domain + '</th>';
+        table += '<th data-dynatable-column="image">   ' + this.locale.table.image + '</th>';
         table += '</thead>';
         table += '<tbody>';
         table += '</tbody>';
@@ -268,28 +269,121 @@ L.Admin = L.Class.extend({
             t.tags = e.tags.join(', ');
             t.text = e.text || '';
             // t.latlng = e.coordinates[0] + ', ' + e.coordinates[1];
-            t.latlng = '<a href="" id="map-note-' + e.id + '" onmouseover="mapnotectx.onMapNoteMouseover(\'' + e.id + '\')">Kart</a>';
+            t.latlng = '<a href="#" id="map-note-' + e.id + '" onclick="mapnotectx.onMapNoteClick(\'' + e.id + '\', this)">Kart</a>';
             t.zoom = parseInt(e.zoom) || '';
             t.username = e.username || '';
             t.time = new Date(e.timestamp).toDateString() || '';
             t.domain = e.portal_tag || '';
-            t.image = e.image_url || '';
+            t.image = '<a href="#" id="map-note-image-' + e.id + '" onclick="mapnotectx.onMapNoteImageClick(\'' + e.image_url + '\')">Bilde</a>';
             table.push(t);
         }.bind(this));
         console.log('table: ', table);
         return table;
     },
 
-    onMapNoteMouseover : function (id) {
-        console.log('onMapNoteMouseover', id);
+    onMapNoteClick : function (id) {
+        console.log('onMapNoteClick', id);
 
-        var entry = this._getEntry(id);
+
+        // remember
+        this._preview = {};
+
+        var entry = this._preview.entry = this._getEntry(id);
 
         console.log('entry: ', entry);
 
-        // create popup map with entry
-        
+        if (!entry) return console.log('no such entry');
 
+        // create popup map with entry
+        var map_container = this._preview.container = L.DomUtil.create('div', 'map-note-container', this._content.map);
+        map_container.id = 'map-note-container-' + entry.id;
+        var closeBtn = this._preview.close = L.DomUtil.create('div', 'map-note-container-close', map_container);
+        closeBtn.innerHTML = this.locale.table.closeBtn;
+        L.DomEvent.on(this._preview.close, 'click', this._closePreview, this);
+
+        // set latlng
+        var latlng = [entry.coordinates[0], entry.coordinates[1]];
+
+
+        // create map
+
+        mapboxgl.accessToken = 'pk.eyJ1IjoibWFwaWMiLCJhIjoiY2l2MmE1ZW4wMDAwZTJvcnhtZGI4YXdlcyJ9.rD_-Ou1OdKQsHqEqL6FJLg';
+        this._preview.map = new mapboxgl.Map({
+            container: 'map-note-container-' + entry.id,
+            zoom: entry.zoom + 1,
+            center: latlng,
+            style: 'mapbox://styles/mapbox/satellite-v9',
+            hash: false
+        });
+
+        // add marker
+        var el = document.createElement('div');
+        el.id = 'note-preview-marker';
+        el.style.background = this.locale.table.mapMarker;
+        var marker = new mapboxgl.Marker(el).setLngLat(latlng).addTo(this._preview.map);
+
+        // add popup
+        var popup = new mapboxgl.Popup({
+            closeButton: false,
+            closeOnClick: false,
+            anchor : 'bottom',
+            offset : [10, 0]
+        })
+        .setLngLat(latlng)
+        .setHTML(this._createPopupHTML(entry))
+        .addTo(this._preview.map);
+
+    },
+
+    _createPopupHTML : function (p) {
+        
+        console.log('create Popup', p);
+
+        // parse tags
+        var tags = safeParse(p.tags);
+        var niceTags = tags ? tags.join(', ') : '';
+
+        // get image
+        var image = p.image_url || false;
+
+        // create html
+        var html = '<div class="notes-popup">';
+        html    += '    <div class="notes-text">'
+        html    +=          p.text
+        html    += '    </div>'
+        html    += '    <div class="notes-tags">'
+        html    +=          niceTags;
+        html    += '    </div>'
+        html    += '    <div class="notes-users">'
+        html    +=          p.username;
+        html    += '    </div>'
+        if (image) {
+        html    += '    <div class="notes-image">'
+        html    += '        <img src="' + image + '">'
+        html    += '    </div>'
+        }
+        html    += '</div>'
+        return html;
+    },
+
+    _closePreview : function (id) {
+
+        // remove map
+        var map = this._preview.map;
+        if (map) map.remove();
+
+        // remove event
+        L.DomEvent.off(this._preview.close, 'click', this._closePreview);
+
+        // remove container
+        var container = this._preview.container;
+        if (container) container.parentNode.removeChild(container);
+
+        this._preview = {};
+    },
+
+    onMapNoteImageClick : function (image_url) {
+        console.log('onMapNoteImageClick', image_url);
     },
 
     _getEntry : function (id) {

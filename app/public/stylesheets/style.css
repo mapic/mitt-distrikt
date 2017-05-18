@@ -633,3 +633,53 @@ _/  |______ \_ |__ |  |   ____
 th a {
     color: #000 !important;
 }
+
+table#notes-table {
+    font-size: 0.9em;
+}
+td {
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.map-note-container {
+  width: 30%;
+  height: 30%;
+  position: fixed;
+  bottom: 0px;
+  left: 0px;
+  z-index: 500;
+  border: 4px solid white;
+
+}
+
+#note-preview-marker {
+    background-size: 20px 20px !important;
+    background-position: 0px 0px !important; 
+    background-repeat: no-repeat !important;
+    width: 20px;
+    height: 20px;
+}
+
+.map-note-container-close {
+    background: white;
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
+    z-index: 600;
+    padding: 5px;
+    margin: 4px;
+    font-size: 1.2em;
+    font-family: "Open Sans";
+    border-radius: 3px;
+    cursor: pointer;
+}
+.map-note-container-close:hover {
+  background: #9CD6E5;
+}
+
+
+
+
+
+

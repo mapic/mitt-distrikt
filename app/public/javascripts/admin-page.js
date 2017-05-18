@@ -201,20 +201,19 @@ L.Admin = L.Class.extend({
 
     _fillMapContent : function () {
 
-        // 1. get geojson
-        // 2. create table of all geojson
-
+        // get geojson
         app.api.getTable(function (err, json) {
             if (err) return console.error(err);
-            console.log('getTable', err, json);
 
+            // parse
             this.table_entries = safeParse(json);
 
+            // check
             if (!this.table_entries) return console.error('No table entries.');
 
-            console.log('this.table_entries', this.table_entries);
-
+            // create table
             this._createTable();
+       
         }.bind(this));
 
     },
@@ -222,6 +221,7 @@ L.Admin = L.Class.extend({
     _createTable : function () {
         // https://www.dynatable.com/#existing-json
 
+        // get entries
         var entries = this.table_entries;
 
         // hide #map
@@ -240,6 +240,7 @@ L.Admin = L.Class.extend({
         table += '<th data-dynatable-column="time">     ' + this.locale.table.time + '</th>';
         table += '<th data-dynatable-column="domain">   ' + this.locale.table.domain + '</th>';
         table += '<th data-dynatable-column="image">   ' + this.locale.table.image + '</th>';
+        table += '<th data-dynatable-column="delete">   ' + this.locale.table.delete + '</th>';
         table += '</thead>';
         table += '<tbody>';
         table += '</tbody>';
@@ -258,6 +259,7 @@ L.Admin = L.Class.extend({
     },
 
     _parseTableJson : function (entries) {
+        
         // hack to make <a> fn work
         window.mapnotectx = this;
 
@@ -265,36 +267,46 @@ L.Admin = L.Class.extend({
         var table = [];
         _.each(entries, function (e) {
             var t = {};
+
+            // add entries
             t.address = e.address || '';
             t.tags = e.tags.join(', ');
             t.text = e.text || '';
-            // t.latlng = e.coordinates[0] + ', ' + e.coordinates[1];
-            t.latlng = '<a href="#" id="map-note-' + e.id + '" onclick="mapnotectx.onMapNoteClick(\'' + e.id + '\', this)">Kart</a>';
             t.zoom = parseInt(e.zoom) || '';
             t.username = e.username || '';
             t.time = new Date(e.timestamp).toDateString() || '';
             t.domain = e.portal_tag || '';
+           
+            // create preview map link
+            t.latlng = '<a href="#" id="map-note-' + e.id + '" onclick="mapnotectx.onMapNoteClick(\'' + e.id + '\', this)">Kart</a>';
+
+            // create preview image link
             t.image = '<a href="#" id="map-note-image-' + e.id + '" onclick="mapnotectx.onMapNoteImageClick(\'' + e.image_url + '\')">Bilde</a>';
+            
+            // create delete link
+            t.delete = '<a href="#" class="map-note-delete-button" id="map-note-delete-' + e.id + '" onclick="mapnotectx.onDeleteNoteClick(\'' + e.id + '\')">Slett</a>';
+
+            // push
             table.push(t);
+
         }.bind(this));
-        console.log('table: ', table);
         return table;
     },
 
     onMapNoteClick : function (id) {
-        console.log('onMapNoteClick', id);
-
 
         // remember
         this._preview = {};
 
+        // get entry
         var entry = this._preview.entry = this._getEntry(id);
 
         console.log('entry: ', entry);
 
+        // return if no entry
         if (!entry) return console.log('no such entry');
 
-        // create popup map with entry
+        // create popup map 
         var map_container = this._preview.container = L.DomUtil.create('div', 'map-note-container', this._content.map);
         map_container.id = 'map-note-container-' + entry.id;
         var closeBtn = this._preview.close = L.DomUtil.create('div', 'map-note-container-close', map_container);
@@ -304,13 +316,13 @@ L.Admin = L.Class.extend({
         // set latlng
         var latlng = [entry.coordinates[0], entry.coordinates[1]];
 
-
         // create map
-
+        var zoom = entry.zoom + 2;
+        console.log('zoom', zoom, entry.zoom);
         mapboxgl.accessToken = 'pk.eyJ1IjoibWFwaWMiLCJhIjoiY2l2MmE1ZW4wMDAwZTJvcnhtZGI4YXdlcyJ9.rD_-Ou1OdKQsHqEqL6FJLg';
         this._preview.map = new mapboxgl.Map({
             container: 'map-note-container-' + entry.id,
-            zoom: entry.zoom + 1,
+            zoom: entry.zoom + 2,
             center: latlng,
             style: 'mapbox://styles/mapbox/satellite-v9',
             hash: false
@@ -336,9 +348,9 @@ L.Admin = L.Class.extend({
     },
 
     _createPopupHTML : function (p) {
+        // nb: should be identical to front-page.js fn
+        // todo: concat
         
-        console.log('create Popup', p);
-
         // parse tags
         var tags = safeParse(p.tags);
         var niceTags = tags ? tags.join(', ') : '';
@@ -379,7 +391,27 @@ L.Admin = L.Class.extend({
         var container = this._preview.container;
         if (container) container.parentNode.removeChild(container);
 
+        // clear 
         this._preview = {};
+    },
+
+    onDeleteNoteClick : function (id) {
+        console.log('onDeleteNoteClick', id);
+
+        // confirm
+        var ok = confirm(this.locale.table.confirmDelete);
+        if (!ok) return;
+
+        // get entry
+        var entry = this._getEntry(id);
+        if (!entry) return console.log('no such entry');
+
+        app.api.deleteRecord({id : id}, function (err, results) {
+            console.log('err, results', err, results);
+
+        })
+
+
     },
 
     onMapNoteImageClick : function (image_url) {
@@ -428,6 +460,7 @@ L.Admin = L.Class.extend({
     },
 
     // helper fn
+    // todo: move
     getBaseUrl : function () {
         return 'https://mittlier.no/'; // todo
     },

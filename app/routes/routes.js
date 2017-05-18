@@ -27,6 +27,9 @@ router.post('/login', api.login);
 // post note
 router.post('/v1/note', api.note);
 
+// delete note
+router.post('/v1/delete', api.deleteNote);
+
 // upload image
 router.post('/v1/upload', api.upload);
 

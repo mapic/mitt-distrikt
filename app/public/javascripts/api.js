@@ -18,10 +18,16 @@ L.Api = L.Class.extend({
         this.get(url, callback);
     },
 
+    // delete a feature
+    deleteRecord : function (options, callback) {
+        this.post('/delete', options, callback);
+    },
+
     // post a feature
     note : function (options, callback) {
         this.post('/note', options, callback);
     },
+
 
     // upload image
     upload : function (file, callback) {
@@ -140,7 +146,7 @@ L.Api = L.Class.extend({
 
     serverUrl : function () {
         var api_version = 'v1'
-        var url = window.location.href + api_version;
+        var url = window.location.origin + '/' + api_version;
         return url;
     },
 

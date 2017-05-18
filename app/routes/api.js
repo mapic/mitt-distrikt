@@ -293,6 +293,17 @@ module.exports = api = {
 
     },
 
+    deleteNote : function (req, res) {
+
+        console.log('deleteNote', req.body);
+
+        res.send({
+            err : null, 
+            deleted : 'ok'
+        })
+
+    },
+
 
 
 }

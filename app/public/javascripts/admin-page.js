@@ -251,11 +251,16 @@ L.Admin = L.Class.extend({
         var table_json = this._parseTableJson(entries);
 
         // run dynatable
-        $('#notes-table').dynatable({
+        var dt = $('#notes-table').dynatable({
           dataset: {
             records: table_json
+          },
+          inputs : {
+            // live search with keyup
+            queryEvent : 'keyup change blur'
           }
         });
+
     },
 
     _parseTableJson : function (entries) {
@@ -278,13 +283,18 @@ L.Admin = L.Class.extend({
             t.domain = e.portal_tag || '';
            
             // create preview map link
-            t.latlng = '<a href="#" id="map-note-' + e.id + '" onclick="mapnotectx.onMapNoteClick(\'' + e.id + '\', this)">Kart</a>';
-
+            // t.latlng = '<a href="#" id="map-note-' + e.id + '" onclick="mapnotectx.onMapNoteClick(\'' + e.id + '\', this)">Kart</a>';
+            t.latlng = '<i class="fa fa-globe" aria-hidden="true" onclick="mapnotectx.onMapNoteClick(\'' + e.id + '\', this)"></i>';
             // create preview image link
-            t.image = '<a href="#" id="map-note-image-' + e.id + '" onclick="mapnotectx.onMapNoteImageClick(\'' + e.image_url + '\')">Bilde</a>';
-            
+            // t.image = '<a href="#" id="map-note-image-' + e.id + '" onclick="mapnotectx.onMapNoteImageClick(\'' + e.image_url + '\')">Bilde</a>';
+            if (e.image_url)
+            t.image = '<i class="fa fa-picture-o" aria-hidden="true" onclick="mapnotectx.onMapNoteImageClick(\'' + e.image_url + '\')"></i>'
+            else {
+                t.image = '';
+            }
             // create delete link
-            t.delete = '<a href="#" class="map-note-delete-button" id="map-note-delete-' + e.id + '" onclick="mapnotectx.onDeleteNoteClick(\'' + e.id + '\')">Slett</a>';
+            // t.delete = '<a href="#" class="map-note-delete-button" id="map-note-delete-' + e.id + '" onclick="mapnotectx.onDeleteNoteClick(\'' + e.id + '\')">Slett</a>';
+            t.delete = '<i class="fa fa-trash-o" aria-hidden="true" onclick="mapnotectx.onDeleteNoteClick(\'' + e.id + '\')"></i>';
 
             // push
             table.push(t);
@@ -295,8 +305,8 @@ L.Admin = L.Class.extend({
 
     onMapNoteClick : function (id) {
 
-        // remember
-        this._preview = {};
+        // remove old
+        this._closePreview();
 
         // get entry
         var entry = this._preview.entry = this._getEntry(id);
@@ -378,14 +388,16 @@ L.Admin = L.Class.extend({
         return html;
     },
 
-    _closePreview : function (id) {
+    _preview : {},
+
+    _closePreview : function () {
 
         // remove map
         var map = this._preview.map;
         if (map) map.remove();
 
         // remove event
-        L.DomEvent.off(this._preview.close, 'click', this._closePreview);
+        this._preview.close && L.DomEvent.off(this._preview.close, 'click', this._closePreview);
 
         // remove container
         var container = this._preview.container;

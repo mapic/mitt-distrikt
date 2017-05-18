@@ -208,13 +208,95 @@ L.Admin = L.Class.extend({
             if (err) return console.error(err);
             console.log('getTable', err, json);
 
-            var table_entries = safeParse(json);
+            this.table_entries = safeParse(json);
 
-            if (!table_entries) return console.error('No table entries.');
+            if (!this.table_entries) return console.error('No table entries.');
 
-            console.log('table_entries', table_entries);
+            console.log('this.table_entries', this.table_entries);
+
+            this._createTable();
+        }.bind(this));
+
+    },
+
+    _createTable : function () {
+        // https://www.dynatable.com/#existing-json
+
+        var entries = this.table_entries;
+
+        // hide #map
+        L.DomUtil.get('map').style.display = 'none';
+
+        // create table
+        var html = L.DomUtil.create('div', 'table-container', this._content.map);
+        var table = '<table id="notes-table">';
+        table += '<thead>';
+        table += '<th data-dynatable-column="address">  ' + this.locale.table.address + '</th>';
+        table += '<th data-dynatable-column="text">     ' + this.locale.table.text + '</th>';
+        table += '<th data-dynatable-column="tags">     ' + this.locale.table.tags + '</th>';
+        table += '<th data-dynatable-column="latlng">   ' + this.locale.table.latlng + '</th>';
+        table += '<th data-dynatable-column="zoom">     ' + this.locale.table.zoom + '</th>';
+        table += '<th data-dynatable-column="username"> ' + this.locale.table.username + '</th>';
+        table += '<th data-dynatable-column="time">     ' + this.locale.table.time + '</th>';
+        table += '<th data-dynatable-column="domain">   ' + this.locale.table.domain + '</th>';
+        table += '</thead>';
+        table += '<tbody>';
+        table += '</tbody>';
+        table += '</table>';
+        html.innerHTML = table;
+
+        // format table entries 
+        var table_json = this._parseTableJson(entries);
+
+        // run dynatable
+        $('#notes-table').dynatable({
+          dataset: {
+            records: table_json
+          }
         });
+    },
 
+    _parseTableJson : function (entries) {
+        // hack to make <a> fn work
+        window.mapnotectx = this;
+
+        // create table entries
+        var table = [];
+        _.each(entries, function (e) {
+            var t = {};
+            t.address = e.address || '';
+            t.tags = e.tags.join(', ');
+            t.text = e.text || '';
+            // t.latlng = e.coordinates[0] + ', ' + e.coordinates[1];
+            t.latlng = '<a href="" id="map-note-' + e.id + '" onmouseover="mapnotectx.onMapNoteMouseover(\'' + e.id + '\')">Kart</a>';
+            t.zoom = parseInt(e.zoom) || '';
+            t.username = e.username || '';
+            t.time = new Date(e.timestamp).toDateString() || '';
+            t.domain = e.portal_tag || '';
+            t.image = e.image_url || '';
+            table.push(t);
+        }.bind(this));
+        console.log('table: ', table);
+        return table;
+    },
+
+    onMapNoteMouseover : function (id) {
+        console.log('onMapNoteMouseover', id);
+
+        var entry = this._getEntry(id);
+
+        console.log('entry: ', entry);
+
+        // create popup map with entry
+        
+
+    },
+
+    _getEntry : function (id) {
+        var entry = _.find(this.table_entries, function (t) {
+            return t.id == id;
+        });
+        return entry;
     },
 
     _fillInfoContent : function () {

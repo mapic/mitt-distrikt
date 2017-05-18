@@ -332,7 +332,8 @@ L.MapContent = L.Evented.extend({
                 image_url : image_url,
                 zoom : zoom,
                 portal_tag : portal_tag,
-                timestamp : Date.now()
+                timestamp : Date.now(),
+                id : Math.random().toString(36).substr(2, 6)
             },
             "geometry": {
                 "type": "Point",

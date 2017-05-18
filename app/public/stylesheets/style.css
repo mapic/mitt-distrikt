@@ -616,4 +616,20 @@ img.note-image-container {
   display: none;
 }
 
+/*
+  __        ___.   .__          
+_/  |______ \_ |__ |  |   ____  
+\   __\__  \ | __ \|  | _/ __ \ 
+ |  |  / __ \| \_\ \  |_\  ___/ 
+ |__| (____  /___  /____/\___  >
+           \/    \/          \/ 
+*/
+.table-container {
+    width: 90%;
+    margin: 0 auto;
+    margin-top: 10%;
+}
 
+th a {
+    color: #000 !important;
+}

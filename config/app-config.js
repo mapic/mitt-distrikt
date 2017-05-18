@@ -7,7 +7,7 @@ module.exports = {
 
     redis : {
         // key for geojson
-        geojson : 'mittlier-geojson',
+        geojson : 'mittlier-geojson-v2',
         auth : 'mmdNargzcoXMctLwdzdL'
     },
 

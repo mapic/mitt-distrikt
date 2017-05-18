@@ -149,6 +149,8 @@ L.MapContent = L.Evented.extend({
 
         }.bind(this));
 
+        // todo: fix address
+
     },
 
     _onReverseLookup : function (options) {
@@ -316,7 +318,7 @@ L.MapContent = L.Evented.extend({
         var center = this.note.center;
         var address = this.note.address;
         var zoom = this.note.zoom;
-        var username = 'anonymous';
+        var username = app.locale.notes.anon;
         var tags = ["ok", "lier"];
         var portal_tag = 'mittlier'; // todo: from config
         var image_url = this.note.image_url;
@@ -376,6 +378,9 @@ L.MapContent = L.Evented.extend({
         // show add button
         this._showAddButton();
 
+        // clear
+        this.note = {};
+
     },
 
     _cancelNote : function () {
@@ -387,6 +392,9 @@ L.MapContent = L.Evented.extend({
 
         // show add button
         this._showAddButton();
+
+        // clear
+        this.note = {};
     },
 
     _onMapLoad : function () {
@@ -523,6 +531,7 @@ L.MapContent = L.Evented.extend({
 
         // hide popup
         map.on('mouseleave', 'notes', function() {
+            return; // debug
             map.getCanvas().style.cursor = '';
             popup.remove();
         }.bind(this));
@@ -533,15 +542,27 @@ L.MapContent = L.Evented.extend({
         
         console.log('create Popup', p);
 
-        // parse tags
+        // get tags
         var tags = safeParse(p.tags);
-        var niceTags = tags ? tags.join(', ') : '';
+        var niceTags = app.locale.notes.keywords + ': ';
+        _.each(tags, function (t) {
+            var v = _.upperCase(t) + ' ';
+            niceTags += v 
+        });
+
+        // get name
+        var name = app.locale.notes.writtenBy + ': ' + _.capitalize(p.username);
 
         // get image
         var image = p.image_url || false;
 
         // create html
         var html = '<div class="notes-popup">';
+        if (image) {
+        html    += '    <div class="notes-image">'
+        html    += '        <img src="' + image + '">'
+        html    += '    </div>'
+        } 
         html    += '    <div class="notes-text">'
         html    +=          p.text
         html    += '    </div>'
@@ -549,13 +570,9 @@ L.MapContent = L.Evented.extend({
         html    +=          niceTags;
         html    += '    </div>'
         html    += '    <div class="notes-users">'
-        html    +=          p.username;
+        html    +=          name
         html    += '    </div>'
-        if (image) {
-        html    += '    <div class="notes-image">'
-        html    += '        <img src="' + image + '">'
-        html    += '    </div>'
-        }
+    
         html    += '</div>'
         return html;
     },

@@ -29,7 +29,10 @@ locale.NO = {
         addPhoto                : 'Legg ved bilde',
         send                    : 'Send inn',
         cancel                  : 'Avbryt',
-        invalidImage            : 'Ikke et gyldig bildeformat. Vennligst prøv igjen!'
+        invalidImage            : 'Ikke et gyldig bildeformat. Vennligst prøv igjen!',
+        keywords                : 'Nøkkelord',
+        writtenBy               : 'Skrevet av',
+        anon                    : 'Anonymt innlegg',
     },
 
     table : {

@@ -1,0 +1,3 @@
+[submodule "app/public/javascripts/lib/jquery-dynatable"]
+	path = app/public/javascripts/lib/jquery-dynatable
+	url = git@github.com:mapic/jquery-dynatable.git

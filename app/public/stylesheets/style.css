@@ -625,15 +625,13 @@ _/  |______ \_ |__ |  |   ____
            \/    \/          \/ 
 */
 .table-container {
-    width: 90%;
-    margin: 0 auto;
-    margin-top: 10%;
+    padding: 50px;
+    top: 100px;
+    position: absolute;
 }
-
 th a {
     color: #000 !important;
 }
-
 table#notes-table {
     font-size: 0.9em;
 }
@@ -641,7 +639,6 @@ td {
     padding-left: 5px;
     padding-right: 5px;
 }
-
 .map-note-container {
   width: 30%;
   height: 30%;
@@ -650,9 +647,9 @@ td {
   left: 0px;
   z-index: 500;
   border: 4px solid white;
+  background: black;
 
 }
-
 #note-preview-marker {
     background-size: 20px 20px !important;
     background-position: 0px 0px !important; 
@@ -660,7 +657,6 @@ td {
     width: 20px;
     height: 20px;
 }
-
 .map-note-container-close {
     background: white;
     position: absolute;
@@ -677,11 +673,32 @@ td {
 .map-note-container-close:hover {
   background: #9CD6E5;
 }
-
-
-tr:nth-child(even) {
+tr:nth-child(odd) {
     background: #efefef;
 }
-
-
-
+tr {
+  line-height: 2em;
+}
+i.fa.fa-trash-o {
+    cursor: pointer;
+}
+i.fa.fa-trash-o:hover {
+    color: red;
+}
+i.fa.fa-picture-o {
+  cursor: pointer;
+}
+i.fa.fa-picture-o:hover {
+  color: #89AE4D;
+}
+i.fa.fa-globe {
+  cursor: pointer;
+}
+i.fa.fa-globe:hover {
+  color: #89AE4D;
+}
+.dynatable-search {
+    margin-bottom: 10px !important;
+    margin-right: 30px !important;
+    float: none !important;
+}

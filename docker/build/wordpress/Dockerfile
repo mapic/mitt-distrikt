@@ -2,7 +2,7 @@ FROM wordpress:latest
 MAINTAINER knutole@mapic.io
 
 RUN apt-get update -y
-RUN apt-get install -y curl nmap wget unzip
+RUN apt-get install -y curl nmap wget unzip nano
 
 COPY plugins /tmp/plugins
 COPY security /tmp/security

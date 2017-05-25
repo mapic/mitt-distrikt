@@ -43,3 +43,4 @@ jspm_packages
 *.swp
 
 app/app-config.js
+config/app-config.js

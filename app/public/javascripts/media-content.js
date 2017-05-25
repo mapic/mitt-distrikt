@@ -24,7 +24,7 @@ L.Media = L.Class.extend({
         var resolution = app.isJustMobile() ? 'low_resolution' : 'standard_resolution';
 
         // debug
-        return;
+        // return;
 
         // init feed
         this._feed = new Instafeed({

@@ -17,21 +17,16 @@ var multer = require('multer');
 safeStringify = function (o) {try {var s = JSON.stringify(o);return s;} catch (e) {return false;}}
 safeParse = function (s) {try { var o = JSON.parse(s); return o; } catch (e) {return false;}}
 
-// debug
-var T = new Twit(config.twitter);
-T.get('search/tweets', { q: 'oslo filter:images filter:safe', result_type: 'recent', count: 3 }, function(err, data, response) {
-    console.log(data)
-});
-
 // module
 module.exports = api = {
 
     twitter : function (req, res, next) {
 
-
-       
-
-
+        // debug
+        var T = new Twit(config.twitter);
+        T.get('search/tweets', { q: 'oslo filter:images filter:safe', result_type: 'recent', count: 3 }, function(err, data, response) {
+            console.log(data)
+        });
     },
 
     checkAccess : function (req, res, next) {

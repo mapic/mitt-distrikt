@@ -28,7 +28,6 @@ L.Api = L.Class.extend({
         this.post('/note', options, callback);
     },
 
-
     // upload image
     upload : function (file, callback) {
         var formData = new FormData();
@@ -49,12 +48,10 @@ L.Api = L.Class.extend({
         };
     },
 
+    // get all notes
     getTable : function (callback) {
         var url = window.location.origin + '/v1/table';
         url += '?access_token=' + app.access_token;
-
-        console.log('url', url);
-
         this.get(url, callback);
     },
 
@@ -135,9 +132,8 @@ L.Api = L.Class.extend({
         };
 
         // add access_token to request
-        // var access_token = (window.app && app.tokens) ? app.tokens.access_token : null;
         var options = _.isString(json) ? safeParse(json) : json;
-        // options.access_token = options.access_token || access_token;
+        options.access_token = app.access_token;
         var send_json = safeStringify(options);
        
         // send

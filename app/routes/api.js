@@ -5,10 +5,8 @@ var _ = require('lodash');
 var shortid = require('shortid');
 shortid.characters('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-');
 var config = require('../app-config.js');
-var redis = require('redis').createClient({
-    host : 'redis'
-});
-redis.on('error', function (err) {console.log('Redis error: ', err);});
+var redis = require('redis').createClient({ host : 'redis' });
+redis.on('error', function (err) { console.log('Redis error: ', err); });
 redis.auth(config.redis.auth);
 
 // storage handler
@@ -18,9 +16,41 @@ var multer = require('multer');
 safeStringify = function (o) {try {var s = JSON.stringify(o);return s;} catch (e) {return false;}}
 safeParse = function (s) {try { var o = JSON.parse(s); return o; } catch (e) {return false;}}
 
-
-
+// module
 module.exports = api = {
+
+    checkAccess : function (req, res, next) {
+
+        // get access token
+        var access_token = req.body.access_token;
+
+        // deny if no token
+        if (!access_token) return res.send(api.noAccess)
+        
+        // check access token
+        redis.get(access_token, function (err, token) {
+
+            // if no token
+            if (err || !token) return res.send(api.noAccess);
+
+            // parse
+            var parsed_token = safeParse(token);
+
+            // ensure token
+            if (!parsed_token) return res.send(api.noAccess);
+
+            // check privilege = admin
+            var priv = parsed_token.privilege;
+            if (priv != 'admin') return res.send(api.noAccess);
+
+            // access granted
+            next()
+        });
+
+    },
+    noAccess : {
+        error : 'Invalid or missing access token'
+    },
 
     // route: /v1/upload
     upload : function (req, res) {
@@ -54,9 +84,7 @@ module.exports = api = {
 
         // store to disk
         upload(req, res, function (err, something) {
-            if (err) {
-                return res.send({error : "Couldn't upload image!"});
-            }
+            if (err) return res.send({error : "Couldn't upload image!"});
 
             // create image url
             var image_url = 'https://' + config.domain + '/v1/image/' + filename;
@@ -66,9 +94,8 @@ module.exports = api = {
                 error : null, 
                 endpoint : '/v1/upload',
                 image_url : image_url
-            })
+            });
         });
-
     },
 
     // route: /v1/image/:filename
@@ -83,7 +110,6 @@ module.exports = api = {
             res.send(image);
         });
     },
-
 
     // route: GET /
     index : function (req, res) {
@@ -108,20 +134,11 @@ module.exports = api = {
         var valid_feature = api._checkValidFeature(feature);
 
         // if not valid
-        if (!valid_feature) {
-            return res.send({
-                error : 'Invalid Feature. This is not your fault.'
-            });
-        }
+        if (!valid_feature) return res.send({ error : 'Invalid Feature. This is not your fault.' });
 
         // get existing geojson
         redis.get(config.redis.geojson, function (err, json) {
-            if (err) {
-                console.log('api.note -> redis.get -> error: ', err);
-                return res.send({
-                    error : err
-                });
-            }
+            if (err) return res.send({ error : err });
 
             // parse
             var existing_geojson = safeParse(json);
@@ -137,6 +154,10 @@ module.exports = api = {
             // add feature to existing
             existing_geojson.features.push(feature);
 
+            // double check valid
+            var valid_geojson = GJV.valid(existing_geojson);
+            if (!valid_geojson) return res.send({error : "Invalid GeoJSON."});
+
             // save to redis
             redis.set(config.redis.geojson, safeStringify(existing_geojson), function (err) {
 
@@ -149,25 +170,58 @@ module.exports = api = {
             });
             
         });
-
     },
 
     // route: GET /v1/notes
     getNotes : function (req, res) {
+        
         // get existing geojson
         redis.get(config.redis.geojson, function (err, json) {
-            if (err) {
-                console.log('api.note -> redis.get -> error: ', err);
-                return res.send({
-                    error : err
-                });
-            }
+            if (err) return res.send({ error : err });
 
             // parse
             var existing_geojson = safeParse(json);
 
             // send
             res.send(existing_geojson);
+        });
+    },
+
+    deleteNote : function (req, res) {
+
+        // get note id
+        var note_id = req.body.id;
+
+        // return if no note id
+        if (!note_id) return res.send({error : 'No such note id.'})
+
+        // get existing geojson
+        redis.get(config.redis.geojson, function (err, json) {
+            if (err) return res.send({ error : err });
+
+            // parse
+            var existing_geojson = safeParse(json);
+
+            // remove feature
+            var removed = _.remove(existing_geojson.features, function (f) {
+                return f.properties.id == note_id;
+            });
+
+            // double check valid
+            var valid_geojson = GJV.valid(existing_geojson);
+            if (!valid_geojson) return res.send({error : "Invalid GeoJSON."});
+
+            // save 
+            redis.set(config.redis.geojson, safeStringify(existing_geojson), function (err) {
+
+                // return to client 
+                res.send({
+                    error : err, 
+                    updated : existing_geojson,
+                    fn : 'api.deleteNote',
+                });
+
+            });
         });
     },
 
@@ -201,7 +255,8 @@ module.exports = api = {
 
                 // push to stack
                 table.push(table_entry);
-            })
+            
+            });
 
             // send
             res.send(table);
@@ -266,8 +321,7 @@ module.exports = api = {
                     uppercase : false,
                 });
 
-                console.log('access_token', access_token);
-
+                // save access token
                 redis.set(access_token, safeStringify({
                     email : user.email,
                     privilege : 'admin',
@@ -292,23 +346,7 @@ module.exports = api = {
 
         });
 
-        // todo: redis handling of access_tokens
-        // todo: secure all sensitive endpoints with access_token verification
-        // todo: don't use cookies on admin.
-
     },
-
-    deleteNote : function (req, res) {
-
-        console.log('deleteNote', req.body);
-
-        res.send({
-            err : null, 
-            deleted : 'ok'
-        })
-
-    },
-
 
 
 }

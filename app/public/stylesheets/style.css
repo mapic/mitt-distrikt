@@ -658,7 +658,23 @@ td {
   z-index: 500;
   border: 4px solid white;
   background: black;
+}
+.admin-image-preview {
+  width: 30%;
+  height: 30%;
+  position: fixed;
+  bottom: 0px;
+  left: 0px;
+  z-index: 500;
+  border: 4px solid white;
+  background: white;
+  text-align: center;
+}
 
+.admin-image-preview img {
+  max-height: 90%;
+  max-width: 90%;
+  padding: 10px;
 }
 #note-preview-marker {
     background-size: 20px 20px !important;

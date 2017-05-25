@@ -76,6 +76,8 @@ L.Admin = L.Class.extend({
             // login ok
             app.access_token = res.access_token;
 
+            console.log('access_token: ', app.access_token);
+
             // This will open page if no error and existing access_token,
             // but not actually check validity of access_token.
             // This is not an issue as long as admin API endpoints check for validity.
@@ -268,14 +270,11 @@ L.Admin = L.Class.extend({
         // hack to make <a> fn work
         window.mapnotectx = this;
 
-        console.log('entries', entries);
-
         // create table entries
         var table = [];
         _.each(entries, function (e) {
             var t = {};
 
-            console.log('e:', e);
             // add entries
             t.address = e.address || '';
             t.tags = e.tags.join(', ');
@@ -286,17 +285,14 @@ L.Admin = L.Class.extend({
             t.domain = e.portal_tag || '';
            
             // create preview map link
-            // t.latlng = '<a href="#" id="map-note-' + e.id + '" onclick="mapnotectx.onMapNoteClick(\'' + e.id + '\', this)">Kart</a>';
             t.latlng = '<i class="fa fa-globe" aria-hidden="true" onclick="mapnotectx.onMapNoteClick(\'' + e.id + '\', this)"></i>';
             // create preview image link
-            // t.image = '<a href="#" id="map-note-image-' + e.id + '" onclick="mapnotectx.onMapNoteImageClick(\'' + e.image_url + '\')">Bilde</a>';
             if (e.image_url)
             t.image = '<i class="fa fa-picture-o" aria-hidden="true" onclick="mapnotectx.onMapNoteImageClick(\'' + e.image_url + '\')"></i>'
             else {
                 t.image = '';
             }
             // create delete link
-            // t.delete = '<a href="#" class="map-note-delete-button" id="map-note-delete-' + e.id + '" onclick="mapnotectx.onDeleteNoteClick(\'' + e.id + '\')">Slett</a>';
             t.delete = '<i class="fa fa-trash-o" aria-hidden="true" onclick="mapnotectx.onDeleteNoteClick(\'' + e.id + '\')"></i>';
 
             // push
@@ -424,13 +420,25 @@ L.Admin = L.Class.extend({
         app.api.deleteRecord({id : id}, function (err, results) {
             console.log('err, results', err, results);
 
-        })
-
-
+        });
     },
 
     onMapNoteImageClick : function (image_url) {
         console.log('onMapNoteImageClick', image_url);
+
+        // close existing
+        this._closePreview();
+
+        // create container
+        this._preview.container = L.DomUtil.create('div', 'admin-image-preview', this._content.map);
+        
+        // create close btn
+        var closeBtn = this._preview.close = L.DomUtil.create('div', 'map-note-container-close', this._preview.container);
+        closeBtn.innerHTML = this.locale.table.closeBtn;
+        L.DomEvent.on(this._preview.close, 'click', this._closePreview, this);
+
+        // insert image
+        this._preview.container.innerHTML = '<img src="' + image_url + '">';
     },
 
     _getEntry : function (id) {

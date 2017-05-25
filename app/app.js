@@ -10,6 +10,10 @@ var bodyParser = require('body-parser');
 var helmet = require('helmet');
 var debug = require('debug')('app:server');
 var compression = require('compression');
+var router = express.Router();
+
+// our api
+var api = require('./routes/api');
 
 // set port
 var port = 3001;
@@ -20,15 +24,9 @@ var app = express();
 // use compression
 app.use(compression());
 
-// set routes
-var routes = require('./routes/routes');
-
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
-
-// set logger
-// app.use(logger('dev'));
 
 // set parsing
 app.use(bodyParser.json());
@@ -47,43 +45,37 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(helmet());
 app.disable('x-powered-by');
 
+// route: home
+router.get('/', api.index);
+
+// route: admin
+router.get('/admin', api.admin);
+
+// route: serve images
+router.get('/v1/image/:filename', api.image);
+
+// route: get geojson
+router.get('/v1/notes', api.getNotes);
+
+// route: get geojson
+router.get('/v1/table', api.getTable); // todo: check access_token
+
+// route: login
+router.post('/login', api.login);
+
+// route: post note
+router.post('/v1/note', api.note);
+
+// route: delete note
+router.post('/v1/delete', api.checkAccess, api.deleteNote);
+
+// route: upload image
+router.post('/v1/upload', api.upload);
+
 // set routes
-app.use('/', routes);
-
-// // middleware, check access_token
-// app.use(function (err, req, res, next) {
-
-//     console.log('middelware access token!');
-
-//     next();
-
-// });
-
-
-
-
-
+app.use('/', router);
 
 // start server
 app.listen(port, function () {
     console.log('Listening on port', port)
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -36,6 +36,7 @@
     "pug": "^2.0.0-beta.12",
     "redis": "^2.7.1",
     "serve-favicon": "^2.4.2",
-    "shortid": "^2.2.8"
+    "shortid": "^2.2.8",
+    "twit": "^2.2.5"
   }
 }

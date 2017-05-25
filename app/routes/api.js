@@ -217,8 +217,6 @@ module.exports = api = {
                 // return to client 
                 res.send({
                     error : err, 
-                    updated : existing_geojson,
-                    fn : 'api.deleteNote',
                 });
 
             });

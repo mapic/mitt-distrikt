@@ -210,6 +210,8 @@ L.Admin = L.Class.extend({
             // parse
             this.table_entries = safeParse(json);
 
+            console.log('table_entries', this.table_entries);
+
             // check
             if (!this.table_entries) return console.error('No table entries.');
 
@@ -220,6 +222,30 @@ L.Admin = L.Class.extend({
 
     },
 
+    _refreshTable : function () {
+        
+        // get geojson
+        app.api.getTable(function (err, json) {
+            if (err) return console.error(err);
+
+            // parse
+            this.table_entries = safeParse(json);
+
+            // destroy dynatable
+            this._destroyDynatable();
+
+            // recreate table
+            this._createTable();
+           
+        }.bind(this));
+    },
+
+    _destroyDynatable : function () {
+        this._content.map.innerHTML = '';
+        this._dt = {};
+        delete this._dt;
+    },
+
     _createTable : function () {
         // https://www.dynatable.com/#existing-json
 
@@ -227,7 +253,8 @@ L.Admin = L.Class.extend({
         var entries = this.table_entries;
 
         // hide #map
-        L.DomUtil.get('map').style.display = 'none';
+        var map = L.DomUtil.get('map');
+        if (map) map.style.display = 'none';
 
         // create table
         var html = L.DomUtil.create('div', 'table-container', this._content.map);
@@ -253,7 +280,7 @@ L.Admin = L.Class.extend({
         var table_json = this._parseTableJson(entries);
 
         // run dynatable
-        var dt = $('#notes-table').dynatable({
+        this._dt = $('#notes-table').dynatable({
           dataset: {
             records: table_json
           },
@@ -310,8 +337,6 @@ L.Admin = L.Class.extend({
         // get entry
         var entry = this._preview.entry = this._getEntry(id);
 
-        console.log('entry: ', entry);
-
         // return if no entry
         if (!entry) return console.log('no such entry');
 
@@ -357,8 +382,6 @@ L.Admin = L.Class.extend({
     },
 
     _createPopupHTML : function (p) {
-        // nb: should be identical to front-page.js fn
-        // todo: concat
         
         // parse tags
         var tags = safeParse(p.tags);
@@ -407,7 +430,6 @@ L.Admin = L.Class.extend({
     },
 
     onDeleteNoteClick : function (id) {
-        console.log('onDeleteNoteClick', id);
 
         // confirm
         var ok = confirm(this.locale.table.confirmDelete);
@@ -418,13 +440,21 @@ L.Admin = L.Class.extend({
         if (!entry) return console.log('no such entry');
 
         app.api.deleteRecord({id : id}, function (err, results) {
-            console.log('err, results', err, results);
+            if (err) return alert(err);
 
-        });
+            // parse
+            var res = safeParse(results);
+
+            // catch error
+            if (res.error) return alert(res.error);
+
+            // refresh
+            this._refreshTable();
+
+        }.bind(this));
     },
 
     onMapNoteImageClick : function (image_url) {
-        console.log('onMapNoteImageClick', image_url);
 
         // close existing
         this._closePreview();

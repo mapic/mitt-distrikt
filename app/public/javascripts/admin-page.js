@@ -120,7 +120,7 @@ L.Admin = L.Class.extend({
         this._fillContent();
 
         // set default pane
-        this._show('info');
+        this._show('map');
 
     },
 
@@ -383,29 +383,68 @@ L.Admin = L.Class.extend({
 
     _createPopupHTML : function (p) {
         
-        // parse tags
+       
+        // get tags
         var tags = safeParse(p.tags);
-        var niceTags = tags ? tags.join(', ') : '';
+        var niceTags = app.locale.notes.keywords + ': ';
+        _.each(tags, function (t) {
+            var v = _.upperCase(t) + ' ';
+            niceTags += v 
+        });
+
+        // get name
+        var name = app.locale.notes.writtenBy + ': ' + _.capitalize(p.username);
 
         // get image
         var image = p.image_url || false;
 
+        console.log('P', p);
+
         // create html
         var html = '<div class="notes-popup">';
-        html    += '    <div class="notes-text">'
-        html    +=          p.text
-        html    += '    </div>'
-        html    += '    <div class="notes-tags">'
-        html    +=          niceTags;
-        html    += '    </div>'
-        html    += '    <div class="notes-users">'
-        html    +=          p.username;
-        html    += '    </div>'
+        
+        // image
+        var notesImgClass = image ? 'notes-image background-none' : 'notes-image';
+        html    += '    <div class="' + notesImgClass + '">'
         if (image) {
-        html    += '    <div class="notes-image">'
         html    += '        <img src="' + image + '">'
+        } 
         html    += '    </div>'
-        }
+
+        // right wrapper
+        html    += '    <div class="notes-right-wrapper">'
+
+            // title
+            html    += '    <div class="notes-title">'
+            html    +=          p.title
+            html    += '    </div>'
+
+
+            // text
+            html    += '    <div class="notes-text">'
+            html    +=          p.text
+            html    += '    </div>'
+
+            
+            // address
+            html    += '    <div class="notes-address">';
+            html    += '        <i class="fa fa-map-marker" aria-hidden="true"></i>' + p.address;
+            html    += '    </div>'
+
+           
+            // // tags
+            // html    += '    <div class="notes-tags">'
+            // html    +=          niceTags;
+            // html    += '    </div>'
+
+            // les mer...
+            html    += '    <div id="note-read-more" class="notes-read-more">'
+            html    += '    Les mer...'
+            html    += '    </div>'
+
+        html    += '    </div>'
+        
+    
         html    += '</div>'
         return html;
     },

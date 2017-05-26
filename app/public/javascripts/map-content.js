@@ -603,18 +603,20 @@ L.MapContent = L.Evented.extend({
             html    +=          p.title
             html    += '    </div>'
 
+              
+            // address
+            html    += '    <div class="notes-address">';
+            html    += '        <i class="fa fa-map-marker" aria-hidden="true"></i>' + p.address;
+            html    += '    </div>'
+
+
 
             // text
             html    += '    <div class="notes-text">'
             html    +=          p.text
             html    += '    </div>'
 
-            
-            // address
-            html    += '    <div class="notes-address">';
-            html    += '        <i class="fa fa-map-marker" aria-hidden="true"></i>' + p.address;
-            html    += '    </div>'
-
+          
            
             // // tags
             // html    += '    <div class="notes-tags">'

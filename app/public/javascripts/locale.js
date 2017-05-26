@@ -7,7 +7,9 @@ locale.NO = {
         map     : 'Kart',
         media   : 'Media'
     },
-    
+
+    portraitWarning : 'Denne siden kan kun vises i portrettformat. Vennligst snu mobilen eller nettbrettet ditt.',
+
     footer : {
 
         login   : 'Logg inn',

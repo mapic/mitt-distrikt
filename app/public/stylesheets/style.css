@@ -40,6 +40,7 @@ a {
     width: 32%;
     text-align: center;
     line-height: 49px;
+    max-width: 300px;
 }
 
 .btn-group .button:not(:last-child) {
@@ -379,51 +380,131 @@ _____     __| _/_____ |__| ____
 */
 .mapboxgl-popup-content {
     padding: 0 !important;
-    border-radius: 0 0 15px 14px !important;
+    border-radius: 10px;
     max-width: 400px;
     margin: 0 auto;
 
 }
 .mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip {
-    border-top-color: #e74549 !important;
+    border-top-color: white;
 }
 .notes-popup {
-    padding: 20px;
-    background: #e74549;
-    color: white;
-    border-radius: 0 0 15px 14px !important;
+    padding: 0;
+    background: white;
+    width: 350px;
+    height: 148px;
+    -webkit-box-shadow: 17px 18px 60px -19px rgba(0,0,0,0.75);
+    -moz-box-shadow: 17px 18px 60px -19px rgba(0,0,0,0.75);
+    box-shadow: 17px 18px 60px -19px rgba(0,0,0,0.75);
+    color: black;
+    font-family: 'Open Sans';
+    border-radius: 10px;
 }
 .notes-users {
-  font-size: 1.2em;
-    /*border: 1px solid white;*/
+  position: absolute;
+    left: 150px;
+    top: 120px;
 }
 .notes-tags {
-    font-weight: 600;
-    font-size: 1em;
-    padding: 5px;
-    padding-left: 0;
+    position: absolute;
+    left: 150px;
+    top: 60px;
 }
 .notes-text {
-    font-size: 1.4em;
-    padding: 20px;
+    position: relative;
+    font-size: 13px;
+    max-height: 60px;
+    overflow: hidden;
+    line-height: 15px;
+    margin-top: 5px;
+    color: #353535;
 }
-
-
-.notes-image img {
-    max-height: 100px;
-    height: 100%;
-    max-width: 100px;
-    border: 1px solid white;
-    background: white;
-    padding: 10px;
-}
-
 .notes-image {
-    padding: 20px;
+    padding: 0;
+    top: 0;
+    left: 0;
+    position: absolute;
+    width: 148px;
+    height: 148px;
+    overflow: hidden;
+    background: #e74549;
+    background-image: url(https://mittlier.no/stylesheets/stor-blomst.png);
+    background-size: 130px 130px;
+    background-repeat: no-repeat;
+    background-position: 12px 11px;
+    border-radius: 5px 0 0 5px;
+}
+.notes-image img {
+    max-height: 150px;
+    min-height: 150px;
+    min-width: 150px;
+}
+.notes-read-more {
+    position: absolute;
+    bottom: 5px;
+    right: 70px;
+    font-weight: 600;
+    color: #e74549;
     text-align: center;
+    bottom: 0px;
+    background: white;
+    right: -1px;
+    height: 12px;
+    border-radius: 10px 0px 10px 0;
+    padding: 10px;
+    border: 1px solid gainsboro;
+    padding-bottom: 8px;
+    padding-top: 2px;
+}
+.notes-read-more:hover {
+    background: #e74549;
+    color: white;
+    border: 1px solid #e74549;
+}
+.notes-read-more:active {
+    background: #e74549;
+    color: white;
+    border: 1px solid #e74549;
+}
+.notes-read-more:focus {
+    background: #e74549;
+    color: white;
+    border: 1px solid #e74549;
+}
+.notes-address {
+    height: 18px;
+    line-height: 17px;
+    font-size: 11px;
+    font-weight: 600;
+    position: absolute;
+    overflow: hidden;
+    color: #676767;
+    margin-top: 10px;
+    bottom: 30px;
+    left: 0px;
+}
+i.fa.fa-map-marker {
+    padding-right: 4px;
+    padding-left: 0px;
+    color: #E74549;
+    font-size: 16px;
 }
 
-
+.notes-right-wrapper {
+    position: absolute;
+    height: 100%;
+    width: 56%;
+    left: 148px;
+    margin-left: 5px;
+}
+.notes-title {
+    font-size: 16px;
+    color: #e74549;
+    font-weight: 600;
+    text-transform: capitalize;
+    margin-top: 5px;
+    position: relative;
+}
 /*               __                 
   ____   _____/  |_  ____   ______
  /    \ /  _ \   __\/ __ \ /  ___/
@@ -529,7 +610,7 @@ _____     __| _/_____ |__| ____
 
 .write-note-content {
     width: 50%;
-    position: absolute;
+    position: relative;
     margin-left: 25%;
     margin-top: 10%;
     margin-bottom: 10%;
@@ -597,6 +678,13 @@ _____     __| _/_____ |__| ____
     padding: 20px;
 }
 
+input.write-note-text {
+    height: 2em;
+    font-size: 1em;
+    padding: 5px;
+    width: 100%;
+    margin: 10px;
+}
 textarea.write-note-textarea {
     height: 2em;
     font-size: 1em;
@@ -622,6 +710,101 @@ img.note-image-container {
   width: 100%;
   height: 100%;
 }
+
+.write-note-title {
+    font-size: 16px;
+    font-weight: 500;
+    width: 90%;
+    background: #E74549;
+    color: white;
+    padding: 5%;
+    text-align: left;
+}
+.write-note-container {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    background: white;
+    z-index: 500;
+}
+
+i.fa.fa-map-marker.big {
+    font-size: 33px;
+    vertical-align: middle;
+}
+
+input.write-note-address-text {
+    height: 2em;
+    font-size: 13px;
+    width: 84%;
+    margin: 10px;
+    margin-left: 0px;
+    padding-top: 5px;
+    line-height: 13px;
+    color: #525252;
+}
+
+.close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  opacity: 0.8;
+}
+.close:hover {
+  opacity: 1;
+}
+.close:before, .close:after {
+  position: absolute;
+  left: 15px;
+  content: ' ';
+  height: 33px;
+  width: 2px;
+  background-color: #ffffff;
+}
+.close:before {
+  transform: rotate(45deg);
+}
+.close:after {
+  transform: rotate(-45deg);
+}
+
+.photo-upload-preview {
+    background: red;
+    width: 100%;
+    height: 200px;
+    top: 0px;
+    left: 0;
+    z-index: 3;
+    position: relative;
+    opacity: 0;
+}
+img.photo-upload-preview-shadow-img {
+    position: absolute;
+    width: 100%;
+    height: 200px;
+    background: rgb(249, 249, 249);
+    left: 0;
+    z-index: 0;
+    border: none;
+    outline: none;
+    background-image: url(https://mittlier.no/stylesheets/upload.png);
+    background-size: 200px;
+    background-repeat: no-repeat;
+    background-position: 50%;
+}
+img.photo-upload-preview-shadow-img:after {
+  content : 'Last opp bilde';
+}
+.preview-label {
+  color: blue;
+}
+.background-none {
+  background: none !important;
+}
+
+
 
 /*
         __  .__.__          
@@ -740,3 +923,5 @@ i.fa.fa-globe:hover {
     margin-right: 30px !important;
     float: none !important;
 }
+
+

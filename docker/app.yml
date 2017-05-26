@@ -22,7 +22,6 @@ services:
     links: 
       - redis
     command: sh start-server.sh
-
       
   wordpress:
     build: build/wordpress

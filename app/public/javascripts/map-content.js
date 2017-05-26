@@ -35,6 +35,8 @@ L.MapContent = L.Evented.extend({
             // style: 'mapbox://styles/mapbox/streets-v9',
             // style: 'mapbox://styles/mapbox/satellite-v9',
             style: 'mapbox://styles/mapbox/satellite-streets-v9',
+            // sprite : this.getSprite(),
+
             center: [10.234364120842656, 59.795007354532544],
             zoom : 12,
             attributionControl : false,
@@ -169,7 +171,8 @@ L.MapContent = L.Evented.extend({
         if (!div) return console.error('div not ready');
 
         // set address
-        div.innerHTML = this.note.address;
+        // div.innerHTML = '<i class="fa fa-map-marker" aria-hidden="true"></i>' + this.note.address;
+        div.value = this.note.address;
     },
 
     note : {},
@@ -200,49 +203,51 @@ L.MapContent = L.Evented.extend({
         var title = L.DomUtil.create('div', 'write-note-title', container);
         title.innerHTML = app.locale.notes.noteTitle;
 
+         // cancel button
+        var cancelBtn = L.DomUtil.create('div', 'write-note-cancel-button close', container);
+        // cancelBtn.innerHTML = app.locale.notes.cancel;
+        L.DomEvent.on(cancelBtn, 'click', this._cancelNote, this);
+
         // address
-        var address = this._reverseLookupAddressDiv = L.DomUtil.create('div', 'write-note-address', container);
-
-        // description
-        var explanation = L.DomUtil.create('div', 'write-note-explanation', container);
-        explanation.innerHTML = app.locale.notes.explanation;
-
-        // image container
-        if (this.uploadSupported()) this.note.imageContainer = L.DomUtil.create('div', 'write-note-image-container', container);
-
-        // text input
-        var textBox = this.note.textbox = L.DomUtil.create('textarea', 'write-note-textarea', container);
-        textBox.setAttribute('placeholder', 'Skriv ditt forslag til #MittLier');
+        // var address = this._reverseLookupAddressDiv = L.DomUtil.create('div', 'write-note-address', container);
+        var addressContainer = L.DomUtil.create('div', 'write-note-address-container', container);
+        addressContainer.innerHTML = '<i class="fa fa-map-marker big" aria-hidden="true"></i>';
+        var addressInput = this._reverseLookupAddressDiv = L.DomUtil.create('input', 'write-note-address-text', addressContainer);
+        addressInput.setAttribute('type', 'text');
 
         // photo button (only if supported)
         if (this.uploadSupported()) {
 
             // button
-            var photoBtn = L.DomUtil.create('input', 'write-note-photo-button', container);
+            var photoBtn = L.DomUtil.create('input', 'photo-upload-preview', container);
             photoBtn.setAttribute('id', 'file');
             photoBtn.setAttribute('type', 'file');
             photoBtn.setAttribute('name', 'file');
             photoBtn.setAttribute('accept', 'image/*');
             L.DomEvent.on(photoBtn, 'change', this._onPhotoBtnChange, this);
 
+            // var shadowBtn = L.DomUtil.create('input', 'photo-upload-preview-shadow', container);
+            var shadowImg = this.note.imageContainer = L.DomUtil.create('img', 'photo-upload-preview-shadow-img', container);
+
             // add to global
             this.note.uploader = photoBtn;
-
-            // label
-            var label = L.DomUtil.create('label', '', container);
-            label.setAttribute('for', 'file');
-            label.innerHTML = app.locale.notes.addPhoto;
         }
 
+        // text input
+        var textBox1 = this.note.textboxTitle = L.DomUtil.create('input', 'write-note-text', container);
+        textBox1.setAttribute('placeholder', 'Overskrift');
+        textBox1.setAttribute('type', 'text');
+
+        // text input
+        var textBox = this.note.textboxText = L.DomUtil.create('input', 'write-note-text', container);
+        textBox.setAttribute('placeholder', 'Skriv ditt forslag til #MittLier');
+        textBox.setAttribute('type', 'text');
+
+       
         // ok button
         var okBtn = L.DomUtil.create('div', 'write-note-ok-button', container);
         okBtn.innerHTML = app.locale.notes.send;
         L.DomEvent.on(okBtn, 'click', this._sendNote, this);
-
-        // cancel button
-        var cancelBtn = L.DomUtil.create('div', 'write-note-ok-button', container);
-        cancelBtn.innerHTML = app.locale.notes.cancel;
-        L.DomEvent.on(cancelBtn, 'click', this._cancelNote, this);
 
     },
 
@@ -285,7 +290,8 @@ L.MapContent = L.Evented.extend({
             this._uploading = false;
 
             // todo: show image?
-            this.note.imageContainer.innerHTML = '<img src="' + res.image_url + '" class="note-image-container">';
+            // this.note.imageContainer.innerHTML = '<img src="' + res.image_url + '" class="note-image-container">';
+            this.note.imageContainer.style.backgroundImage = 'url(' + res.image_url + ')';
 
         }.bind(this));
     },
@@ -311,7 +317,8 @@ L.MapContent = L.Evented.extend({
         this._u = 0;
 
         // get values
-        var text = this.note.textbox.value;
+        var text = this.note.textboxText.value;
+        var title = this.note.textboxTitle.value;
         var center = this.note.center;
         var address = this.note.address;
         var zoom = this.note.zoom;
@@ -324,6 +331,7 @@ L.MapContent = L.Evented.extend({
         var feature = {
             "type": "Feature",
             "properties": {
+                title : title,
                 text : text,
                 address : address,
                 username : username,
@@ -399,116 +407,112 @@ L.MapContent = L.Evented.extend({
         // shortcut
         var map = this._map;
 
-        // set data url
-        var data_url = window.location.href + 'v1/notes';
+        // load custom marker
+        map.loadImage('stylesheets/blomst-omriss.png', function (err, image) {
+            if (err) console.log(err);
 
-        // Add a new source from our GeoJSON data and set the
-        // 'cluster' option to true. GL-JS will add the point_count property to your source data.
-        map.addSource("earthquakes", {
-            type: "geojson",
-            // Point to GeoJSON data. 
-            data: data_url, 
-            // https://www.mapbox.com/mapbox-gl-js/style-spec/#sources-geojson-cluster
-            cluster: true,
-            clusterMaxZoom: 13, // Max zoom to cluster points on
-            clusterRadius: 20 // Radius of each cluster when clustering points (defaults to 50)
-        });
+            // add image
+            map.addImage('blomst', image);
 
-        // clustering
-        var clustered_layer = {
-            id: "clusters",
-            type: "circle",
-            source: "earthquakes",
-            filter: ["has", "point_count"],
-            paint: {
-                "circle-color": {
-                    property: "point_count",
-                    type: "interval",
-                    stops: [
-                        [0, "#51bbd6"],
-                        [2, "rgba(252, 193, 73, 0.75)"],
-                        [5, "rgba(137, 174, 77, 0.75)"],
-                    ]
-                },
-                "circle-radius": {
-                    property: "point_count",
-                    type: "interval",
-                    stops: [
-                        [0, 20],
-                        [2, 30],
-                        [5, 40]
-                    ]
+            // set data url
+            var data_url = window.location.href + 'v1/notes';
+
+            // Add a new source from our GeoJSON data and set the
+            // 'cluster' option to true. GL-JS will add the point_count property to your source data.
+            map.addSource("earthquakes", {
+                type: "geojson",
+                // Point to GeoJSON data. 
+                data: data_url, 
+                // https://www.mapbox.com/mapbox-gl-js/style-spec/#sources-geojson-cluster
+                cluster: true,
+                clusterMaxZoom: 13, // Max zoom to cluster points on
+                clusterRadius: 20 // Radius of each cluster when clustering points (defaults to 50)
+            });
+
+            // clustering
+            var clustered_layer = {
+                id: "clusters",
+                type: "circle",
+                source: "earthquakes",
+                filter: ["has", "point_count"],
+                paint: {
+                    "circle-color": {
+                        property: "point_count",
+                        type: "interval",
+                        stops: [
+                            [0, "#51bbd6"],
+                            [2, "rgba(252, 193, 73, 0.75)"],
+                            [5, "rgba(137, 174, 77, 0.75)"],
+                        ]
+                    },
+                    "circle-radius": {
+                        property: "point_count",
+                        type: "interval",
+                        stops: [
+                            [0, 20],
+                            [2, 30],
+                            [5, 40]
+                        ]
+                    }
                 }
             }
-        }
 
-        // clustering numbers
-        var cluster_number_layer = {
-            id: "cluster-count",
-            type: "symbol",
-            source: "earthquakes",
-            filter: ["has", "point_count"],
-            layout: {
-                "text-field": "{point_count_abbreviated}",
-                "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
-                "text-size": 26,
-            },
-            paint : {
-                "text-color" : "#ffffff"
+            // clustering numbers
+            var cluster_number_layer = {
+                id: "cluster-count",
+                type: "symbol",
+                source: "earthquakes",
+                filter: ["has", "point_count"],
+                layout: {
+                    "text-field": "{point_count_abbreviated}",
+                    "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
+                    "text-size": 26,
+                },
+                paint : {
+                    "text-color" : "#ffffff"
 
+                }
             }
-        }
 
-        // unclustedered points
-        // var notes_layer = {
-        //     id: "notes",
-        //     type: "circle",
-        //     source: "earthquakes",
-        //     filter: ["!has", "point_count"],
-        //     paint: {
-        //         "circle-color": "rgba(156, 214, 229, 0.75)",
-        //         "circle-radius": 10,
-        //         "circle-stroke-width": 1,
-        //         "circle-stroke-color": "#fff"
-        //     }
-        // }
-        var notes_layer = {
-            id: "notes",
-            type: "symbol",
-            source: "earthquakes",
-            filter: ["!has", "point_count"],
-            layout : {
-                "icon-image": "star-15",
-                "icon-rotation-alignment": "map",
-                "icon-size" : 2,
-            },
-            paint : {
-                "icon-color" : "#E74549",
-                "icon-opacity" : 1,
-                // "icon-halo-color" : "#FFFFFF",
-                "icon-halo-blur" : 4,
+            // unclustedered points
+            var notes_layer = {
+                id: "notes",
+                type: "symbol",
+                source: "earthquakes",
+                filter: ["!has", "point_count"],
+                layout : {
+                    "icon-image": "blomst",
+                    "icon-size" : 0.25,
+                },
+                paint : {
+                    "icon-color" : "#E74549",
+                    "icon-opacity" : 1,
+                    "icon-halo-blur" : 4,
+                }
             }
-        }
 
-        // add layers
-        map.addLayer(clustered_layer);
-        map.addLayer(cluster_number_layer);
-        map.addLayer(notes_layer);
+            // add layers
+            map.addLayer(clustered_layer);
+            map.addLayer(cluster_number_layer);
+            map.addLayer(notes_layer);
 
-        this._layers = {
-            clustered_layer : clustered_layer,
-            cluster_number_layer : cluster_number_layer,
-            notes_layer : notes_layer
-        }
+            this._layers = {
+                clustered_layer : clustered_layer,
+                cluster_number_layer : cluster_number_layer,
+                notes_layer : notes_layer
+            }
 
-        // when map moves
-        map.on('moveend', this._onMoveEnd.bind(this));
+            // when map moves
+            map.on('moveend', this._onMoveEnd.bind(this));
 
-        // add popups
-        this._addPopups();
+            // add popups
+            this._addPopups();
 
-        // debug
-        window.map = map;
+            // debug
+            window.map = map;
+
+        }.bind(this));
+
 
     },
 
@@ -541,6 +545,10 @@ L.MapContent = L.Evented.extend({
             .setHTML(this._createPopupHTML(feature.properties))
             .addTo(map);
 
+            // add "les mer" event
+            var readMore = L.DomUtil.get('note-read-more');
+            L.DomEvent.on(readMore, 'click', this._readMore, this);
+
         }.bind(this));
 
         // hide popup
@@ -552,7 +560,13 @@ L.MapContent = L.Evented.extend({
 
     },  
 
+    _readMore : function (e) {
+        console.log('readMore', e);
+    },
+
     _createPopupHTML : function (p) {
+
+
         
         // get tags
         var tags = safeParse(p.tags);
@@ -568,22 +582,52 @@ L.MapContent = L.Evented.extend({
         // get image
         var image = p.image_url || false;
 
+        console.log('P', p);
+
         // create html
         var html = '<div class="notes-popup">';
+        
+        // image
+        var notesImgClass = image ? 'notes-image background-none' : 'notes-image';
+        html    += '    <div class="' + notesImgClass + '">'
         if (image) {
-        html    += '    <div class="notes-image">'
         html    += '        <img src="' + image + '">'
-        html    += '    </div>'
         } 
-        html    += '    <div class="notes-text">'
-        html    +=          p.text
         html    += '    </div>'
-        html    += '    <div class="notes-tags">'
-        html    +=          niceTags;
+
+        // right wrapper
+        html    += '    <div class="notes-right-wrapper">'
+
+            // title
+            html    += '    <div class="notes-title">'
+            html    +=          p.title
+            html    += '    </div>'
+
+
+            // text
+            html    += '    <div class="notes-text">'
+            html    +=          p.text
+            html    += '    </div>'
+
+            
+            // address
+            html    += '    <div class="notes-address">';
+            html    += '        <i class="fa fa-map-marker" aria-hidden="true"></i>' + p.address;
+            html    += '    </div>'
+
+           
+            // // tags
+            // html    += '    <div class="notes-tags">'
+            // html    +=          niceTags;
+            // html    += '    </div>'
+
+            // les mer...
+            html    += '    <div id="note-read-more" class="notes-read-more">'
+            html    += '    Les mer...'
+            html    += '    </div>'
+
         html    += '    </div>'
-        html    += '    <div class="notes-users">'
-        html    +=          name
-        html    += '    </div>'
+        
     
         html    += '</div>'
         return html;

@@ -204,6 +204,24 @@ and (orientation : portrait) {
       background-size: 60px 60px;
     }
 
+    .write-note-content {
+      position: relative;
+      margin-bottom: 10%;
+      height: 80%;
+      text-align: center;
+      top: 0;
+      margin-top: 0;
+      margin: 0;
+      width: 100%;
+    }
+
+    input.write-note-text {
+      width: 90%;
+    }
+    .write-note-address {
+      font-size: 12px;
+    }
+
 }
 
 

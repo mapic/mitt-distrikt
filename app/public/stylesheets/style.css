@@ -502,7 +502,8 @@ i.fa.fa-map-marker {
     text-transform: capitalize;
     margin-top: 5px;
     position: relative;
-    text-align: center;
+    text-align: left;
+    margin-bottom: 5px;
 }
 /*               __                 
   ____   _____/  |_  ____   ______
@@ -615,6 +616,7 @@ i.fa.fa-map-marker {
     margin-bottom: 10%;
     height: 80%;
     margin-right: 25%;
+    background: white;
 }
 
 .write-note-title {
@@ -680,8 +682,8 @@ i.fa.fa-map-marker {
 input.write-note-text {
     height: 2em;
     font-size: 1em;
-    padding: 5px;
-    width: 100%;
+    padding: 10px;
+    width: calc(100% - 44px);
     margin: 10px;
 }
 textarea.write-note-textarea {
@@ -692,12 +694,23 @@ textarea.write-note-textarea {
     margin: 10px;
 }
 .write-note-ok-button {
-    border: 1px solid black;
-    width: 70px;
-    height: 30px;
-    padding: 5px;
+    border: 1px solid gainsboro;
+    width: auto;
+    height: auto;
+    padding: 10px;
     text-align: center;
     margin: 10px;
+    line-height: 28px;
+    position: absolute;
+    right: 0px;
+    margin-right: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
+    cursor: pointer;
+}
+.write-note-ok-button:hover {
+    background: #89AE4D;
+    color: white;
 }
 
 .write-note-image-container {
@@ -713,34 +726,39 @@ img.note-image-container {
 .write-note-title {
     font-size: 16px;
     font-weight: 500;
-    width: 90%;
+    width: calc(100% - 40px);
     background: #E74549;
     color: white;
-    padding: 5%;
+    padding: 20px;
     text-align: left;
 }
 .write-note-container {
     width: 100%;
     height: 100%;
     position: absolute;
-    background: white;
+    background: none;
     z-index: 500;
 }
 
 i.fa.fa-map-marker.big {
-    font-size: 33px;
-    vertical-align: middle;
+    font-size: 31px;
+    vertical-align: top;
+    padding-top: 12px;
+    padding-left: 10px;
+    margin-bottom: 13px;
 }
-
 input.write-note-address-text {
     height: 2em;
     font-size: 13px;
-    width: 84%;
+    min-width: calc(100% - 67px);
     margin: 10px;
-    margin-left: 0px;
+    margin-left: 10px;
     padding-top: 5px;
     line-height: 13px;
     color: #525252;
+    padding-left: 10px;
+    margin-right: 0px;
+    position: absolute;
 }
 
 .close {
@@ -750,6 +768,7 @@ input.write-note-address-text {
   width: 32px;
   height: 32px;
   opacity: 0.8;
+  cursor: pointer;
 }
 .close:hover {
   opacity: 1;
@@ -781,7 +800,7 @@ input.write-note-address-text {
 }
 img.photo-upload-preview-shadow-img {
     position: absolute;
-    width: 100%;
+    width: calc(100% - 2px);
     height: 200px;
     background: rgb(249, 249, 249);
     left: 0;
@@ -792,6 +811,7 @@ img.photo-upload-preview-shadow-img {
     background-size: 200px;
     background-repeat: no-repeat;
     background-position: 50%;
+    border: 1px solid white;
 }
 img.photo-upload-preview-shadow-img:after {
   content : 'Last opp bilde';
@@ -802,7 +822,31 @@ img.photo-upload-preview-shadow-img:after {
 .background-none {
   background: none !important;
 }
+.background-red {
+    background: #e74549 !important;
+}
 
+button.mapboxgl-popup-close-button {
+    font-size: 18px;
+    border-radius: 0 10px 0 10px;
+    color: #e74549;
+    border: 1px solid gainsboro;
+    line-height: 17px;
+    z-index: 1000;
+    cursor: pointer;
+    background: white;
+    width: auto;
+}
+button.mapboxgl-popup-close-button:hover {
+  background: #e74549;
+  color: white;
+  border: 1px solid #e74549;
+}
+
+.photo-upload-preview:hover + img.photo-upload-preview-shadow-img {
+    background-blend-mode: difference;
+    cursor: pointer;
+}
 
 
 /*

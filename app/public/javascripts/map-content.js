@@ -440,9 +440,9 @@ L.MapContent = L.Evented.extend({
                         property: "point_count",
                         type: "interval",
                         stops: [
-                            [0, "#51bbd6"],
-                            [2, "rgba(252, 193, 73, 0.75)"],
-                            [5, "rgba(137, 174, 77, 0.75)"],
+                            [0, "rgba(231, 69, 73, 0.75)"],
+                            [2, "rgba(231, 69, 73, 0.75)"],
+                            [5, "rgba(255, 255, 255, 0.75)"],
                         ]
                     },
                     "circle-radius": {
@@ -469,8 +469,15 @@ L.MapContent = L.Evented.extend({
                     "text-size": 26,
                 },
                 paint : {
-                    "text-color" : "#ffffff"
-
+                    "text-color" : {
+                        property : "point_count",
+                        type : "interval",
+                        stops: [
+                            [0, "#FFFFFF"],
+                            [2, "#FFFFFF"],
+                            [5, "#e74549"],
+                        ]
+                    }
                 }
             }
 
@@ -525,7 +532,7 @@ L.MapContent = L.Evented.extend({
 
         // Create a popup, but don't add it to the map yet.
         var popup = new mapboxgl.Popup({
-            closeButton: false,
+            closeButton: true,
             closeOnClick: false,
             anchor : 'bottom',
             offset : 10
@@ -552,7 +559,8 @@ L.MapContent = L.Evented.extend({
         }.bind(this));
 
         // hide popup
-        map.on('mouseleave', 'notes', function() {
+        map.on('mouseleave', 'notes', function(e) {
+            console.log('mouseleave', e);
             return; // debug
             map.getCanvas().style.cursor = '';
             popup.remove();
@@ -588,7 +596,7 @@ L.MapContent = L.Evented.extend({
         var html = '<div class="notes-popup">';
         
         // image
-        var notesImgClass = image ? 'notes-image background-none' : 'notes-image';
+        var notesImgClass = image ? 'notes-image background-red' : 'notes-image';
         html    += '    <div class="' + notesImgClass + '">'
         if (image) {
         html    += '        <img src="' + image + '">'

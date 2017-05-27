@@ -1,5 +1,14 @@
 
 
+/*SMALL DESKTOP*/
+
+@media screen 
+  and (max-width: 800px) { 
+    #site-logo {
+      display: none !important;
+    }
+  }
+
 /*DESKTOP*/
 /* ----------- Non-Retina Screens ----------- */
 @media screen 
@@ -22,6 +31,7 @@
     .instagram-content {
         width: 500px;
     }
+
 
 }
 

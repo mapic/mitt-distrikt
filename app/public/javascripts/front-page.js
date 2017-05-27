@@ -43,9 +43,6 @@ L.App = L.Class.extend({
         // set default pane
         this._show('map');
 
-        // set landscape warning text
-        L.DomUtil.get('warning-message').innerHTML = this.locale.portraitWarning;
-
     },
 
     ga : function (event) {

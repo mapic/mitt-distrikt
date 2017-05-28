@@ -67,13 +67,13 @@ L.MapContent = L.Evented.extend({
         // event
         L.DomEvent.off(this._shadowButton, 'click', this._openNotesCreator, this);
 
-        // normal pitch
-        var map = this._map;
-        // var zoom = map.getZoom() - 2;
-        map.flyTo({
-            // zoom : zoom,
-            pitch : 0
-        });
+        // // normal pitch
+        // var map = this._map;
+        // // var zoom = map.getZoom() - 2;
+        // map.flyTo({
+        //     // zoom : zoom,
+        //     pitch : 0
+        // });
        
     },
 
@@ -92,17 +92,20 @@ L.MapContent = L.Evented.extend({
         // event: cancel
         L.DomEvent.on(this._shadowButton, 'click', this._openNotesCreator, this);
 
-        // zoom
-        if (this.options.flyTo) {
-            var map = this._map;
-            var zoom = map.getZoom();
-            if (zoom < 15) zoom += 2;
-            if (zoom > 15) zoom = 15;
-            map.flyTo({
-                zoom : zoom,
-                pitch : 60
-            });
-        }
+        // // zoom
+        // if (this.options.flyTo) {
+        //     var map = this._map;
+        //     var zoom = map.getZoom();
+        //     if (zoom < 15) zoom += 2;
+        //     if (zoom > 15) zoom = 15;
+        //     map.flyTo({
+        //         zoom : zoom,
+        //         pitch : 60
+        //     });
+        // };
+
+        // remove popup if any
+        this._popup && this._popup.remove();
 
     },
 
@@ -314,12 +317,12 @@ L.MapContent = L.Evented.extend({
 
     _sendNote : function () {
 
-        if (this.options.flyTo) {
-            var map = this._map;
-            map.flyTo({
-                pitch : 0
-            })
-        };
+        // if (this.options.flyTo) {
+        //     var map = this._map;
+        //     map.flyTo({
+        //         pitch : 0
+        //     })
+        // };
 
 
         // get values
@@ -387,6 +390,8 @@ L.MapContent = L.Evented.extend({
             if (err) console.error(err);
             console.log('feature result', result);
 
+            this._createdFeature = safeParse(result);
+
             // note sent ok
             this._onNoteSent(err);
 
@@ -411,6 +416,15 @@ L.MapContent = L.Evented.extend({
 
         // clear
         this.note = {};
+
+        // show new note
+        var c = this._createdFeature.feature.geometry.coordinates;
+        var lngLat = new mapboxgl.LngLat(c[0], c[1]);
+        var mapCenter = this._map.getCenter();
+        var map = this._map;
+        setTimeout(function () {
+            map.fire('click', { lngLat: lngLat , e : {}})
+        }, 1000);
 
     },
 
@@ -599,15 +613,22 @@ L.MapContent = L.Evented.extend({
 
         // show popup fn
         var showPopup = function (e) {
-            
+
             // stop mouse-events
             L.DomEvent.stop(e);
 
             // cursor
             map.getCanvas().style.cursor = 'pointer';
 
+            // get feature id
+            var f_id = this._createdFeature ? this._createdFeature.feature.properties.id : false;
+           
             // feature
-            var feature = e.features[0];
+            var feature = f_id ? _.find(e.features, function (f) { return f.properties.id == f_id }) : e.features[0];
+
+            // console.log('selecteed feature: ', feature);
+            // console.log('f_id: ', f_id);
+            // console.log('this._createdFeature, ', this._createdFeature);
 
             // show popup
             popup.setLngLat(feature.geometry.coordinates)
@@ -619,6 +640,10 @@ L.MapContent = L.Evented.extend({
             L.DomEvent.on(readMore, 'click', function () {
                 this._readMore(feature);
             }, this);
+
+            this._popup = popup;
+
+            this._createdFeature = null;
 
         }.bind(this);
 
@@ -646,7 +671,6 @@ L.MapContent = L.Evented.extend({
     },  
 
     _readMore : function (feature) {
-        console.log('readMore', feature);
         
         var map = this._map;
         var note = feature.properties;
@@ -696,7 +720,6 @@ L.MapContent = L.Evented.extend({
     },
 
     _closeReadMore : function () {
-        console.log('_closeReadMore');
         L.DomUtil.remove(this._readMoreContainer);
     },
 
@@ -717,8 +740,6 @@ L.MapContent = L.Evented.extend({
 
         // get image
         var image = p.image_url || false;
-
-        console.log('P', p);
 
         // create html
         var html = '<div class="notes-popup">';

@@ -295,6 +295,11 @@ L.MapContent = L.Evented.extend({
 
     _u : 0,
 
+    _missingField : function (field) {
+        field.style.border = '1px solid red';
+        field.setAttribute('placeholder', 'Vennligst fyll inn');
+    },
+
     _sendNote : function () {
 
         if (this.options.flyTo) {
@@ -302,7 +307,23 @@ L.MapContent = L.Evented.extend({
             map.flyTo({
                 pitch : 0
             })
-        }
+        };
+
+
+        // get values
+        var text = this.note.textboxText.value;
+        var title = this.note.textboxTitle.value;
+        var center = this.note.center;
+        var address = this.note.address;
+        var zoom = this.note.zoom;
+        var username = this.note.nameText.value || app.locale.notes.anon;
+        var tags = ["ok", "lier"]; // todo: 
+        var portal_tag = 'mittlier'; // todo: from config
+        var image_url = this.note.image_url;
+
+        // check values
+        if (!text) return this._missingField(this.note.textboxText);
+        if (!title) return this._missingField(this.note.textboxTitle);
 
         // wait for upload to finish
         if (this._uploading) {
@@ -319,17 +340,6 @@ L.MapContent = L.Evented.extend({
 
         // reset counter
         this._u = 0;
-
-        // get values
-        var text = this.note.textboxText.value;
-        var title = this.note.textboxTitle.value;
-        var center = this.note.center;
-        var address = this.note.address;
-        var zoom = this.note.zoom;
-        var username = this.note.nameText.value || app.locale.notes.anon;
-        var tags = ["ok", "lier"]; // todo: 
-        var portal_tag = 'mittlier'; // todo: from config
-        var image_url = this.note.image_url;
 
         // create geojson feature
         var feature = {

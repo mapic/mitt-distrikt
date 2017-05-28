@@ -29,11 +29,19 @@ L.Api = L.Class.extend({
     },
 
     // upload image
-    upload : function (file, callback) {
+    upload : function (file, callback, progressCallback) {
         var formData = new FormData();
         formData.append("file", file);
         var http = new XMLHttpRequest();
         var url = window.location.origin + '/v1/upload';
+
+
+        // progress bar
+        http.upload.addEventListener("progress", function(e) {
+            var pc = parseInt((e.loaded / e.total * 100));
+            progressCallback && progressCallback(pc);
+        }, false);
+
         http.open("POST", url);
         http.send(formData);
         http.onreadystatechange = function() {
@@ -46,6 +54,8 @@ L.Api = L.Class.extend({
                 }
             }
         };
+
+
     },
 
     // get all notes

@@ -225,6 +225,10 @@ and (orientation : portrait) {
       width: 100%;
     }
 
+    .write-note-container {
+      height: 110%;
+    }
+
     input.write-note-text {
       width: calc(100% - 44px);
     }

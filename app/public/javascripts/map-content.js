@@ -225,6 +225,13 @@ L.MapContent = L.Evented.extend({
 
             // add to global
             this.note.uploader = photoBtn;
+
+            // add progress bar
+            var progressBar = this.note.progressBar = L.DomUtil.create('div', 'progress-bar', container);
+
+            // add help text
+            var helpText = this.note.helpText = L.DomUtil.create('div', 'upload-help-text', container);
+            helpText.innerHTML = app.locale.uploadHelpText;
         }
 
         // text input
@@ -290,6 +297,11 @@ L.MapContent = L.Evented.extend({
             // show image
             this.note.imageContainer.style.backgroundImage = 'url(' + res.image_url + ')';
 
+        }.bind(this), 
+
+        // progress bar
+        function (progress) {
+            this.note.progressBar.style.width = progress + '%';
         }.bind(this));
     },
 

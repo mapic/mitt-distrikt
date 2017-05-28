@@ -523,7 +523,7 @@ i.fa.fa-map-marker {
     background: white;
     border-radius: 100px;
     z-index: 4;
-    transition: bottom 1s ease-in-out 0s;
+    transition: bottom 0.5s ease-in-out 0s;
 }
 .shadow-button {
     width: 90px;
@@ -563,18 +563,20 @@ i.fa.fa-map-marker {
 
 .center-help {
     position: fixed;
-    top: calc(50% - 160px);
-    left: calc(50% - 155px);
+    top: calc(50% - 110px);
+    left: calc(50% - 130px);
     height: auto;
-    width: 270px;
+    width: 220px;
     color: white;
     font-family: 'Open Sans';
-    font-weight: 200;
-    font-size: 22px;
+    font-weight: 600;
+    font-size: 15px;
     text-align: center;
     background: rgba(0, 0, 0, 0.3);
-    padding: 20px;
+    padding: 10px;
     border-radius: 70px;
+    padding-left: 20px;
+    padding-right: 20px;
 }
 
 .geo-marker-container {
@@ -746,7 +748,7 @@ textarea.write-note-textarea {
     text-align: center;
     margin: 10px;
     line-height: 28px;
-    position: absolute;
+    position: relative;
     right: 0px;
     margin-right: 10px;
     padding-left: 20px;
@@ -871,6 +873,7 @@ input.write-note-address-text {
     z-index: 3;
     position: relative;
     opacity: 0;
+    cursor: pointer;
 }
 img.photo-upload-preview-shadow-img {
     position: absolute;
@@ -918,7 +921,7 @@ button.mapboxgl-popup-close-button:hover {
 }
 
 .photo-upload-preview:hover + img.photo-upload-preview-shadow-img {
-    background-blend-mode: difference;
+    /*background-blend-mode: difference;*/
     cursor: pointer;
 }
 
@@ -939,6 +942,29 @@ img.photo-upload-preview-shadow-img-div {
     border: 1px solid white;
 }
 
+.progress-bar {
+    background: rgba(231, 69, 73, 0.5);
+    width: 0%;
+    height: 30px;
+    position: relative;
+    top: -32px;
+}
+.upload-help-text {
+    width: 200px;
+    height: 50px;
+    position: absolute;
+    left: calc(50% - 100px);
+    top: 270px;
+    text-align: center;
+    font-size: 12px;
+    color: #929da2;
+}
+
+.shadow-button.color-white:hover {
+    background: rgba(255, 255, 255, 0.85);
+    color: #e74549;
+    cursor: pointer;
+}
 
 /*
         __  .__.__          

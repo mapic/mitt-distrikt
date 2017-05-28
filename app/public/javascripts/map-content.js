@@ -388,7 +388,6 @@ L.MapContent = L.Evented.extend({
         // send note to server
         app.api.note(data, function (err, result) {
             if (err) console.error(err);
-            console.log('feature result', result);
 
             this._createdFeature = safeParse(result);
 

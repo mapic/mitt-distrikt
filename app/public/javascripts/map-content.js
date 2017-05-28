@@ -8,8 +8,8 @@ L.MapContent = L.Evented.extend({
         // set container
         this._container = options.container;
 
-        // init content
-        this._initContent();
+        // create map
+        this._createMap();
 
         // set events
         this.listen();
@@ -21,32 +21,6 @@ L.MapContent = L.Evented.extend({
 
     listen : function () {
         this.on('reverse-lookup', this._onReverseLookup);
-    },
-
-    _initContent : function () {
-
-        // get map container
-        this._content = L.DomUtil.get('map');
-
-        // initialize mapboxgl
-        mapboxgl.accessToken = 'pk.eyJ1IjoibWFwaWMiLCJhIjoiY2l2MmE1ZW4wMDAwZTJvcnhtZGI4YXdlcyJ9.rD_-Ou1OdKQsHqEqL6FJLg';
-        var map = this._map = new mapboxgl.Map({
-            container: 'map',
-            // style: 'mapbox://styles/mapbox/streets-v9',
-            // style: 'mapbox://styles/mapbox/satellite-v9',
-            style: 'mapbox://styles/mapbox/satellite-streets-v9',
-            // sprite : this.getSprite(),
-
-            center: [10.234364120842656, 59.795007354532544],
-            zoom : 12,
-            attributionControl : false,
-        });
-
-        // map ready event
-        map.on('load', this._onMapLoad.bind(this));
-
-        // create (+) button
-        this._showAddButton();
     },
 
     _createAddButton : function () {
@@ -141,7 +115,6 @@ L.MapContent = L.Evented.extend({
             if (err) console.error(err);
 
             var results = safeParse(res);
-            console.log('results:', results);
 
             var features = results ? results.features : [];
             if (!_.size(features)) console.error('no result');
@@ -157,7 +130,7 @@ L.MapContent = L.Evented.extend({
 
         }.bind(this));
 
-        // todo: fix address
+        // todo: fix short address
 
     },
 
@@ -171,7 +144,6 @@ L.MapContent = L.Evented.extend({
         if (!div) return console.error('div not ready');
 
         // set address
-        // div.innerHTML = '<i class="fa fa-map-marker" aria-hidden="true"></i>' + this.note.address;
         div.value = this.note.address;
     },
 
@@ -289,8 +261,7 @@ L.MapContent = L.Evented.extend({
             // done uploading
             this._uploading = false;
 
-            // todo: show image?
-            // this.note.imageContainer.innerHTML = '<img src="' + res.image_url + '" class="note-image-container">';
+            // show image
             this.note.imageContainer.style.backgroundImage = 'url(' + res.image_url + ')';
 
         }.bind(this));
@@ -400,6 +371,39 @@ L.MapContent = L.Evented.extend({
 
         // clear
         this.note = {};
+    },
+
+    _createMap : function () {
+
+        // get map container
+        this._content = L.DomUtil.get('map');
+
+        var mapOptions = {
+            container: 'map',
+            // style: 'mapbox://styles/mapbox/streets-v9',
+            // style: 'mapbox://styles/mapbox/satellite-v9',
+            style: 'mapbox://styles/mapbox/satellite-streets-v9',
+            center: [10.234364120842656, 59.795007354532544],
+            zoom : 12,
+            attributionControl : false,
+        };
+
+        if (app.isDesktop()) {
+            mapOptions.center = [10.266840117594029, 59.785900142686074];
+            mapOptions.bearing = -7.199999999999591;
+            mapOptions.pitch = 60;
+            mapOptions.zoom = 12;
+        }
+
+        // initialize mapboxgl
+        mapboxgl.accessToken = 'pk.eyJ1IjoibWFwaWMiLCJhIjoiY2l2MmE1ZW4wMDAwZTJvcnhtZGI4YXdlcyJ9.rD_-Ou1OdKQsHqEqL6FJLg';
+        var map = this._map = new mapboxgl.Map(mapOptions);
+
+        // map ready event
+        map.on('load', this._onMapLoad.bind(this));
+
+        // create (+) button
+        this._showAddButton();
     },
 
     _onMapLoad : function () {
@@ -538,9 +542,12 @@ L.MapContent = L.Evented.extend({
             offset : 10
         });
 
-        // show popup
-        map.on('mouseenter', 'notes', function(e) {
+        // show popup fn
+        var showPopup = function (e) {
             
+            // stop mouse-events
+            L.DomEvent.stop(e);
+
             // cursor
             map.getCanvas().style.cursor = 'pointer';
 
@@ -554,22 +561,93 @@ L.MapContent = L.Evented.extend({
 
             // add "les mer" event
             var readMore = L.DomUtil.get('note-read-more');
-            L.DomEvent.on(readMore, 'click', this._readMore, this);
+            L.DomEvent.on(readMore, 'click', function () {
+                this._readMore(feature);
+            }, this);
 
-        }.bind(this));
+        }.bind(this);
 
-        // hide popup
-        map.on('mouseleave', 'notes', function(e) {
-            console.log('mouseleave', e);
-            return; // debug
+        var removePopup = function (e) {
             map.getCanvas().style.cursor = '';
             popup.remove();
-        }.bind(this));
+        };
+
+        map.on('mouseenter', 'notes', function (e) {
+            map.getCanvas().style.cursor = 'pointer';
+        });
+        map.on('mouseleave', 'notes', function () {
+            map.getCanvas().style.cursor = '';
+        });
+
+        // mouse: remove popup
+        map.on('click', removePopup);
+
+        // mouse: show popup (must be registered after remove popup above)
+        map.on('click', 'notes', showPopup);
+
+        // touch: remove popup
+        // map.on('touchstart', removePopup)
+
+        // touch: show popup
+        map.on('touchstart', 'notes', showPopup);
 
     },  
 
-    _readMore : function (e) {
-        console.log('readMore', e);
+    _readMore : function (feature) {
+        console.log('readMore', feature);
+        
+        var map = this._map;
+        var note = feature.properties;
+
+        console.log('note:', note);
+
+        // container
+        var main_container = this._readMoreContainer = L.DomUtil.create('div', 'write-note-container', app._container);
+
+        // content
+        var container = this._writeNoteContent = L.DomUtil.create('div', 'write-note-content', main_container);
+
+        // title
+        var title = L.DomUtil.create('div', 'write-note-title', container);
+        title.innerHTML = note.title;
+
+         // cancel button
+        var cancelBtn = L.DomUtil.create('div', 'write-note-cancel-button close', container);
+        L.DomEvent.on(cancelBtn, 'click', this._closeReadMore, this);
+
+        // address
+        var addressContainer = L.DomUtil.create('div', 'write-note-address-container', container);
+        addressContainer.innerHTML = '<i class="fa fa-map-marker big" aria-hidden="true"></i>';
+        var addressInput = L.DomUtil.create('div', 'write-note-address-text-div', addressContainer);
+        addressInput.innerHTML = note.address;
+
+        // image
+        var shadowImg = L.DomUtil.create('img', 'photo-upload-preview-shadow-img-div', container);
+        shadowImg.style.backgroundImage = 'url(' + note.image_url + ')';
+       
+        // text 
+        var textBox = L.DomUtil.create('div', 'write-note-text-div min-height-100', container);
+        textBox.innerHTML = note.text;
+
+        // user
+        var userBox = L.DomUtil.create('div', 'write-note-user-div', container);
+        userBox.innerHTML = '<i class="fa fa-user-circle" aria-hidden="true"></i>' + note.username;
+
+        // time
+        var timeBox = L.DomUtil.create('div', 'write-note-user-div', container);
+        var d = new Date(note.timestamp);
+        timeBox.innerHTML = '<i class="fa fa-calendar" aria-hidden="true"></i>' + d.getDate() + '.' + d.getMonth() + '.' + d.getFullYear();
+
+        // ok button
+        var okBtn = L.DomUtil.create('div', 'write-note-ok-button bottom-10', container);
+        okBtn.innerHTML = app.locale.readMore.close;
+        L.DomEvent.on(okBtn, 'click', this._closeReadMore, this);
+
+    },
+
+    _closeReadMore : function () {
+        console.log('_closeReadMore');
+        L.DomUtil.remove(this._readMoreContainer);
     },
 
     _createPopupHTML : function (p) {

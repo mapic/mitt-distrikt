@@ -37,6 +37,10 @@ locale.NO = {
         anon                    : 'Anonymt innlegg',
     },
 
+    readMore : {
+        close : 'Lukk',
+    },
+
     table : {
         address     : 'Adresse',
         tags        : 'Tags',

@@ -217,7 +217,7 @@ and (orientation : portrait) {
     .write-note-content {
       position: relative;
       margin-bottom: 10%;
-      height: 80%;
+      height: 100%;
       text-align: center;
       top: 0;
       margin-top: 0;
@@ -226,7 +226,7 @@ and (orientation : portrait) {
     }
 
     input.write-note-text {
-      width: 90%;
+      width: calc(100% - 44px);
     }
     .write-note-address {
       font-size: 12px;
@@ -245,6 +245,16 @@ and (orientation : portrait) {
     .notes-right-wrapper {
       width: 53%;
       left: 126px;
+    }
+
+    .write-note-address-text-div {
+        position: absolute;
+        left: 40px;
+        top: 80px;
+        color: #5d5d5d;
+        font-size: 14px;
+        max-height: 15px;
+        overflow: hidden;
     }
 }
 

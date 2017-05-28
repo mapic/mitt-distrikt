@@ -513,16 +513,17 @@ i.fa.fa-map-marker {
 */
 .add-button {
     width: 100px;
-    height: 100px;
+    height: 60px;
     position: fixed;
-    bottom: 30px;
-    left: calc(50% - 50px);
-    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQ8AAAEPCAYAAABcL0E+AAAfrElEQ…I6lEUTCiySILSOov9p438RERERERERERERERERERGR/vLfJcCGlOpqdzUAAAAASUVORK5CYII=);
-    filter: invert(100%);
-    background-size: 100px 100px;
-    background-repeat: no-repeat;
-    z-index: 4;
+    bottom: 50px;
+    left: calc(50% - 27px);
+    -webkit-mask: url(noun_733202_cc.svg) no-repeat;
+    -webkit-mask-size: 60px;
     cursor: pointer;
+    background: white;
+    border-radius: 100px;
+    z-index: 4;
+    transition: bottom 1s ease-in-out 0s;
 }
 .shadow-button {
     width: 90px;
@@ -530,20 +531,51 @@ i.fa.fa-map-marker {
     position: fixed;
     bottom: 35px;
     left: calc(50% - 45px);
-    background: #FCC149;
-    visibility: hidden;
+    background: rgba(231, 69, 73, 0.83);
     z-index: 3;
     border-radius: 100px;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 85px;
+    color: rgba(255, 255, 255, 0);
+    font-size: 30px;
 }
 
-.add-button:hover + .shadow-button {
-  visibility: visible;
+.color-white {
+  color: white;
 }
 
-.add-button:active + .shadow-button {
+.red-button:hover + .white-button {
+    background: rgba(255, 255, 255, 0.8);
+}
+.red-button:hover {
+  background: #e74549;
+
+}
+.red-button:active + .white-button {
   background: #89AE4D;
 }
 
+.center-of-map {
+    position: fixed;
+    bottom: calc(50% - 5px);
+}
+
+.center-help {
+    position: fixed;
+    top: calc(50% - 160px);
+    left: calc(50% - 155px);
+    height: auto;
+    width: 270px;
+    color: white;
+    font-family: 'Open Sans';
+    font-weight: 200;
+    font-size: 22px;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    border-radius: 70px;
+}
 
 .geo-marker-container {
     position: fixed;
@@ -573,12 +605,15 @@ i.fa.fa-map-marker {
     color: white;
     font-size: 20px;
     font-weight: 500;
-    background: rgb(231, 69, 73);
+    background: rgba(231, 69, 73, 0.9);
     position: absolute;
-    left: 0;
     height: auto;
     text-align: center;
-    border: 3px solid white;
+    left: -120px;
+}
+.geo-marker-text:hover {
+    background: rgba(255, 255, 255, 0.9);
+    color: #e74549;
 }
 
 .accept-geo-button {
@@ -741,6 +776,8 @@ img.note-image-container {
     color: white;
     padding: 20px;
     text-align: left;
+}
+.capitalize {
     text-transform: capitalize;
 }
 .write-note-container {

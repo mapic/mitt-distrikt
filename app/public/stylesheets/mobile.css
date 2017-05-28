@@ -198,7 +198,7 @@ and (orientation : portrait) {
         height: 48px;
         font-size: 20px;
     }
-
+/*
     .add-button {
       width: 60px;
       height: 60px;
@@ -213,7 +213,7 @@ and (orientation : portrait) {
       right: 20px;
       background-size: 60px 60px;
     }
-
+*/
     .write-note-content {
       position: relative;
       margin-bottom: 10%;

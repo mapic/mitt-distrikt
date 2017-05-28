@@ -1,5 +1,10 @@
 
 L.MapContent = L.Evented.extend({
+
+    options : {
+        flyTo : false,
+    },
+
     initialize : function (options) {
 
         // set options
@@ -26,8 +31,9 @@ L.MapContent = L.Evented.extend({
     _createAddButton : function () {
 
         // create button
-        this._addButton = L.DomUtil.create('div', 'add-button', this._container);
-        this._shadowButton = L.DomUtil.create('div', 'shadow-button', this._container);
+        this._addButton = L.DomUtil.create('div', 'add-button red-button', this._container);
+        this._shadowButton = L.DomUtil.create('div', 'shadow-button white-button', this._container);
+        this._shadowButton.innerHTML = 'Ok';
 
         // add event
         L.DomEvent.on(this._addButton, 'click', this.addNote, this);
@@ -40,7 +46,7 @@ L.MapContent = L.Evented.extend({
         this._hideMarkers();
 
         // hide (+) button
-        this._hideAddButton();
+        // this._centerAddButton();
 
         // add position marker
         this._addPositionMarker();
@@ -50,45 +56,63 @@ L.MapContent = L.Evented.extend({
     _showAddButton : function () {
         if (!this._addButton) this._createAddButton();
 
+        this._centerHelp && L.DomUtil.remove(this._centerHelp);
+
         // show (+) button
-        L.DomUtil.removeClass(this._addButton, 'display-none');
-        L.DomUtil.removeClass(this._shadowButton, 'display-none');
+        L.DomUtil.removeClass(this._addButton, 'center-of-map');
+        L.DomUtil.removeClass(this._shadowButton, 'color-white');
+        L.DomUtil.addClass(this._shadowButton, 'white-button');
+        L.DomUtil.addClass(this._addButton, 'red-button');
+
+        // event
+        L.DomEvent.off(this._shadowButton, 'click', this._openNotesCreator, this);
+
+        // normal pitch
+        var map = this._map;
+        // var zoom = map.getZoom() - 2;
+        map.flyTo({
+            // zoom : zoom,
+            pitch : 0
+        });
+       
     },
-    _hideAddButton : function () {
+
+    _centerAddButton : function () {
         if (!this._addButton) this._createAddButton();
-        
-        // hide (+) button
-        L.DomUtil.addClass(this._addButton, 'display-none');
-        L.DomUtil.addClass(this._shadowButton, 'display-none');
+
+        this._centerHelp = L.DomUtil.create('div', 'center-help', this._container);
+        this._centerHelp.innerHTML = app.locale.addNoteHelp;
+
+        // move marker to center
+        L.DomUtil.addClass(this._addButton, 'center-of-map');
+        L.DomUtil.addClass(this._shadowButton, 'color-white');
+        L.DomUtil.removeClass(this._shadowButton, 'white-button');
+        L.DomUtil.removeClass(this._addButton, 'red-button');
+
+        // event: cancel
+        L.DomEvent.on(this._shadowButton, 'click', this._openNotesCreator, this);
+
+        // zoom
+        if (this.options.flyTo) {
+            var map = this._map;
+            var zoom = map.getZoom();
+            if (zoom < 15) zoom += 2;
+            if (zoom > 15) zoom = 15;
+            map.flyTo({
+                zoom : zoom,
+                pitch : 60
+            });
+        }
+
     },
 
     _addPositionMarker : function () {
-
-        // container
-        this.note.geoMarkerContainer = L.DomUtil.create('div', 'geo-marker-container', this._container);
-        
-        // add marker in middle of screen
-        this.note.geoMarker = L.DomUtil.create('div', 'geo-marker', this.note.geoMarkerContainer);
-
-        // offset: 35x70 
-        
-        // add text box
-        this.note.geoMarkerText = L.DomUtil.create('div', 'geo-marker-text', this.note.geoMarkerContainer);
-        this.note.geoMarkerText.innerHTML = app.locale.notes.geoMarkerText;
-
-        // add "accept geo" button
-        this.note.acceptPositionButton = L.DomUtil.create('div', 'accept-geo-button', this.note.geoMarkerContainer);
-        this.note.acceptPositionButton.innerHTML = app.locale.notes.acceptPositionButton;
-        L.DomEvent.on(this.note.acceptPositionButton, 'click', this._openNotesCreator, this);
-
+        this._centerAddButton();
     },
 
     _removePositionMarker : function () {
-        L.DomUtil.remove(this.note.geoMarkerContainer);
-        L.DomUtil.remove(this.note.geoMarker);
-        L.DomUtil.remove(this.note.geoMarkerText);
-        L.DomUtil.remove(this.note.acceptPositionButton);
-        L.DomEvent.off(this.note.acceptPositionButton, 'click', this._openNotesCreator, this);
+        this._showAddButton();
+        this._showMarkers();
     },
 
     _hideMarkers : function () {
@@ -158,7 +182,7 @@ L.MapContent = L.Evented.extend({
 
         // reverse lookup address
         this._getAddress();
-      
+
         // get position of marker
         this.note.center = map.getCenter();
 
@@ -177,11 +201,9 @@ L.MapContent = L.Evented.extend({
 
          // cancel button
         var cancelBtn = L.DomUtil.create('div', 'write-note-cancel-button close', container);
-        // cancelBtn.innerHTML = app.locale.notes.cancel;
         L.DomEvent.on(cancelBtn, 'click', this._cancelNote, this);
 
         // address
-        // var address = this._reverseLookupAddressDiv = L.DomUtil.create('div', 'write-note-address', container);
         var addressContainer = L.DomUtil.create('div', 'write-note-address-container', container);
         addressContainer.innerHTML = '<i class="fa fa-map-marker big" aria-hidden="true"></i>';
         var addressInput = this._reverseLookupAddressDiv = L.DomUtil.create('input', 'write-note-address-text', addressContainer);
@@ -214,7 +236,6 @@ L.MapContent = L.Evented.extend({
         var textBox = this.note.textboxText = L.DomUtil.create('input', 'write-note-text', container);
         textBox.setAttribute('placeholder', 'Skriv ditt forslag til #MittLier');
         textBox.setAttribute('type', 'text');
-
        
         // ok button
         var okBtn = L.DomUtil.create('div', 'write-note-ok-button', container);
@@ -270,6 +291,13 @@ L.MapContent = L.Evented.extend({
     _u : 0,
 
     _sendNote : function () {
+
+        if (this.options.flyTo) {
+            var map = this._map;
+            map.flyTo({
+                pitch : 0
+            })
+        }
 
         // wait for upload to finish
         if (this._uploading) {
@@ -388,12 +416,12 @@ L.MapContent = L.Evented.extend({
             attributionControl : false,
         };
 
-        if (app.isDesktop()) {
-            mapOptions.center = [10.266840117594029, 59.785900142686074];
-            mapOptions.bearing = -7.199999999999591;
-            mapOptions.pitch = 60;
-            mapOptions.zoom = 12;
-        }
+        // if (app.isDesktop()) {
+        //     mapOptions.center = [10.266840117594029, 59.785900142686074];
+        //     mapOptions.bearing = -7.199999999999591;
+        //     mapOptions.pitch = 60;
+        //     mapOptions.zoom = 12;
+        // }
 
         // initialize mapboxgl
         mapboxgl.accessToken = 'pk.eyJ1IjoibWFwaWMiLCJhIjoiY2l2MmE1ZW4wMDAwZTJvcnhtZGI4YXdlcyJ9.rD_-Ou1OdKQsHqEqL6FJLg';
@@ -585,9 +613,6 @@ L.MapContent = L.Evented.extend({
         // mouse: show popup (must be registered after remove popup above)
         map.on('click', 'notes', showPopup);
 
-        // touch: remove popup
-        // map.on('touchstart', removePopup)
-
         // touch: show popup
         map.on('touchstart', 'notes', showPopup);
 
@@ -599,8 +624,6 @@ L.MapContent = L.Evented.extend({
         var map = this._map;
         var note = feature.properties;
 
-        console.log('note:', note);
-
         // container
         var main_container = this._readMoreContainer = L.DomUtil.create('div', 'write-note-container', app._container);
 
@@ -608,7 +631,7 @@ L.MapContent = L.Evented.extend({
         var container = this._writeNoteContent = L.DomUtil.create('div', 'write-note-content', main_container);
 
         // title
-        var title = L.DomUtil.create('div', 'write-note-title', container);
+        var title = L.DomUtil.create('div', 'write-note-title capitalize', container);
         title.innerHTML = note.title;
 
          // cancel button
@@ -640,7 +663,7 @@ L.MapContent = L.Evented.extend({
 
         // ok button
         var okBtn = L.DomUtil.create('div', 'write-note-ok-button bottom-10', container);
-        okBtn.innerHTML = app.locale.readMore.close;
+        okBtn.innerHTML = app.locale.close;
         L.DomEvent.on(okBtn, 'click', this._closeReadMore, this);
 
     },

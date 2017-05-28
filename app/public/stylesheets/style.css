@@ -1002,8 +1002,8 @@ td {
     padding-right: 5px;
 }
 .map-note-container {
-  width: 30%;
-  height: 30%;
+  width: 50%;
+  height: 50%;
   position: fixed;
   bottom: 0px;
   left: 0px;

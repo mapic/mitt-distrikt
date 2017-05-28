@@ -131,70 +131,82 @@ module.exports = api = {
         res.render('admin-page');
     },
 
+    _saveFeature : function (feature, done) {
+
+        // check valid feature
+        if (!feature || !api._checkValidFeature(feature) || !feature.properties) return res.send({error : '#149 Invalid feature'});
+
+        // get key
+        var key = config.redis.key + '-' + feature.properties.id;
+        redis.set(key, safeStringify(feature), done);
+    },
+
     // route: POST /v1/note
     note : function (req, res) {
 
         // get options
         var options = req.body;
 
-        // get feature
-        var feature = options.feature;
+        if (!options) return res.send({error : '#144 Invalid options'});
 
-        // check valid feature
-        var valid_feature = api._checkValidFeature(feature);
+        // save feature
+        api._saveFeature(options.feature, function (err, result) {
+            if (err) return res.send({error : err});
 
-        // if not valid
-        if (!valid_feature) return res.send({ error : 'Invalid Feature. This is not your fault.' });
+            // debug
+            res.send({
+                error : err, 
+                feature : feature,
+                fn : 'api.note',
+            });
+        });
 
-        // get existing geojson
-        redis.get(config.redis.geojson, function (err, json) {
-            if (err) return res.send({ error : err });
+    },
 
-            // parse
-            var existing_geojson = safeParse(json);
+    _getAllNotesAsGeoJSON : function (done) {
 
-            // ensure geojson exists
-            if (!existing_geojson) {
-                var existing_geojson = {
+        // get keys
+        var key = config.redis.key + '-*' ;
+        redis.keys(key, function (err, list) {
+            if (err) return done(err);
+
+            // get list of keys
+            redis.mget(list, function (err, mlist) {
+                if (err) return done(err)
+
+                // geojson base
+                var geojson = {
                   "type": "FeatureCollection",
                   "features": []
-                }
-            }
+                };
 
-            // add feature to existing
-            existing_geojson.features.push(feature);
-
-            // double check valid
-            var valid_geojson = GJV.valid(existing_geojson);
-            if (!valid_geojson) return res.send({error : "Invalid GeoJSON."});
-
-            // save to redis
-            redis.set(config.redis.geojson, safeStringify(existing_geojson), function (err) {
-
-                // return to client 
-                res.send({
-                    error : err, 
-                    feature : feature,
-                    fn : 'api.note',
+                // parse
+                _.each(mlist, function (m) {
+                    geojson.features.push(safeParse(m));
                 });
+
+                // check valid
+                if (!GJV.valid(geojson)) return done('#226 Invalid GeoJSON')
+
+                // return
+                done(null, geojson);
+
             });
-            
         });
     },
 
     // route: GET /v1/notes
     getNotes : function (req, res) {
-        
-        // get existing geojson
-        redis.get(config.redis.geojson, function (err, json) {
-            if (err) return res.send({ error : err });
+       api._getAllNotesAsGeoJSON(function (err, geojson) {
+            if (err) return res.send({error : err});
+            res.send(geojson);
+       });
+    },
 
-            // parse
-            var existing_geojson = safeParse(json);
-
-            // send
-            res.send(existing_geojson);
-        });
+    _deleteNoteById : function (id, done) {
+        if (!id) return done('No such note id.');
+        var key = config.redis.key + '-' + id ;
+        redis.del(key, done);
     },
 
     deleteNote : function (req, res) {
@@ -202,59 +214,84 @@ module.exports = api = {
         // get note id
         var note_id = req.body.id;
 
-        // return if no note id
-        if (!note_id) return res.send({error : 'No such note id.'})
-
-        // get existing geojson
-        redis.get(config.redis.geojson, function (err, json) {
-            if (err) return res.send({ error : err });
-
-            // parse
-            var existing_geojson = safeParse(json);
-
-            // remove feature
-            var removed = _.remove(existing_geojson.features, function (f) {
-                return f.properties.id == note_id;
-            });
-
-            // double check valid
-            var valid_geojson = GJV.valid(existing_geojson);
-            if (!valid_geojson) return res.send({error : "Invalid GeoJSON."});
-
-            // save 
-            redis.set(config.redis.geojson, safeStringify(existing_geojson), function (err) {
-
-                // return to client 
-                res.send({
-                    error : err, 
-                });
-
-            });
+        api._deleteNoteById(note_id, function (err, result) {
+            res.send({error : err});
         });
+
+        
+
+        // var key = config.redis.key + '-' + note_id ;
+        // redis.del(key, function (err, result) {
+        //     console.log('del, err, result', err, result);
+
+        //     // return to client 
+        //     res.send({
+        //         error : err, 
+        //     });
+
+        // })
+
+
+        // // get existing geojson
+        // redis.get(config.redis.geojson, function (err, json) {
+        //     if (err) return res.send({ error : err });
+
+        //     // parse
+        //     var existing_geojson = safeParse(json);
+
+        //     // remove feature
+        //     var removed = _.remove(existing_geojson.features, function (f) {
+        //         return f.properties.id == note_id;
+        //     });
+
+        //     // double check valid
+        //     var valid_geojson = GJV.valid(existing_geojson);
+        //     if (!valid_geojson) return res.send({error : "Invalid GeoJSON."});
+
+        //     // save 
+        //     redis.set(config.redis.geojson, safeStringify(existing_geojson), function (err) {
+
+        //         // return to client 
+        //         res.send({
+        //             error : err, 
+        //         });
+
+        //     });
+        // });
     },
 
     // rout: GET /v1/table
     getTable : function (req, res) {
 
-        redis.get(config.redis.geojson, function (err, json) {
-            if (err) {
-                console.log('api.note -> redis.get -> error: ', err);
-                return res.send({
-                    error : err
-                });
-            }
-
-            // parse
-            var existing_geojson = safeParse(json);
+        api._getAllNotesAsGeoJSON(function (err, geojson) {
+            if (err) return res.send({error : err});
 
             // check if ANY notes exist
-            if (!existing_geojson || !_.size(existing_geojson) || !existing_geojson.features) {
+            if (!geojson || !_.size(geojson) || !geojson.features) {
                 return res.send();
-            }
+            };
+
+            // })
+
+            // redis.get(config.redis.geojson, function (err, json) {
+            //     if (err) {
+            //         console.log('api.note -> redis.get -> error: ', err);
+            //         return res.send({
+            //             error : err
+            //         });
+            //     }
+
+            //     // parse
+            //     var existing_geojson = safeParse(json);
+
+            //     // check if ANY notes exist
+            //     if (!existing_geojson || !_.size(existing_geojson) || !existing_geojson.features) {
+            //         return res.send();
+            //     }
 
             // parse into table format
             var table = [];
-            _.each(existing_geojson.features, function (feature) {
+            _.each(geojson.features, function (feature) {
                 console.log('feature:', feature);
 
                 // add properties and geometry
@@ -280,12 +317,14 @@ module.exports = api = {
         };
 
         // check valid geojson
-        var valid_geojson = GJV.valid(geojson);
+        var valid = GJV.valid(geojson);
 
         // todo: check for other keys
+        if (!feature.properties.id) valid = false;
+
 
         // return
-        return valid_geojson;
+        return valid;
     },
 
 

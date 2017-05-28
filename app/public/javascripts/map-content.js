@@ -236,6 +236,11 @@ L.MapContent = L.Evented.extend({
         var textBox = this.note.textboxText = L.DomUtil.create('input', 'write-note-text', container);
         textBox.setAttribute('placeholder', 'Skriv ditt forslag til #MittLier');
         textBox.setAttribute('type', 'text');
+
+         // text input
+        var nameBox = this.note.nameText = L.DomUtil.create('input', 'write-note-text', container);
+        nameBox.setAttribute('placeholder', 'Ditt navn');
+        nameBox.setAttribute('type', 'text');
        
         // ok button
         var okBtn = L.DomUtil.create('div', 'write-note-ok-button', container);
@@ -321,8 +326,8 @@ L.MapContent = L.Evented.extend({
         var center = this.note.center;
         var address = this.note.address;
         var zoom = this.note.zoom;
-        var username = app.locale.notes.anon;
-        var tags = ["ok", "lier"];
+        var username = this.note.nameText.value || app.locale.notes.anon;
+        var tags = ["ok", "lier"]; // todo: 
         var portal_tag = 'mittlier'; // todo: from config
         var image_url = this.note.image_url;
 

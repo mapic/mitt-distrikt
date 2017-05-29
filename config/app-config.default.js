@@ -7,7 +7,7 @@ module.exports = {
 
     redis : {
         // key for geojson
-        geojson : 'any-unique-key',
+        key : 'any-unique-key',
         auth : 'redis-key-must-match-redis-config'
     },
 
@@ -17,6 +17,11 @@ module.exports = {
         access_token : '',
         access_token_secret : '',
         timeout_ms : 60*1000,  
+    },
+
+     facebook : {
+        app_id : '',
+        title : 'Default Facebook post title',
     }
 
 }

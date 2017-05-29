@@ -65,7 +65,6 @@ module.exports = api = {
 
     // route: /v1/upload
     upload : function (req, res) {
-        console.log('post /v1/upload');
 
         // create unique file id
         var file_id = shortid.generate();
@@ -94,24 +93,13 @@ module.exports = api = {
         }).single('file');
 
     
-        console.log('more options: ', req.body);       
-
         // store to disk
         upload(req, res, function (err, something) {
             if (err) return res.send({error : "Couldn't upload image!"});
 
-            console.log('err, something', err, something);
-
             var file = req.file;
             var disk_path = file.path;
-
             var opts = req.body;
-            console.log('opts:', opts);
-            console.log('req: ', req);
-
-            console.log('disk_path:', disk_path);
-            console.log('file; ', file);
-
             var watermark_filename = file.filename + '.watermarked.jpg';
 
             var sizeOf = require('image-size');
@@ -127,7 +115,6 @@ module.exports = api = {
                 };
 
                 api._addWatermark(options, function (err, results) {
-                    console.log('api._addWatermark err, results', err, results);
 
                      // create image url
                     var image_url = 'https://' + config.domain + '/v1/image/' + file.filename;
@@ -145,50 +132,29 @@ module.exports = api = {
                             height : dimensions.height,
                         }
                     });
-
                 });
-
             });
-
-
-           
         });
     },
 
     _addWatermark : function (options, done) {
         
         // todo: async: https://www.npmjs.com/package/threads#basic-usage
-
-        console.time('watermark');
-        console.log('watermark options', options);
-
         var dimensions = options.dimensions;
-
         var x = 0;
         var y = dimensions.height - 100; // on bottom
 
-        console.log('dimensions: ', dimensions);
-
-        console.log('')
-
-        // var fs.readFile()
         var images = require("images");
-        images(fs.readFileSync(options.input))                           //Load image from file 
-        .draw(images(options.watermark), x, y)        //Drawn logo at coordinates (10,10)
-        // .size(options.size)                             //Geometric scaling the image to 400 pixels width
-        .saveAsync(options.output, 2, {                         //Save the image to a file, with quality 50
+        images(fs.readFileSync(options.input))                 
+        .draw(images(options.watermark), x, y)        
+        .saveAsync(options.output, 2, {                       
             quality : options.quality                       
-        }, function (err) {
-            console.timeEnd('watermark');
-            done(err);
-        });
+        }, done);
 
     },
 
     // route: /v1/image/:filename
     image : function (req, res) {
-
-        console.log('image req.params', req.params);
 
         // get id
         var path = '/uploads/' + req.params.filename;
@@ -204,10 +170,7 @@ module.exports = api = {
     index : function (req, res) {
         res.render('front-page', {
             fb_app_id : config.facebook.app_id,
-            // id : p.id,
             image_url : 'https://' + config.domain + '/stylesheets/facebook-logo.png',
-            // title : p.title,
-            // text : p.text,
             og_type : 'website',
             url : 'https://' + config.domain,
             main_title : config.facebook.title,
@@ -301,7 +264,6 @@ module.exports = api = {
         // get keys
         var key = config.redis.key + '-*' ;
         redis.keys(key, function (err, list) {
-            console.log('keys: ', err, list);
             if (err || !list || !list.length) return done(null, api._emptyGeoJSON());
 
             // get list of keys

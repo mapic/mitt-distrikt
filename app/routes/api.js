@@ -93,9 +93,8 @@ module.exports = api = {
             limits : { fileSize : 11000000 } // 10 MB
         }).single('file');
 
-        console.log('upload', upload);
-
-       
+    
+        console.log('more options: ', req.body);       
 
         // store to disk
         upload(req, res, function (err, something) {
@@ -106,36 +105,51 @@ module.exports = api = {
             var file = req.file;
             var disk_path = file.path;
 
+            var opts = req.body;
+            console.log('opts:', opts);
+            console.log('req: ', req);
+
             console.log('disk_path:', disk_path);
             console.log('file; ', file);
 
             var watermark_filename = file.filename + '.watermarked.jpg';
 
+            var sizeOf = require('image-size');
+            sizeOf(disk_path, function (err, dimensions) {
+            
+                var options = {
+                    input : disk_path,
+                    size : 400,
+                    watermark : '/entrypoint/public/stylesheets/watermark.png',
+                    output : '/uploads/' + watermark_filename,
+                    quality : 90,
+                    dimensions : dimensions
+                };
 
-            var options = {
-                input : disk_path,
-                size : 400,
-                watermark : '/entrypoint/public/stylesheets/watermark.png',
-                output : '/uploads/' + watermark_filename,
-                quality : 90
-            };
+                api._addWatermark(options, function (err, results) {
+                    console.log('api._addWatermark err, results', err, results);
 
-            api._addWatermark(options, function (err, results) {
-                console.log('api._addWatermark err, results', err, results);
+                     // create image url
+                    var image_url = 'https://' + config.domain + '/v1/image/' + file.filename;
+                    var watermark_url = 'https://' + config.domain + '/v1/image/' + watermark_filename;
 
-                 // create image url
-                var image_url = 'https://' + config.domain + '/v1/image/' + file.filename;
-                var watermark_url = 'https://' + config.domain + '/v1/image/' + watermark_filename;
+                    // return to client
+                    res.send({
+                        error : null,
+                        endpoint : '/v1/upload',
+                        image : {
+                            original : image_url,
+                            watermark : watermark_url,
+                            type : dimensions.type,
+                            width : dimensions.width,
+                            height : dimensions.height,
+                        }
+                    });
 
-                // return to client
-                res.send({
-                    error : null,
-                    endpoint : '/v1/upload',
-                    image_url : image_url,
-                    watermark : watermark_url
                 });
 
             });
+
 
            
         });
@@ -148,25 +162,25 @@ module.exports = api = {
         console.time('watermark');
         console.log('watermark options', options);
 
-        var sizeOf = require('image-size');
-        sizeOf(options.input, function (err, dimensions) {
-            
-            var x = 0;
-            var y = err ? 0 : dimensions.height - 100;
+        var dimensions = options.dimensions;
 
-            // var fs.readFile()
-            var images = require("images");
-            images(fs.readFileSync(options.input))                           //Load image from file 
-            .draw(images(options.watermark), x, y)        //Drawn logo at coordinates (10,10)
-            // .size(options.size)                             //Geometric scaling the image to 400 pixels width
-            .saveAsync(options.output, 2, {                         //Save the image to a file, with quality 50
-                quality : options.quality                       
-            }, function (err) {
-                console.timeEnd('watermark');
-                done(err);
-            });
+        var x = 0;
+        var y = dimensions.height - 100;
 
-         });
+        console.log('dimensions: ', dimensions);
+
+        // var fs.readFile()
+        var images = require("images");
+        images(fs.readFileSync(options.input))                           //Load image from file 
+        .draw(images(options.watermark), x, y)        //Drawn logo at coordinates (10,10)
+        // .size(options.size)                             //Geometric scaling the image to 400 pixels width
+        .saveAsync(options.output, 2, {                         //Save the image to a file, with quality 50
+            quality : options.quality                       
+        }, function (err) {
+            console.timeEnd('watermark');
+            done(err);
+        });
+
     },
 
     // route: /v1/image/:filename
@@ -289,16 +303,24 @@ module.exports = api = {
 
     },
 
+    _emptyGeoJSON : function () {
+        return {
+          "type": "FeatureCollection",
+          "features": []
+        };
+    },
+
     _getAllNotesAsGeoJSON : function (done) {
 
         // get keys
         var key = config.redis.key + '-*' ;
         redis.keys(key, function (err, list) {
-            if (err) return done(err);
+            console.log('keys: ', err, list);
+            if (err || !list || !list.length) return done(null, api._emptyGeoJSON());
 
             // get list of keys
             redis.mget(list, function (err, mlist) {
-                if (err) return done(err)
+                if (err) return done(null, api._emptyGeoJSON())
 
                 // geojson base
                 var geojson = {

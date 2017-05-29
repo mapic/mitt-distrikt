@@ -45,9 +45,6 @@ L.MapContent = L.Evented.extend({
         // 1. hide other markers
         this._hideMarkers();
 
-        // hide (+) button
-        // this._centerAddButton();
-
         // add position marker
         this._addPositionMarker();
 
@@ -66,14 +63,6 @@ L.MapContent = L.Evented.extend({
 
         // event
         L.DomEvent.off(this._shadowButton, 'click', this._openNotesCreator, this);
-
-        // // normal pitch
-        // var map = this._map;
-        // // var zoom = map.getZoom() - 2;
-        // map.flyTo({
-        //     // zoom : zoom,
-        //     pitch : 0
-        // });
        
     },
 
@@ -91,18 +80,6 @@ L.MapContent = L.Evented.extend({
 
         // event: cancel
         L.DomEvent.on(this._shadowButton, 'click', this._openNotesCreator, this);
-
-        // // zoom
-        // if (this.options.flyTo) {
-        //     var map = this._map;
-        //     var zoom = map.getZoom();
-        //     if (zoom < 15) zoom += 2;
-        //     if (zoom > 15) zoom = 15;
-        //     map.flyTo({
-        //         zoom : zoom,
-        //         pitch : 60
-        //     });
-        // };
 
         // remove popup if any
         this._popup && this._popup.remove();
@@ -223,8 +200,9 @@ L.MapContent = L.Evented.extend({
             photoBtn.setAttribute('accept', 'image/*');
             L.DomEvent.on(photoBtn, 'change', this._onPhotoBtnChange, this);
 
-            // var shadowBtn = L.DomUtil.create('input', 'photo-upload-preview-shadow', container);
-            var shadowImg = this.note.imageContainer = L.DomUtil.create('img', 'photo-upload-preview-shadow-img', container);
+            // image container
+            var imgContainer = L.DomUtil.create('div', 'preview-image-container', container);
+            var shadowImg = this.note.imageContainer = L.DomUtil.create('img', 'photo-upload-preview-shadow-img', imgContainer);
 
             // add to global
             this.note.uploader = photoBtn;
@@ -265,10 +243,39 @@ L.MapContent = L.Evented.extend({
 
     _onPhotoBtnChange : function (e) {
         var file = e.target.files[0];
+        var note = this.note;
+        var uploader = this._uploadFile.bind(this)
+        var help = this.note.helpText;
+        
         if (file) {
+            
             // only allow image uploads
             if (/^image\//i.test(file.type)) {
-                this._uploadFile(file);
+                
+                var _URL = window.URL || window.webkitURL;
+                var file, img;
+                img = new Image();
+                img.onload = function (e) {
+                    
+                    // set image
+                    note.imageContainer.setAttribute('src', _URL.createObjectURL(file));
+
+                    // set width
+                    var w = this.width;
+                    var h = this.height;
+                    note.imageContainer.style.height = (h <= w) ? '100%' : 'auto';
+                    note.imageContainer.style.width = (w < h) ? '100%' : 'auto';
+
+                    // hide help text
+                    help.style.zIndex = 9;
+
+                    // start upload
+                    uploader(file);
+                };
+
+                // dummy
+                img.src = _URL.createObjectURL(file);
+
             } else {
                 alert(app.locale.notes.invalidImage);
             }
@@ -291,20 +298,17 @@ L.MapContent = L.Evented.extend({
             // parse
             var res = safeParse(results);
             
-            // notify upload successful
-            this.note.image_url = res.image_url;
-            this.note.watermark_url = res.watermark_url;
+            // save image
+            this.note.image = res.image;
 
             // done uploading
             this._uploading = false;
-
-            // show image
-            this.note.imageContainer.style.backgroundImage = 'url(' + res.image_url + ')';
 
         }.bind(this), 
 
         // progress bar
         function (progress) {
+            console.log('progressBar', progress);
             if (progress > 98) {
                 this.note.progressBar.style.width = 0;
                 return;
@@ -324,14 +328,6 @@ L.MapContent = L.Evented.extend({
 
     _sendNote : function () {
 
-        // if (this.options.flyTo) {
-        //     var map = this._map;
-        //     map.flyTo({
-        //         pitch : 0
-        //     })
-        // };
-
-
         // get values
         var text = this.note.textboxText.value;
         var title = this.note.textboxTitle.value;
@@ -341,8 +337,7 @@ L.MapContent = L.Evented.extend({
         var username = this.note.nameText.value || app.locale.notes.anon;
         var tags = ["ok", "lier"]; // todo: 
         var portal_tag = 'mittlier'; // todo: from config
-        var image_url = this.note.image_url;
-        var watermark_url = this.note.watermark_url;
+        var image = this.note.image;
 
         // check values
         if (!text) return this._missingField(this.note.textboxText);
@@ -373,8 +368,7 @@ L.MapContent = L.Evented.extend({
                 address : address,
                 username : username,
                 tags : tags,
-                image_url : image_url,
-                watermark_url : watermark_url,
+                image : image,
                 zoom : zoom,
                 portal_tag : portal_tag,
                 timestamp : Date.now(),
@@ -636,10 +630,6 @@ L.MapContent = L.Evented.extend({
             // feature
             var feature = f_id ? _.find(e.features, function (f) { return f.properties.id == f_id }) : e.features[0];
 
-            console.log('selecteed feature: ', feature);
-            // console.log('f_id: ', f_id);
-            // console.log('this._createdFeature, ', this._createdFeature);
-
             // show popup
             popup.setLngLat(feature.geometry.coordinates)
             .setHTML(this._createPopupHTML(feature.properties))
@@ -680,10 +670,15 @@ L.MapContent = L.Evented.extend({
 
     },  
 
+
     _readMore : function (feature) {
         
         var map = this._map;
         var note = feature.properties;
+        var image = safeParse(note.image);
+        var image_url = image ? image.original : '';
+
+        console.log('readMore feature', feature)
 
         // container
         var main_container = this._readMoreContainer = L.DomUtil.create('div', 'write-note-container', app._container);
@@ -706,9 +701,21 @@ L.MapContent = L.Evented.extend({
         addressInput.innerHTML = note.address;
 
         // image
-        var shadowImg = L.DomUtil.create('img', 'photo-upload-preview-shadow-img-div', container);
-        shadowImg.style.backgroundImage = 'url(' + note.image_url + ')';
-       
+        var imgContainer = L.DomUtil.create('div', 'preview-image-container read-more', container);
+        if (image && image.original) {
+
+            var shadowImg = L.DomUtil.create('img', 'photo-upload-preview-shadow-img-div', imgContainer);
+            shadowImg.setAttribute('src', image_url);
+
+            var w = image.width;
+            var h = image.height;
+
+            // set width
+            shadowImg.style.height = (h <= w) ? '100%' : 'auto';
+            shadowImg.style.width = (w < h) ? '100%' : 'auto';
+
+        }
+
         // user
         var userBox = L.DomUtil.create('div', 'write-note-user-div', container);
         userBox.innerHTML = '<i class="fa fa-user-circle" aria-hidden="true"></i>' + note.username;
@@ -744,8 +751,6 @@ L.MapContent = L.Evented.extend({
 
     _createPopupHTML : function (p) {
 
-
-        
         // get tags
         var tags = safeParse(p.tags);
         var niceTags = app.locale.notes.keywords + ': ';
@@ -754,11 +759,14 @@ L.MapContent = L.Evented.extend({
             niceTags += v 
         });
 
+        var p_image = safeParse(p.image);
+
         // get name
         var name = app.locale.notes.writtenBy + ': ' + _.capitalize(p.username);
 
         // get image
-        var image = p.image_url || false;
+        var image = (p_image && p_image.original) ? p_image.original : false;
+        console.log('popup html image:', image, p);
 
         // create html
         var html = '<div class="notes-popup">';
@@ -779,33 +787,22 @@ L.MapContent = L.Evented.extend({
             html    +=          p.title
             html    += '    </div>'
 
-              
             // address
             html    += '    <div class="notes-address">';
             html    += '        <i class="fa fa-map-marker" aria-hidden="true"></i>' + p.address;
             html    += '    </div>'
 
-
-
             // text
             html    += '    <div class="notes-text">'
             html    +=          p.text
             html    += '    </div>'
-
-          
            
-            // // tags
-            // html    += '    <div class="notes-tags">'
-            // html    +=          niceTags;
-            // html    += '    </div>'
-
             // les mer...
             html    += '    <div id="note-read-more" class="notes-read-more">'
             html    += '    Les mer...'
             html    += '    </div>'
 
         html    += '    </div>'
-        
     
         html    += '</div>'
         return html;

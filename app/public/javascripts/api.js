@@ -31,26 +31,31 @@ L.Api = L.Class.extend({
 
     // upload image
     upload : function (file, callback, progressCallback) {
+        console.log('api.uupload args', arguments);
         var formData = new FormData();
         formData.append("file", file);
         var http = new XMLHttpRequest();
         var url = window.location.origin + '/v1/upload';
-
-
+       
         // progress bar
         http.upload.addEventListener("progress", function(e) {
             var pc = parseInt((e.loaded / e.total * 100));
             progressCallback && progressCallback(pc);
         }, false);
 
+        // post
         http.open("POST", url);
         http.send(formData);
         http.onreadystatechange = function() {
+            console.log('onready', http);
             if (http.readyState == 4) {
+                console.log('readysteta 4');
                 if (http.status == 200) {
                     // all good!
+                    console.log('all goood!');
                     callback && callback(null, http.responseText);
                 } else {
+                    console.log('err');
                     callback && callback(http.status, http.responseText);
                 }
             }

@@ -1,5 +1,3 @@
-console.log('admin-page.js');
-
 // main app
 L.Admin = L.Class.extend({
 
@@ -43,17 +41,6 @@ L.Admin = L.Class.extend({
 
     _logIn : function (e) {
 
-        // security:
-        // 1. lock all endpoints that actually yield sensitive information with access_token
-        // 2. it doesn't matter if hackers get access to admin page, if they can't update anything.
-        // 
-        // todo: add endpoints for 
-        //          1. get notes
-        //          2. get analytics
-        //          3. get media settings, etc.
-        //          4. add redis on server-side to handle access_tokens
-        //          5. only add users on server; simpler, safer.
-        
         // stop default form action
         L.DomEvent.stop(e);
 
@@ -76,11 +63,7 @@ L.Admin = L.Class.extend({
             // login ok
             app.access_token = res.access_token;
 
-            console.log('access_token: ', app.access_token);
-
-            // This will open page if no error and existing access_token,
-            // but not actually check validity of access_token.
-            // This is not an issue as long as admin API endpoints check for validity.
+            // continue
             this._loggedIn();
 
         }.bind(this));
@@ -210,8 +193,6 @@ L.Admin = L.Class.extend({
             // parse
             this.table_entries = safeParse(json);
 
-            console.log('table_entries', this.table_entries);
-
             // check
             if (!this.table_entries) return console.error('No table entries.');
 
@@ -313,12 +294,14 @@ L.Admin = L.Class.extend({
            
             // create preview map link
             t.latlng = '<i class="fa fa-globe" aria-hidden="true" onclick="mapnotectx.onMapNoteClick(\'' + e.id + '\', this)"></i>';
+            
             // create preview image link
-            if (e.image_url)
-            t.image = '<i class="fa fa-picture-o" aria-hidden="true" onclick="mapnotectx.onMapNoteImageClick(\'' + e.image_url + '\')"></i>'
+            if (e.image && e.image.original)
+            t.image = '<i class="fa fa-picture-o" aria-hidden="true" onclick="mapnotectx.onMapNoteImageClick(\'' + e.image.original + '\')"></i>'
             else {
                 t.image = '';
             }
+
             // create delete link
             t.delete = '<i class="fa fa-trash-o" aria-hidden="true" onclick="mapnotectx.onDeleteNoteClick(\'' + e.id + '\')"></i>';
 
@@ -352,7 +335,6 @@ L.Admin = L.Class.extend({
 
         // create map
         var zoom = entry.zoom + 2;
-        console.log('zoom', zoom, entry.zoom);
         mapboxgl.accessToken = 'pk.eyJ1IjoibWFwaWMiLCJhIjoiY2l2MmE1ZW4wMDAwZTJvcnhtZGI4YXdlcyJ9.rD_-Ou1OdKQsHqEqL6FJLg';
         this._preview.map = new mapboxgl.Map({
             container: 'map-note-container-' + entry.id,
@@ -396,9 +378,7 @@ L.Admin = L.Class.extend({
         var name = app.locale.notes.writtenBy + ': ' + _.capitalize(p.username);
 
         // get image
-        var image = p.image_url || false;
-
-        console.log('P', p);
+        var image = (p.image && p.image.original) ? p.image.original : false;
 
         // create html
         var html = '<div class="notes-popup">';
@@ -430,20 +410,8 @@ L.Admin = L.Class.extend({
             html    += '    <div class="notes-address">';
             html    += '        <i class="fa fa-map-marker" aria-hidden="true"></i>' + p.address;
             html    += '    </div>'
-
-           
-            // // tags
-            // html    += '    <div class="notes-tags">'
-            // html    +=          niceTags;
-            // html    += '    </div>'
-
-            // les mer...
-            html    += '    <div id="note-read-more" class="notes-read-more">'
-            html    += '    Les mer...'
-            html    += '    </div>'
-
+         
         html    += '    </div>'
-        
     
         html    += '</div>'
         return html;
@@ -462,7 +430,7 @@ L.Admin = L.Class.extend({
 
         // remove container
         var container = this._preview.container;
-        if (container) container.parentNode.removeChild(container);
+        if (container && container.parentNode) container.parentNode.removeChild(container);
 
         // clear 
         this._preview = {};
@@ -552,10 +520,6 @@ L.Admin = L.Class.extend({
     },
 
     // helper fn
-    // todo: move
-    getBaseUrl : function () {
-        return 'https://mittlier.no/'; // todo
-    },
     post : function (path, options, done) {
         this._post(path, JSON.stringify(options), function (err, response) {
             done && done(err, response);
@@ -563,7 +527,7 @@ L.Admin = L.Class.extend({
     },
     _post : function (path, json, done, context, baseurl) {
         var http = new XMLHttpRequest();
-        var url = this.getBaseUrl();
+        var url = window.location.origin + '/';
         url += path;
 
         // open

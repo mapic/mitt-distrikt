@@ -456,8 +456,8 @@ L.MapContent = L.Evented.extend({
             // style: 'mapbox://styles/mapbox/streets-v9',
             // style: 'mapbox://styles/mapbox/satellite-v9',
             style: 'mapbox://styles/mapbox/satellite-streets-v9',
-            center: [10.234364120842656, 59.795007354532544],
-            zoom : 12,
+            center: [ 10.24333427476904, 59.78323674962704],
+            zoom : 14,
             attributionControl : false,
         };
 

@@ -165,9 +165,11 @@ module.exports = api = {
         var dimensions = options.dimensions;
 
         var x = 0;
-        var y = dimensions.height - 100;
+        var y = dimensions.height - 100; // on bottom
 
         console.log('dimensions: ', dimensions);
+
+        console.log('')
 
         // var fs.readFile()
         var images = require("images");
@@ -220,41 +222,25 @@ module.exports = api = {
     // route: GET /direct/:id
     direct : function (req, res) {
         
-        console.log('direct req.params', req.params);
-
         var id = req.params.id;
-
-        // res.send('ok');
-        // return;
-
-        console.log('direct -> id', id);
 
         api._getFeature(id, function (err, feature) {
             if (err) return res.send({error : err});
 
+            // parse
             var f = safeParse(feature);
             if (!f) return api.index(req, res);
 
-            console.log('f: ', f);
-
             var p = f.properties;
+            var image = p.image;
 
-            console.log('_getFeature prps', p);
+            // set image
+            var image_url = image ? image.watermark : 'https://' + config.domain + '/stylesheets/facebook-logo.png';
 
-            // { title: 'asd',
-            // text: 'asd',
-            // address: 'Lierbakkene 50, Lier, 3425 Buskerud, Norway',
-            // username: 'Anonymt innlegg',
-            // tags: [ 'ok', 'lier' ],
-            // zoom: 12,
-            // portal_tag: 'mittlier',
-            // timestamp: 1495992742903,
-            // id: 'bks163' }
-
+            // render page
             res.render('front-page', {
                 id : p.id,
-                // image_url : p.image_url || 'https://' + config.domain + '/stylesheets/facebook-logo.png',
-                image_url : p.watermark_url || 'https://' + config.domain + '/stylesheets/facebook-logo.png',
+                image_url : image_url,
                 fb_app_id : config.facebook.app_id,
                 title : p.title,
                 text : p.text,

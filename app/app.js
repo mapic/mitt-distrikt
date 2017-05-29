@@ -72,6 +72,9 @@ router.post('/v1/delete', api.checkAccess, api.deleteNote);
 // route: upload image
 router.post('/v1/upload', api.upload);
 
+// direct note
+router.get('/v1/direct/:id', api.direct);
+
 // set routes
 app.use('/', router);
 

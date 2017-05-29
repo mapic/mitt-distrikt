@@ -293,6 +293,7 @@ L.MapContent = L.Evented.extend({
             
             // notify upload successful
             this.note.image_url = res.image_url;
+            this.note.watermark_url = res.watermark_url;
 
             // done uploading
             this._uploading = false;
@@ -304,7 +305,13 @@ L.MapContent = L.Evented.extend({
 
         // progress bar
         function (progress) {
+            if (progress > 98) {
+                this.note.progressBar.style.width = 0;
+                return;
+            }
+
             this.note.progressBar.style.width = progress + '%';
+
         }.bind(this));
     },
 
@@ -335,6 +342,7 @@ L.MapContent = L.Evented.extend({
         var tags = ["ok", "lier"]; // todo: 
         var portal_tag = 'mittlier'; // todo: from config
         var image_url = this.note.image_url;
+        var watermark_url = this.note.watermark_url;
 
         // check values
         if (!text) return this._missingField(this.note.textboxText);
@@ -366,6 +374,7 @@ L.MapContent = L.Evented.extend({
                 username : username,
                 tags : tags,
                 image_url : image_url,
+                watermark_url : watermark_url,
                 zoom : zoom,
                 portal_tag : portal_tag,
                 timestamp : Date.now(),
@@ -384,6 +393,8 @@ L.MapContent = L.Evented.extend({
         var data = {
             feature: feature
         }
+
+        console.log('sending data note', data);
 
         // send note to server
         app.api.note(data, function (err, result) {
@@ -404,7 +415,7 @@ L.MapContent = L.Evented.extend({
         L.DomUtil.remove(this.note.container);
        
         // update data
-        var data_url = window.location.href + 'v1/notes';
+        var data_url = window.location.origin + '/v1/notes';
         this._map.getSource('earthquakes').setData(data_url);
 
         // show markers
@@ -480,14 +491,14 @@ L.MapContent = L.Evented.extend({
         var map = this._map;
 
         // load custom marker
-        map.loadImage('stylesheets/blomst-omriss.png', function (err, image) {
+        map.loadImage(window.location.origin + '/stylesheets/blomst-omriss.png', function (err, image) {
             if (err) console.log(err);
 
             // add image
             map.addImage('blomst', image);
 
             // set data url
-            var data_url = window.location.href + 'v1/notes';
+            var data_url = window.location.origin + '/v1/notes';
 
             // Add a new source from our GeoJSON data and set the
             // 'cluster' option to true. GL-JS will add the point_count property to your source data.
@@ -625,7 +636,7 @@ L.MapContent = L.Evented.extend({
             // feature
             var feature = f_id ? _.find(e.features, function (f) { return f.properties.id == f_id }) : e.features[0];
 
-            // console.log('selecteed feature: ', feature);
+            console.log('selecteed feature: ', feature);
             // console.log('f_id: ', f_id);
             // console.log('this._createdFeature, ', this._createdFeature);
 
@@ -698,20 +709,29 @@ L.MapContent = L.Evented.extend({
         var shadowImg = L.DomUtil.create('img', 'photo-upload-preview-shadow-img-div', container);
         shadowImg.style.backgroundImage = 'url(' + note.image_url + ')';
        
-        // text 
-        var textBox = L.DomUtil.create('div', 'write-note-text-div min-height-100', container);
-        textBox.innerHTML = note.text;
-
         // user
         var userBox = L.DomUtil.create('div', 'write-note-user-div', container);
         userBox.innerHTML = '<i class="fa fa-user-circle" aria-hidden="true"></i>' + note.username;
+        
+        // text 
+        var textBox = L.DomUtil.create('div', 'write-note-text-div min-height-100', container);
+        textBox.innerHTML = note.text;
 
         // time
         var timeBox = L.DomUtil.create('div', 'write-note-user-div', container);
         var d = new Date(note.timestamp);
         timeBox.innerHTML = '<i class="fa fa-calendar" aria-hidden="true"></i>' + d.getDate() + '.' + d.getMonth() + '.' + d.getFullYear();
 
-        // ok button
+        // like button
+        var like_container = L.DomUtil.create('div', 'like-container', container);
+        var likeBtn  = '<div class="fb-like" ';
+        likeBtn     += 'data-href="';
+        likeBtn     += window.location.origin + '/v1/direct/' + note.id;
+        likeBtn     += '" data-layout="standard" data-width="300px" data-action="like" data-share="true" data-size="large" data-show-faces="true"></div>'
+        like_container.innerHTML = likeBtn;
+        FB.XFBML.parse(like_container);
+
+        // close button
         var okBtn = L.DomUtil.create('div', 'write-note-ok-button bottom-10', container);
         okBtn.innerHTML = app.locale.close;
         L.DomEvent.on(okBtn, 'click', this._closeReadMore, this);

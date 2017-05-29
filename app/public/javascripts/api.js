@@ -25,6 +25,7 @@ L.Api = L.Class.extend({
 
     // post a feature
     note : function (options, callback) {
+        console.log('note post', options);
         this.post('/note', options, callback);
     },
 
@@ -54,8 +55,6 @@ L.Api = L.Class.extend({
                 }
             }
         };
-
-
     },
 
     // get all notes

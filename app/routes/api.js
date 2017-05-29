@@ -8,7 +8,7 @@ var config = require('../app-config.js');
 var redis = require('redis').createClient({ host : 'redis' });
 redis.on('error', function (err) { console.log('Redis error: ', err); });
 redis.auth(config.redis.auth);
-var Twit = require('twit')
+var sizeOf = require('image-size');
 
 // storage handler
 var multer = require('multer');
@@ -23,6 +23,7 @@ module.exports = api = {
     twitter : function (req, res, next) {
 
         // debug
+        var Twit = require('twit')
         var T = new Twit(config.twitter);
         T.get('search/tweets', { q: 'oslo filter:images filter:safe', result_type: 'recent', count: 3 }, function(err, data, response) {
             console.log(data)
@@ -92,24 +93,86 @@ module.exports = api = {
             limits : { fileSize : 11000000 } // 10 MB
         }).single('file');
 
+        console.log('upload', upload);
+
+       
+
         // store to disk
         upload(req, res, function (err, something) {
             if (err) return res.send({error : "Couldn't upload image!"});
 
-            // create image url
-            var image_url = 'https://' + config.domain + '/v1/image/' + filename;
+            console.log('err, something', err, something);
 
-            // return to client
-            res.send({
-                error : null, 
-                endpoint : '/v1/upload',
-                image_url : image_url
+            var file = req.file;
+            var disk_path = file.path;
+
+            console.log('disk_path:', disk_path);
+            console.log('file; ', file);
+
+            var watermark_filename = file.filename + '.watermarked.jpg';
+
+
+            var options = {
+                input : disk_path,
+                size : 400,
+                watermark : '/entrypoint/public/stylesheets/watermark.png',
+                output : '/uploads/' + watermark_filename,
+                quality : 90
+            };
+
+            api._addWatermark(options, function (err, results) {
+                console.log('api._addWatermark err, results', err, results);
+
+                 // create image url
+                var image_url = 'https://' + config.domain + '/v1/image/' + file.filename;
+                var watermark_url = 'https://' + config.domain + '/v1/image/' + watermark_filename;
+
+                // return to client
+                res.send({
+                    error : null,
+                    endpoint : '/v1/upload',
+                    image_url : image_url,
+                    watermark : watermark_url
+                });
+
             });
+
+           
         });
+    },
+
+    _addWatermark : function (options, done) {
+        
+        // todo: async: https://www.npmjs.com/package/threads#basic-usage
+
+        console.time('watermark');
+        console.log('watermark options', options);
+
+        var sizeOf = require('image-size');
+        sizeOf(options.input, function (err, dimensions) {
+            
+            var x = 0;
+            var y = err ? 0 : dimensions.height - 100;
+
+            // var fs.readFile()
+            var images = require("images");
+            images(fs.readFileSync(options.input))                           //Load image from file 
+            .draw(images(options.watermark), x, y)        //Drawn logo at coordinates (10,10)
+            // .size(options.size)                             //Geometric scaling the image to 400 pixels width
+            .saveAsync(options.output, 2, {                         //Save the image to a file, with quality 50
+                quality : options.quality                       
+            }, function (err) {
+                console.timeEnd('watermark');
+                done(err);
+            });
+
+         });
     },
 
     // route: /v1/image/:filename
     image : function (req, res) {
+
+        console.log('image req.params', req.params);
 
         // get id
         var path = '/uploads/' + req.params.filename;
@@ -123,12 +186,75 @@ module.exports = api = {
 
     // route: GET /
     index : function (req, res) {
-        res.render('front-page');
+        res.render('front-page', {
+            fb_app_id : config.facebook.app_id,
+            // id : p.id,
+            image_url : 'https://' + config.domain + '/stylesheets/facebook-logo.png',
+            // title : p.title,
+            // text : p.text,
+            og_type : 'website',
+            url : 'https://' + config.domain,
+            main_title : config.facebook.title,
+        });
     },
 
     // route: GET /admin
     admin : function (req, res) {
         res.render('admin-page');
+    },
+
+    // route: GET /direct/:id
+    direct : function (req, res) {
+        
+        console.log('direct req.params', req.params);
+
+        var id = req.params.id;
+
+        // res.send('ok');
+        // return;
+
+        console.log('direct -> id', id);
+
+        api._getFeature(id, function (err, feature) {
+            if (err) return res.send({error : err});
+
+            var f = safeParse(feature);
+            if (!f) return api.index(req, res);
+
+            console.log('f: ', f);
+
+            var p = f.properties;
+
+            console.log('_getFeature prps', p);
+
+            // { title: 'asd',
+            // text: 'asd',
+            // address: 'Lierbakkene 50, Lier, 3425 Buskerud, Norway',
+            // username: 'Anonymt innlegg',
+            // tags: [ 'ok', 'lier' ],
+            // zoom: 12,
+            // portal_tag: 'mittlier',
+            // timestamp: 1495992742903,
+            // id: 'bks163' }
+
+            res.render('front-page', {
+                id : p.id,
+                // image_url : p.image_url || 'https://' + config.domain + '/stylesheets/facebook-logo.png',
+                image_url : p.watermark_url || 'https://' + config.domain + '/stylesheets/facebook-logo.png',
+                fb_app_id : config.facebook.app_id,
+                title : p.title,
+                text : p.text,
+                url : 'https://' + config.domain + '/v1/direct/' + p.id,
+                main_title : config.facebook.title,
+                og_type : 'article',
+            });
+
+        });
+    },
+
+    _getFeature : function (id, done) {
+        var key = config.redis.key + '-' + id;
+        redis.get(key, done);
     },
 
     _saveFeature : function (feature, done) {
@@ -156,7 +282,7 @@ module.exports = api = {
             // debug
             res.send({
                 error : err, 
-                feature : feature,
+                feature : options.feature,
                 fn : 'api.note',
             });
         });
@@ -214,50 +340,11 @@ module.exports = api = {
         // get note id
         var note_id = req.body.id;
 
+        // delete
         api._deleteNoteById(note_id, function (err, result) {
             res.send({error : err});
         });
 
-        
-
-        // var key = config.redis.key + '-' + note_id ;
-        // redis.del(key, function (err, result) {
-        //     console.log('del, err, result', err, result);
-
-        //     // return to client 
-        //     res.send({
-        //         error : err, 
-        //     });
-
-        // })
-
-
-        // // get existing geojson
-        // redis.get(config.redis.geojson, function (err, json) {
-        //     if (err) return res.send({ error : err });
-
-        //     // parse
-        //     var existing_geojson = safeParse(json);
-
-        //     // remove feature
-        //     var removed = _.remove(existing_geojson.features, function (f) {
-        //         return f.properties.id == note_id;
-        //     });
-
-        //     // double check valid
-        //     var valid_geojson = GJV.valid(existing_geojson);
-        //     if (!valid_geojson) return res.send({error : "Invalid GeoJSON."});
-
-        //     // save 
-        //     redis.set(config.redis.geojson, safeStringify(existing_geojson), function (err) {
-
-        //         // return to client 
-        //         res.send({
-        //             error : err, 
-        //         });
-
-        //     });
-        // });
     },
 
     // rout: GET /v1/table
@@ -270,24 +357,6 @@ module.exports = api = {
             if (!geojson || !_.size(geojson) || !geojson.features) {
                 return res.send();
             };
-
-            // })
-
-            // redis.get(config.redis.geojson, function (err, json) {
-            //     if (err) {
-            //         console.log('api.note -> redis.get -> error: ', err);
-            //         return res.send({
-            //             error : err
-            //         });
-            //     }
-
-            //     // parse
-            //     var existing_geojson = safeParse(json);
-
-            //     // check if ANY notes exist
-            //     if (!existing_geojson || !_.size(existing_geojson) || !existing_geojson.features) {
-            //         return res.send();
-            //     }
 
             // parse into table format
             var table = [];
@@ -321,7 +390,6 @@ module.exports = api = {
 
         // todo: check for other keys
         if (!feature.properties.id) valid = false;
-
 
         // return
         return valid;

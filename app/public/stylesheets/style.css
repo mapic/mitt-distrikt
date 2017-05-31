@@ -40,6 +40,7 @@ a {
     text-align: center;
     line-height: 49px;
     max-width: 300px;
+    padding: 2px;
 }
 
 .btn-group .button:not(:last-child) {
@@ -114,6 +115,28 @@ a {
   border: 1px solid #e74549;
 }
 
+
+div#button-info:hover {
+    background: white;
+    color: #e74549;
+    border: 1px solid #e74549;
+    padding: 1px;
+}
+div#button-kart:hover {
+    background: #e74549;
+    color: white;
+    border: 1px solid #e74549;
+    height: 46px;
+    padding-left: 1px;
+    padding-right: 1px;
+    line-height: 47px;
+}
+div#button-media:hover {
+    background: white;
+    color: #e74549;
+    border: 1px solid #e74549;
+    padding: 1px;
+}
 /*
   _           _                                  
  (_)         | |                                 

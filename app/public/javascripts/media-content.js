@@ -29,7 +29,7 @@ L.Media = L.Class.extend({
         // init feed
         this._feed = new Instafeed({
             get: 'tagged',
-            tagName: 'lier',
+            tagName: 'mittlier',
             // access token, see: https://github.com/stevenschobert/instafeed.js/issues/408#issuecomment-297696860
             accessToken: '21416541.ba4c844.8efa3e551006456fb59330eadb7f2c41',
             target : 'instagram-content',

@@ -9,6 +9,7 @@ var redis = require('redis').createClient({ host : 'redis' });
 redis.on('error', function (err) { console.log('Redis error: ', err); });
 redis.auth(config.redis.auth);
 var sizeOf = require('image-size');
+var json2csv = require('json2csv');
 
 // storage handler
 var multer = require('multer');
@@ -19,6 +20,44 @@ safeParse = function (s) {try { var o = JSON.parse(s); return o; } catch (e) {re
 
 // module
 module.exports = api = {
+
+    exportNotes : function (req, res, next) {   
+         
+        // get all geojson
+        api._getAllNotesAsGeoJSON(function (err, geojson) {
+            var features = geojson.features;
+            var data = [];
+
+            // parse into csv friendly format
+            var fields = ['title', 'text', 'address', 'username', 'tags', 'image', 'timestamp', 'geo', 'id'];
+            _.each(features, function (f) {
+                var p = f.properties;
+                data.push({
+                    title : p.title,
+                    text : p.text,
+                    address : p.address,
+                    username : p.username,
+                    tags : p.tags.join(' '),
+                    image : p.image ? p.image.original : null,
+                    timestamp : p.timestamp,
+                    id : p.id,
+                    geo : f.geometry.coordinates.join(' ')
+                });
+            })
+
+            // parse to csv
+            try {
+                var result = json2csv({ data: data, fields: fields });
+            } catch (err) {
+                var result = 'Det oppstod en feil ved eksportering. Vennligst prøv igjen, eller kontakt webansvarlig på knutole@mapic.io.';
+            }
+
+            // return as file download
+            res.setHeader('Content-disposition', 'attachment; filename=latest.csv');
+            res.set('Content-Type', 'text/csv');
+            res.status(200).send(result);
+        });
+    },
 
     twitter : function (req, res, next) {
 

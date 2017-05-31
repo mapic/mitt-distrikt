@@ -198,9 +198,18 @@ L.Admin = L.Class.extend({
 
             // create table
             this._createTable();
+
+            // create export button
+            this._createExportButton();
        
         }.bind(this));
 
+    },
+
+    _createExportButton : function () {
+        var exportBtn = L.DomUtil.create('a', 'export-button', this._content.map);
+        exportBtn.href = 'https://mittlier.no/v1/export';
+        exportBtn.innerHTML = 'Eksportér';
     },
 
     _refreshTable : function () {

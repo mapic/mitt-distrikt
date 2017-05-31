@@ -52,7 +52,6 @@ L.Api = L.Class.extend({
                 console.log('readysteta 4');
                 if (http.status == 200) {
                     // all good!
-                    console.log('all goood!');
                     callback && callback(null, http.responseText);
                 } else {
                     console.log('err');
@@ -65,6 +64,13 @@ L.Api = L.Class.extend({
     // get all notes
     getTable : function (callback) {
         var url = window.location.origin + '/v1/table';
+        url += '?access_token=' + app.access_token;
+        this.get(url, callback);
+    },
+
+       // get all notes
+    exportNotes : function (callback) {
+        var url = window.location.origin + '/v1/export';
         url += '?access_token=' + app.access_token;
         this.get(url, callback);
     },

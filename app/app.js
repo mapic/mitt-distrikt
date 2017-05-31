@@ -75,6 +75,9 @@ router.post('/v1/upload', api.upload);
 // direct note
 router.get('/v1/direct/:id', api.direct);
 
+// export notes
+router.get('/v1/export', api.exportNotes);
+
 // set routes
 app.use('/', router);
 

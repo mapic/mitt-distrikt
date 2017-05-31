@@ -31,6 +31,7 @@
     "helmet": "^3.5.0",
     "image-size": "^0.5.4",
     "images": "^3.0.0",
+    "json2csv": "^3.7.3",
     "lodash": "^4.17.4",
     "maki": "^2.1.0",
     "mapbox": "^1.0.0-beta6",

@@ -94,6 +94,26 @@ a {
     border: 0;
 }
 
+.export-button {
+    position: absolute;
+    width: 100px;
+    height: auto;
+    background: #e74549;
+    right: 10px;
+    top: 100px;
+    border-radius: 150px;
+    padding: 10px;
+    text-align: center;
+    color: white;
+    font-weight: 600;
+    text-decoration: none;
+}
+.export-button:hover {
+  background: white;
+  color: #e74549;
+  border: 1px solid #e74549;
+}
+
 /*
   _           _                                  
  (_)         | |                                 

@@ -123,8 +123,10 @@ div#button-info:hover {
     padding: 1px;
 }
 div#button-kart:hover {
-    background: #e74549;
-    color: white;
+    /*background: #e74549;*/
+    /*color: white;*/
+    background: white;
+    color: #e74549;
     border: 1px solid #e74549;
     height: 46px;
     padding-left: 1px;

@@ -8,7 +8,10 @@ module.exports = {
     redis : {
         // key for geojson
         key : 'any-unique-key',
-        auth : 'redis-key-must-match-redis-config'
+        auth : 'redis-key-must-match-redis-config',
+
+        // key for config
+        config : 'any-unique-key',
     },
 
     twitter : {

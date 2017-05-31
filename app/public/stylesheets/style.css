@@ -137,6 +137,44 @@ div#button-media:hover {
     border: 1px solid #e74549;
     padding: 1px;
 }
+
+
+.admin-media-container {
+    margin: 0 auto;
+    text-align: left;
+    width: 75%;
+    position: relative;
+    top: 20%;
+    height: 50%;
+    padding: 20px;
+}
+input.hashtag-input {
+    height: 2em;
+    font-size: 1em;
+    padding: 10px;
+    width: calc(100% - 44px);
+    margin: 10px;
+}
+
+.admin-media-save-btn {
+    position: relative;
+    width: 100px;
+    height: auto;
+    background: #e74549;
+    right: 10px;
+    top: 100px;
+    border-radius: 150px;
+    padding: 10px;
+    text-align: center;
+    color: white;
+    font-weight: 600;
+    text-decoration: none;
+}
+.admin-media-save-btn:hover {
+  background: white;
+  color: #e74549;
+  border: 1px solid #e74549;
+}
 /*
   _           _                                  
  (_)         | |                                 

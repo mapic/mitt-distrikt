@@ -78,6 +78,12 @@ router.get('/v1/direct/:id', api.direct);
 // export notes
 router.get('/v1/export', api.exportNotes);
 
+// config
+router.get('/v1/config', api.getConfig);
+
+// set config
+router.post('/v1/config', api.checkAccess, api.setConfig);
+
 // set routes
 app.use('/', router);
 

@@ -21,6 +21,72 @@ safeParse = function (s) {try { var o = JSON.parse(s); return o; } catch (e) {re
 // module
 module.exports = api = {
 
+    createDefaultConfig : function (done) {
+        var defaultConfig = {
+            hashtag : 'MittLier'
+        };
+
+        api._setConfig(defaultConfig, function (err) {
+            done(err, defaultConfig);
+        });
+    },
+
+    _getConfig : function (done) {
+        redis.get(config.redis.config, function (err, result) {
+            if (err) return done(err);
+            if (!result) {
+                api.createDefaultConfig(done);
+            } else {
+                done(err, safeParse(result));
+            }
+        });
+    },
+
+    _setConfig : function (app_config, done) {
+        redis.set(config.redis.config, safeStringify(app_config), done);
+    },
+
+    setConfig : function (req, res, next) {
+        var options = req.body;
+
+        // get current config
+        api._getConfig(function (err, app_config) {
+            if (err) return res.send({error : err});
+
+            // only allow valid optiosn
+            _.each(options, function (v, k) {
+                if (_.has(app_config, k)) {
+                    app_config[k] = v;
+                }
+            });
+
+            // save
+            api._setConfig(app_config, function (err) {
+                res.send({ error : err });
+            });
+        });
+    },
+
+    getConfig : function (req, res, next) {
+
+        api._getConfig(function (err, app_config) {
+            if (err || !app_config) {
+                api.createDefaultConfig(function (err, app_config) {
+                    return res.send({
+                        error : err,
+                        config : app_config
+                    });
+                });
+
+            } else {
+                res.send({
+                    error : null, 
+                    config : app_config
+                });
+            }
+        });
+    },
+
     exportNotes : function (req, res, next) {   
          
         // get all geojson

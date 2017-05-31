@@ -181,7 +181,54 @@ L.Admin = L.Class.extend({
         this._fillMapContent();
 
         // media tab
+        this._fillMediaContent();
 
+    },
+
+    _fillMediaContent : function () {
+
+        app.api.getConfig(function (err, json) {
+            
+            // parse
+            var result = safeParse(json);
+
+            /// check
+            if (!result || err || result.error) return alert('There was an error retriving the config. Please contact knutole@mapic.io');
+
+            // set config
+            this._config = result.config;
+
+            // create container
+            var container = L.DomUtil.create('div', 'admin-media-container', this._content.media);
+
+            // label
+            var label = L.DomUtil.create('label', 'hashtag-label', container);
+            label.setAttribute('for', 'hashtag-input');
+            label.innerHTML = 'Søkeord for sosiale medier:';
+
+            // input
+            var input = this._hashtagInput = L.DomUtil.create('input', 'hashtag-input', container);
+            input.setAttribute('type', 'text');
+            input.id = 'hashtag-input';
+            input.value = this._config.hashtag;
+            input.setAttribute('placeholder', 'Skriv inn ditt søkeord, uten #');
+
+            // save btn
+            var btn = L.DomUtil.create('div', 'admin-media-save-btn', container);
+            btn.innerHTML = 'Lagre';
+            L.DomEvent.on(btn, 'click', this._saveAdminMedia, this);
+
+        }.bind(this))
+
+
+    },
+
+    _saveAdminMedia : function () {
+        var value = this._hashtagInput.value;
+        this._config.hashtag = value;
+        app.api.setConfig(this._config, function (err, results) {
+            if (err) alert('There was an error saving config. Contact knutole@mapic.io');
+        });
     },
 
     _fillMapContent : function () {

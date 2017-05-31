@@ -68,11 +68,15 @@ L.Api = L.Class.extend({
         this.get(url, callback);
     },
 
-       // get all notes
-    exportNotes : function (callback) {
-        var url = window.location.origin + '/v1/export';
+    // get all notes
+    getConfig : function (callback) {
+        var url = window.location.origin + '/v1/config';
         url += '?access_token=' + app.access_token;
         this.get(url, callback);
+    },
+
+    setConfig : function (config, callback) {
+        this.post('/config', config, callback);
     },
 
 

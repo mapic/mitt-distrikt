@@ -42,6 +42,9 @@ L.MapContent = L.Evented.extend({
 
     addNote : function () {
 
+        this._locateControl._onClickGeolocate();
+
+
         // 1. hide other markers
         this._hideMarkers();
 
@@ -451,32 +454,86 @@ L.MapContent = L.Evented.extend({
         // get map container
         this._content = L.DomUtil.get('map');
 
+         // norkart
+        // var norkart_style = {
+        //     'id': 'simple-tiles',
+        //     'type': 'raster',
+        //     'source': {
+        //         "type": "raster",
+        //         "tiles": ['https://www.webatlas.no/maptiles/tiles/webatlas-orto-newup/wa_grid/{z}/{x}/{y}.jpeg'],
+        //         "tileSize": 256
+        //     },
+        //     "layers": [{
+        //         "id": "simple-tiles-layer",
+        //         "type": "raster",
+        //         "source": "simple-tiles",
+        //         "minzoom": 0,
+        //         "maxzoom": 22
+        //     }],
+           
+        // };
+
+        var norkart_style = {
+            "version": 8,
+            "sources": {
+                "raster-tiles": {
+                    "type": "raster",
+                    "tiles": ['https://www.webatlas.no/maptiles/tiles/webatlas-orto-newup/wa_grid/{z}/{x}/{y}.jpeg'],
+                    "tileSize": 256
+                }
+            },
+            "glyphs": "mapbox://fonts/mapbox/{fontstack}/{range}.pbf",
+            "layers": [{
+                "id": "simple-tiles",
+                "type": "raster",
+                "source": "raster-tiles",
+                "minzoom": 0,
+                "maxzoom": 22
+            }]
+        };
+
         var mapOptions = {
             container: 'map',
             // style: 'mapbox://styles/mapbox/streets-v9',
+            // style : 'mapbox://styles/mapic/cj3lgc596000p2sp0ma8z1km0',
+            style : norkart_style,
             // style: 'mapbox://styles/mapbox/satellite-v9',
-            style: 'mapbox://styles/mapbox/satellite-streets-v9',
+            // style: 'mapbox://styles/mapbox/satellite-streets-v9',
             center: [ 10.24333427476904, 59.78323674962704],
             zoom : 14,
             attributionControl : false,
         };
 
-        // if (app.isDesktop()) {
-        //     mapOptions.center = [10.266840117594029, 59.785900142686074];
-        //     mapOptions.bearing = -7.199999999999591;
-        //     mapOptions.pitch = 60;
-        //     mapOptions.zoom = 12;
-        // }
+        // https://www.webatlas.no/maptiles/tiles/webatlas-orto-newup/wa_grid/17/69264/38221.jpeg
+        // https://www.webatlas.no/maptiles/tiles/webatlas-orto-newup/wa_grid/{z}/{x}/{y}.jpeg
 
         // initialize mapboxgl
         mapboxgl.accessToken = 'pk.eyJ1IjoibWFwaWMiLCJhIjoiY2l2MmE1ZW4wMDAwZTJvcnhtZGI4YXdlcyJ9.rD_-Ou1OdKQsHqEqL6FJLg';
         var map = this._map = new mapboxgl.Map(mapOptions);
 
+        
         // map ready event
         map.on('load', this._onMapLoad.bind(this));
 
         // create (+) button
         this._showAddButton();
+
+        // add locate 
+        this._locateControl = new mapboxgl.GeolocateControl({
+            positionOptions: {
+                enableHighAccuracy: true
+            }
+        });
+        map.addControl(this._locateControl);
+
+        console.log('locateControl', this._locateControl);
+
+        this._locateControl.on('geolocate', this._geolocate);
+
+    },
+
+    _geolocate : function (d) {
+        console.log('_geolocate', d);
     },
 
     _onMapLoad : function () {
@@ -596,6 +653,50 @@ L.MapContent = L.Evented.extend({
             window.map = map;
 
         }.bind(this));
+
+        // // norkart
+        // var norkart_style = {
+        //     'id': 'simple-tiles',
+        //     'type': 'raster',
+        //     'source': {
+        //         "type": "raster",
+        //         "tiles": ['https://www.webatlas.no/maptiles/tiles/webatlas-orto-newup/wa_grid/{z}/{x}/{y}.jpeg'],
+        //         "tileSize": 256
+        //     },
+        //     "layers": [{
+        //         "id": "simple-tiles-layer",
+        //         "type": "raster",
+        //         "source": "simple-tiles",
+        //         "minzoom": 0,
+        //         "maxzoom": 22
+        //     }],
+           
+        // };
+
+        // map.addLayer(norkart_style);
+
+
+        map.addLayer({
+            'id': 'urban-areas-fill',
+            'type': 'fill',
+            'source': {
+                'type': 'vector',
+                'url': 'mapbox://styles/mapic/cj3lgc596000p2sp0ma8z1km0'
+            },
+            "source-layer": "contour",
+            'layout': {},
+            // 'paint': {
+            //     'fill-color': '#f08',
+            //     'fill-opacity': 0.4
+            // }
+        // This is the important part of this example: the addLayer
+        // method takes 2 arguments: the layer as an object, and a string
+        // representing another layer's name. if the other layer
+        // exists in the stylesheet already, the new layer will be positioned
+        // right before that layer in the stack, making it possible to put
+        // 'overlays' anywhere in the layer stack.
+        }, 'water');
+
 
 
     },

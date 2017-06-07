@@ -455,7 +455,7 @@ L.MapContent = L.Evented.extend({
             container: 'map',
             // style: 'mapbox://styles/mapbox/streets-v9',
             // style: 'mapbox://styles/mapbox/satellite-v9',
-            style: 'mapbox://styles/mapbox/satellite-streets-v9',
+            style: 'mapbox://styles/mapic/cj3lgc596000p2sp0ma8z1km0',
             center: [ 10.24333427476904, 59.78323674962704],
             zoom : 14,
             attributionControl : false,
@@ -469,7 +469,7 @@ L.MapContent = L.Evented.extend({
         // }
 
         // initialize mapboxgl
-        mapboxgl.accessToken = 'pk.eyJ1IjoibWFwaWMiLCJhIjoiY2l2MmE1ZW4wMDAwZTJvcnhtZGI4YXdlcyJ9.rD_-Ou1OdKQsHqEqL6FJLg';
+        mapboxgl.accessToken = 'pk.eyJ1IjoibWFwaWMiLCJhIjoiY2ozbW53bjk5MDAwYjMzcHRiemFwNmhyaiJ9.R6p5sEuc0oSTjkcKxOSX1w';
         var map = this._map = new mapboxgl.Map(mapOptions);
 
         // map ready event
@@ -484,8 +484,26 @@ L.MapContent = L.Evented.extend({
         // shortcut
         var map = this._map;
 
+        map.addSource('norkart-tiles', {
+            "type": "raster",
+            "tiles": ['https://www.webatlas.no/maptiles/tiles/webatlas-orto-newup/wa_grid/{z}/{x}/{y}.jpeg'],
+            "tileSize": 256
+        });
+
+        map.addLayer({
+            "id": "norkart",
+            "type": "raster",
+            "source": "norkart-tiles",
+            "minzoom": 0,
+            "maxzoom": 22
+        });
+
+        // move
+        map.moveLayer('norkart', 'background');
+
+
         // load custom marker
-        map.loadImage(window.location.origin + '/stylesheets/blomst-omriss.png', function (err, image) {
+        map.loadImage(window.location.origin + '/stylesheets/blomst-red.png', function (err, image) {
             if (err) console.log(err);
 
             // add image
@@ -494,15 +512,11 @@ L.MapContent = L.Evented.extend({
             // set data url
             var data_url = window.location.origin + '/v1/notes';
 
-            // Add a new source from our GeoJSON data and set the
-            // 'cluster' option to true. GL-JS will add the point_count property to your source data.
             map.addSource("earthquakes", {
                 type: "geojson",
-                // Point to GeoJSON data. 
                 data: data_url, 
-                // https://www.mapbox.com/mapbox-gl-js/style-spec/#sources-geojson-cluster
                 cluster: true,
-                clusterMaxZoom: 13, // Max zoom to cluster points on
+                clusterMaxZoom: 15, // Max zoom to cluster points on
                 clusterRadius: 20 // Radius of each cluster when clustering points (defaults to 50)
             });
 
@@ -526,9 +540,9 @@ L.MapContent = L.Evented.extend({
                         property: "point_count",
                         type: "interval",
                         stops: [
-                            [0, 20],
-                            [2, 30],
-                            [5, 40]
+                            [0, 30],
+                            [2, 40],
+                            [5, 50]
                         ]
                     }
                 }
@@ -566,7 +580,7 @@ L.MapContent = L.Evented.extend({
                 filter: ["!has", "point_count"],
                 layout : {
                     "icon-image": "blomst",
-                    "icon-size" : 0.25,
+                    "icon-size" : 0.4,
                 },
                 paint : {
                     "icon-color" : "#E74549",

@@ -462,9 +462,10 @@ _____     __| _/_____ |__| ____
 */
 .mapboxgl-popup-content {
     padding: 0 !important;
-    border-radius: 10px;
+    border-radius: 5px 10px 10px 5px;
     max-width: 400px;
     margin: 0 auto;
+    border: 1px solid #525252;
 
 }
 .mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip {
@@ -607,6 +608,9 @@ i.fa.fa-map-marker {
     border-radius: 100px;
     z-index: 4;
     transition: bottom 0.5s ease-in-out 0s;
+}
+.add-button.center-of-map {
+  pointer-events: none;
 }
 .shadow-button {
     width: 90px;

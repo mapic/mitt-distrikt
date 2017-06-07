@@ -213,6 +213,7 @@ input.hashtag-input {
     width: 100%;
     margin: 0 auto;
     overflow: hidden;
+    max-width: 400px;
 }
 
 .i-avatar {
@@ -1209,6 +1210,7 @@ i.fa.fa-globe:hover {
     margin-left: 10px;
     margin: 10px;
     margin-bottom: 20px;
+    overflow: hidden;
 }
 
 

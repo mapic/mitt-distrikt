@@ -461,13 +461,6 @@ L.MapContent = L.Evented.extend({
             attributionControl : false,
         };
 
-        // if (app.isDesktop()) {
-        //     mapOptions.center = [10.266840117594029, 59.785900142686074];
-        //     mapOptions.bearing = -7.199999999999591;
-        //     mapOptions.pitch = 60;
-        //     mapOptions.zoom = 12;
-        // }
-
         // initialize mapboxgl
         mapboxgl.accessToken = 'pk.eyJ1IjoibWFwaWMiLCJhIjoiY2ozbW53bjk5MDAwYjMzcHRiemFwNmhyaiJ9.R6p5sEuc0oSTjkcKxOSX1w';
         var map = this._map = new mapboxgl.Map(mapOptions);
@@ -498,7 +491,7 @@ L.MapContent = L.Evented.extend({
             "maxzoom": 22
         });
 
-        // move
+        // move order
         map.moveLayer('norkart', 'background');
 
 
@@ -515,62 +508,62 @@ L.MapContent = L.Evented.extend({
             map.addSource("earthquakes", {
                 type: "geojson",
                 data: data_url, 
-                cluster: true,
-                clusterMaxZoom: 15, // Max zoom to cluster points on
-                clusterRadius: 20 // Radius of each cluster when clustering points (defaults to 50)
+                // cluster: true,
+                // clusterMaxZoom: 15, // Max zoom to cluster points on
+                // clusterRadius: 20 // Radius of each cluster when clustering points (defaults to 50)
             });
 
-            // clustering
-            var clustered_layer = {
-                id: "clusters",
-                type: "circle",
-                source: "earthquakes",
-                filter: ["has", "point_count"],
-                paint: {
-                    "circle-color": {
-                        property: "point_count",
-                        type: "interval",
-                        stops: [
-                            [0, "rgba(231, 69, 73, 0.75)"],
-                            [2, "rgba(231, 69, 73, 0.75)"],
-                            [5, "rgba(255, 255, 255, 0.75)"],
-                        ]
-                    },
-                    "circle-radius": {
-                        property: "point_count",
-                        type: "interval",
-                        stops: [
-                            [0, 30],
-                            [2, 40],
-                            [5, 50]
-                        ]
-                    }
-                }
-            }
+            // // clustering
+            // var clustered_layer = {
+            //     id: "clusters",
+            //     type: "circle",
+            //     source: "earthquakes",
+            //     filter: ["has", "point_count"],
+            //     paint: {
+            //         "circle-color": {
+            //             property: "point_count",
+            //             type: "interval",
+            //             stops: [
+            //                 [0, "rgba(231, 69, 73, 0.75)"],
+            //                 [2, "rgba(231, 69, 73, 0.75)"],
+            //                 [5, "rgba(255, 255, 255, 0.75)"],
+            //             ]
+            //         },
+            //         "circle-radius": {
+            //             property: "point_count",
+            //             type: "interval",
+            //             stops: [
+            //                 [0, 30],
+            //                 [2, 40],
+            //                 [5, 50]
+            //             ]
+            //         }
+            //     }
+            // }
 
-            // clustering numbers
-            var cluster_number_layer = {
-                id: "cluster-count",
-                type: "symbol",
-                source: "earthquakes",
-                filter: ["has", "point_count"],
-                layout: {
-                    "text-field": "{point_count_abbreviated}",
-                    "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
-                    "text-size": 26,
-                },
-                paint : {
-                    "text-color" : {
-                        property : "point_count",
-                        type : "interval",
-                        stops: [
-                            [0, "#FFFFFF"],
-                            [2, "#FFFFFF"],
-                            [5, "#e74549"],
-                        ]
-                    }
-                }
-            }
+            // // clustering numbers
+            // var cluster_number_layer = {
+            //     id: "cluster-count",
+            //     type: "symbol",
+            //     source: "earthquakes",
+            //     filter: ["has", "point_count"],
+            //     layout: {
+            //         "text-field": "{point_count_abbreviated}",
+            //         "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
+            //         "text-size": 26,
+            //     },
+            //     paint : {
+            //         "text-color" : {
+            //             property : "point_count",
+            //             type : "interval",
+            //             stops: [
+            //                 [0, "#FFFFFF"],
+            //                 [2, "#FFFFFF"],
+            //                 [5, "#e74549"],
+            //             ]
+            //         }
+            //     }
+            // }
 
             // unclustedered points
             var notes_layer = {
@@ -582,21 +575,21 @@ L.MapContent = L.Evented.extend({
                     "icon-image": "blomst",
                     "icon-size" : 0.4,
                 },
-                paint : {
-                    "icon-color" : "#E74549",
-                    "icon-opacity" : 1,
-                    "icon-halo-blur" : 4,
-                }
+                // paint : {
+                //     "icon-color" : "#E74549",
+                //     "icon-opacity" : 1,
+                //     "icon-halo-blur" : 4,
+                // }
             }
 
             // add layers
-            map.addLayer(clustered_layer);
-            map.addLayer(cluster_number_layer);
+            // map.addLayer(clustered_layer);
+            // map.addLayer(cluster_number_layer);
             map.addLayer(notes_layer);
 
             this._layers = {
-                clustered_layer : clustered_layer,
-                cluster_number_layer : cluster_number_layer,
+                // clustered_layer : clustered_layer,
+                // cluster_number_layer : cluster_number_layer,
                 notes_layer : notes_layer
             }
 
@@ -628,6 +621,22 @@ L.MapContent = L.Evented.extend({
             anchor : 'bottom',
             offset : 10
         });
+
+        var fly = function (e) {
+
+            // stop mouse-events
+            L.DomEvent.stop(e);
+
+
+            // get feature id
+            var f_id = this._createdFeature ? this._createdFeature.feature.properties.id : false;
+           
+            // feature
+            var feature = f_id ? _.find(e.features, function (f) { return f.properties.id == f_id }) : e.features[0];
+
+            map.flyTo({center: feature.geometry.coordinates});
+
+        };
 
         // show popup fn
         var showPopup = function (e) {
@@ -676,8 +685,10 @@ L.MapContent = L.Evented.extend({
         // mouse: remove popup
         map.on('click', removePopup);
 
-        // mouse: show popup (must be registered after remove popup above)
+        // mouse: show popup (must be registered _after_ remove popup above)
         map.on('click', 'notes', showPopup);
+
+        map.on('mouseup', 'notes', fly);
 
         // touch: show popup
         map.on('touchstart', 'notes', showPopup);

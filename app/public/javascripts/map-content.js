@@ -308,7 +308,6 @@ L.MapContent = L.Evented.extend({
 
         // progress bar
         function (progress) {
-            console.log('progressBar', progress);
             if (progress > 98) {
                 this.note.progressBar.style.width = 0;
                 return;
@@ -348,7 +347,6 @@ L.MapContent = L.Evented.extend({
 
             // set counter
             this._u += 1;
-            console.log('Waiting for upload to finish...', this._u);
 
             // re-run
             return setTimeout(function () {
@@ -387,8 +385,6 @@ L.MapContent = L.Evented.extend({
         var data = {
             feature: feature
         }
-
-        console.log('sending data note', data);
 
         // send note to server
         app.api.note(data, function (err, result) {
@@ -703,8 +699,6 @@ L.MapContent = L.Evented.extend({
         var image = safeParse(note.image);
         var image_url = image ? image.original : '';
 
-        console.log('readMore feature', feature)
-
         // container
         var main_container = this._readMoreContainer = L.DomUtil.create('div', 'write-note-container', app._container);
 
@@ -791,7 +785,6 @@ L.MapContent = L.Evented.extend({
 
         // get image
         var image = (p_image && p_image.original) ? p_image.original : false;
-        console.log('popup html image:', image, p);
 
         // create html
         var html = '<div class="notes-popup">';

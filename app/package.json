@@ -43,5 +43,9 @@
     "shortid": "^2.2.8",
     "threads": "^0.7.3",
     "twit": "^2.2.5"
+  },
+  "devDependencies": {
+    "grunt": "^1.0.1",
+    "grunt-contrib-uglify": "^3.0.1"
   }
 }

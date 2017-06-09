@@ -221,7 +221,7 @@ module.exports = api = {
 
                 api._addWatermark(options, function (err, results) {
 
-                     // create image url
+                    // create image url
                     var image_url = 'https://' + config.domain + '/v1/image/' + file.filename;
                     var watermark_url = 'https://' + config.domain + '/v1/image/' + watermark_filename;
 
@@ -231,7 +231,8 @@ module.exports = api = {
                         endpoint : '/v1/upload',
                         image : {
                             original : image_url,
-                            watermark : watermark_url,
+                            watermark : image_url,
+                            // watermark : watermark_url,
                             type : dimensions.type,
                             width : dimensions.width,
                             height : dimensions.height,
@@ -243,6 +244,9 @@ module.exports = api = {
     },
 
     _addWatermark : function (options, done) {
+
+        // debug: turn off watermarking
+        return done();
         
         // todo: async: https://www.npmjs.com/package/threads#basic-usage
         var dimensions = options.dimensions;
@@ -328,7 +332,7 @@ module.exports = api = {
     _saveFeature : function (feature, done) {
 
         // check valid feature
-        if (!feature || !api._checkValidFeature(feature) || !feature.properties) return res.send({error : '#149 Invalid feature'});
+        if (!feature || !api._checkValidFeature(feature) || !feature.properties) return done({error : '#149 Invalid feature'});
 
         // get key
         var key = config.redis.key + '-' + feature.properties.id;

@@ -447,13 +447,19 @@ L.MapContent = L.Evented.extend({
         // get map container
         this._content = L.DomUtil.get('map');
 
+        this._styles = {
+            satellite : 'mapbox://styles/mapic/cj3lgc596000p2sp0ma8z1km0',
+            streets : 'mapbox://styles/mapbox/streets-v9',
+        }
+
         var mapOptions = {
             container: 'map',
             // style: 'mapbox://styles/mapbox/streets-v9',
             // style: 'mapbox://styles/mapbox/satellite-v9',
-            style: 'mapbox://styles/mapic/cj3lgc596000p2sp0ma8z1km0',
-            center: [ 10.24333427476904, 59.78323674962704],
-            zoom : 14,
+            // style: 'mapbox://styles/mapic/cj3lgc596000p2sp0ma8z1km0',
+            style: this._styles.satellite,
+            center: [10.24333427476904, 59.78323674962704],
+            zoom : 12,
             attributionControl : false,
         };
 
@@ -466,6 +472,30 @@ L.MapContent = L.Evented.extend({
 
         // create (+) button
         this._showAddButton();
+
+        // create background layer toggle control
+        this._createToggleControl();
+    },
+
+    _createToggleControl : function () {
+
+        var div = L.DomUtil.create('div', 'background-toggle-control', this._container);
+        div.innerHTML = '<i class="fa fa-map" aria-hidden="true"></i>';
+        L.DomEvent.on(div, 'click', this._toggleBackground, this);
+    },
+
+    _toggled : false,
+
+    _toggleBackground : function () {
+        var map = this._map;
+        this._toggled = !this._toggled;
+        if (this._toggled) {
+            map.setLayoutProperty('norkart', 'visibility', 'none');
+            map.setLayoutProperty('mapbox', 'visibility', 'visible');
+        } else {
+            map.setLayoutProperty('norkart', 'visibility', 'visible');
+            map.setLayoutProperty('mapbox', 'visibility', 'none');
+        }
     },
 
     _onMapLoad : function () {
@@ -473,6 +503,25 @@ L.MapContent = L.Evented.extend({
         // shortcut
         var map = this._map;
 
+        // mapbox streets raster tiles
+        map.addSource('mapbox-tiles', {
+            "type": "raster",
+            "tiles": ['https://api.mapbox.com/styles/v1/mapbox/outdoors-v10/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwaWMiLCJhIjoiY2l2MmE1ZW4wMDAwZTJvcnhtZGI4YXdlcyJ9.rD_-Ou1OdKQsHqEqL6FJLg'],
+            "tileSize": 256
+        });
+
+        map.addLayer({
+            "id": "mapbox",
+            "type": "raster",
+            "source": "mapbox-tiles",
+            "minzoom": 0,
+            "maxzoom": 22,
+            "source-layer" : "background"
+        });
+        // hide by default
+        map.setLayoutProperty('mapbox', 'visibility', 'none');
+
+        // norkart raster tiles
         map.addSource('norkart-tiles', {
             "type": "raster",
             "tiles": ['https://www.webatlas.no/maptiles/tiles/webatlas-orto-newup/wa_grid/{z}/{x}/{y}.jpeg'],
@@ -490,7 +539,6 @@ L.MapContent = L.Evented.extend({
         // move order
         map.moveLayer('norkart', 'background');
 
-
         // load custom marker
         map.loadImage(window.location.origin + '/stylesheets/blomst-red.png', function (err, image) {
             if (err) console.log(err);
@@ -504,62 +552,7 @@ L.MapContent = L.Evented.extend({
             map.addSource("earthquakes", {
                 type: "geojson",
                 data: data_url, 
-                // cluster: true,
-                // clusterMaxZoom: 15, // Max zoom to cluster points on
-                // clusterRadius: 20 // Radius of each cluster when clustering points (defaults to 50)
             });
-
-            // // clustering
-            // var clustered_layer = {
-            //     id: "clusters",
-            //     type: "circle",
-            //     source: "earthquakes",
-            //     filter: ["has", "point_count"],
-            //     paint: {
-            //         "circle-color": {
-            //             property: "point_count",
-            //             type: "interval",
-            //             stops: [
-            //                 [0, "rgba(231, 69, 73, 0.75)"],
-            //                 [2, "rgba(231, 69, 73, 0.75)"],
-            //                 [5, "rgba(255, 255, 255, 0.75)"],
-            //             ]
-            //         },
-            //         "circle-radius": {
-            //             property: "point_count",
-            //             type: "interval",
-            //             stops: [
-            //                 [0, 30],
-            //                 [2, 40],
-            //                 [5, 50]
-            //             ]
-            //         }
-            //     }
-            // }
-
-            // // clustering numbers
-            // var cluster_number_layer = {
-            //     id: "cluster-count",
-            //     type: "symbol",
-            //     source: "earthquakes",
-            //     filter: ["has", "point_count"],
-            //     layout: {
-            //         "text-field": "{point_count_abbreviated}",
-            //         "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
-            //         "text-size": 26,
-            //     },
-            //     paint : {
-            //         "text-color" : {
-            //             property : "point_count",
-            //             type : "interval",
-            //             stops: [
-            //                 [0, "#FFFFFF"],
-            //                 [2, "#FFFFFF"],
-            //                 [5, "#e74549"],
-            //             ]
-            //         }
-            //     }
-            // }
 
             // unclustedered points
             var notes_layer = {
@@ -570,22 +563,14 @@ L.MapContent = L.Evented.extend({
                 layout : {
                     "icon-image": "blomst",
                     "icon-size" : 0.4,
-                },
-                // paint : {
-                //     "icon-color" : "#E74549",
-                //     "icon-opacity" : 1,
-                //     "icon-halo-blur" : 4,
-                // }
+                    "icon-allow-overlap" : true
+                }
             }
 
             // add layers
-            // map.addLayer(clustered_layer);
-            // map.addLayer(cluster_number_layer);
             map.addLayer(notes_layer);
 
             this._layers = {
-                // clustered_layer : clustered_layer,
-                // cluster_number_layer : cluster_number_layer,
                 notes_layer : notes_layer
             }
 

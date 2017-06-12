@@ -219,8 +219,6 @@ L.Admin = L.Class.extend({
             L.DomEvent.on(btn, 'click', this._saveAdminMedia, this);
 
         }.bind(this))
-
-
     },
 
     _saveAdminMedia : function () {
@@ -299,12 +297,13 @@ L.Admin = L.Class.extend({
         table += '<thead>';
         table += '<th data-dynatable-column="address">  ' + this.locale.table.address + '</th>';
         table += '<th data-dynatable-column="text">     ' + this.locale.table.text + '</th>';
-        table += '<th data-dynatable-column="tags">     ' + this.locale.table.tags + '</th>';
-        table += '<th data-dynatable-column="latlng">   ' + this.locale.table.latlng + '</th>';
-        table += '<th data-dynatable-column="zoom">     ' + this.locale.table.zoom + '</th>';
         table += '<th data-dynatable-column="username"> ' + this.locale.table.username + '</th>';
-        table += '<th data-dynatable-column="time">     ' + this.locale.table.time + '</th>';
-        table += '<th data-dynatable-column="domain">   ' + this.locale.table.domain + '</th>';
+        table += '<th style="min-width:140px;" data-dynatable-column="time"  data-dynatable-sorts="timestamp">     ' + this.locale.table.time + '</th>';
+        table += '<th data-dynatable-column="timestamp" style="display:none;">     ' + this.locale.table.time + '</th>';
+        table += '<th style="min-width:70px;" data-dynatable-column="tags">     ' + this.locale.table.tags + '</th>';
+        table += '<th data-dynatable-column="latlng">   ' + this.locale.table.latlng + '</th>';
+        // table += '<th data-dynatable-column="zoom">     ' + this.locale.table.zoom + '</th>';
+        // table += '<th data-dynatable-column="domain">   ' + this.locale.table.domain + '</th>';
         table += '<th data-dynatable-column="image">   ' + this.locale.table.image + '</th>';
         table += '<th data-dynatable-column="delete">   ' + this.locale.table.delete + '</th>';
         table += '</thead>';
@@ -316,10 +315,13 @@ L.Admin = L.Class.extend({
         // format table entries 
         var table_json = this._parseTableJson(entries);
 
+
+
         // run dynatable
         this._dt = $('#notes-table').dynatable({
           dataset: {
-            records: table_json
+            records: table_json,
+            perPageDefault: 100,
           },
           inputs : {
             // live search with keyup
@@ -343,10 +345,11 @@ L.Admin = L.Class.extend({
             t.address = e.address || '';
             t.tags = e.tags.join(', ');
             t.text = e.text || '';
-            t.zoom = parseInt(e.zoom) || '';
+            // t.zoom = parseInt(e.zoom) || '';
             t.username = e.username || '';
             t.time = new Date(e.timestamp).toDateString() || '';
-            t.domain = e.portal_tag || '';
+            t.timestamp = e.timestamp;
+            // t.domain = e.portal_tag || '';
            
             // create preview map link
             t.latlng = '<i class="fa fa-globe" aria-hidden="true" onclick="mapnotectx.onMapNoteClick(\'' + e.id + '\', this)"></i>';

@@ -1,3 +1,4 @@
+window = window || {};
 window.locale = window.locale || {}
 
 locale.EN = {} // fill in for english localization
@@ -59,7 +60,6 @@ locale.NO = {
         closeBtn    : 'Lukk vindu',
         confirmDelete : 'Er du sikker på at du vil slette forslaget? Dette kan ikke angres!'
     },
-
 
 
 }

@@ -10,6 +10,7 @@ redis.on('error', function (err) { console.log('Redis error: ', err); });
 redis.auth(config.redis.auth);
 var sizeOf = require('image-size');
 var json2csv = require('json2csv');
+var nodemailer = require('nodemailer');
 
 // storage handler
 var multer = require('multer');
@@ -351,6 +352,14 @@ module.exports = api = {
         api._saveFeature(options.feature, function (err, result) {
             if (err) return res.send({error : err});
 
+            console.log('_safeFeature', options.feature);
+
+            api._sendEmail({
+                props : options.feature.properties
+            }, function (err) {
+                console.log('email sent', err);
+            });
+
             // debug
             res.send({
                 error : err, 
@@ -440,7 +449,6 @@ module.exports = api = {
             // parse into table format
             var table = [];
             _.each(geojson.features, function (feature) {
-                console.log('feature:', feature);
 
                 // add properties and geometry
                 var table_entry = feature.properties;
@@ -474,6 +482,87 @@ module.exports = api = {
         return valid;
     },
 
+    _createEmailHTML : function (t) {
+        
+        // header
+        var html = '<div style="background: #e74549; height: auto; width: 100%; color: white; padding: 10px; font-size: 1.3em">'
+        html += config.email.subject,
+        html += '</div>';
+
+        // body
+        html += '<div style="color: black; padding: 10px; padding-top: 20px; border: 1px solid #e74549;">';
+        
+            // title
+            html += '<div style="font-weight: 500; font-size: 1.4em;">';
+            html += t.title;
+            html += '</div>';
+
+            // text
+            html += '<div style="padding-top: 5px;">';
+            html += t.text;
+            html += '</div>';
+
+            // iamge
+            if (t.image) {
+                html += '<div style="padding-top: 5px;">';
+                html += '<img src="' + t.image.original + '" style="max-width: 200px; max-height: 200px;">';
+                html += '</div>';
+            }
+
+            // username
+            html += '<div style="padding-top: 15px; color: gray;">';
+            html += 'Skrevet av: ' + t.username;
+            html += '</div>';
+
+            // address
+            html += '<div style="padding-top: 15px; color: gray;">';
+            html += 'Sted: ' + t.address;
+            html += '</div>';
+
+        html += '</div>';
+
+        // admin
+        html += '<div style="color: black; padding: 10px; border: 1px solid #e74549; border-top: none;">';
+
+            html += '<div>';
+            html += 'Gå til <a href="https://' + config.domain + '/admin" target="_blank">admin-siden</a> for å inspisere innlegget.';
+            html += '</div>';
+
+        html += '</div>';
+
+        // support email
+        html += '<div style="color:gray; padding-top:10px;font-size:0.9em;font-style:italic;">Dette er en automatisk generert email. Kontakt <a style="color: gray;" href="mailto:hello@mapic.io?subject=Support for MittLier.no">Mapic</a> hvis du trenger support.</div>';
+
+        return html;
+
+    },
+
+    _sendEmail : function (options, done) {
+        
+        // create reusable transporter object using the default SMTP transport
+        var transporter = nodemailer.createTransport(config.email.config);
+
+        // create html
+        var html = api._createEmailHTML(options.props);
+
+        // options
+        var mailOptions = {
+            from: config.email.config.from,
+            to: config.email.recipients, // list of receivers
+            subject: config.email.subject, // Subject line
+            html: html // html body
+        };
+
+
+        // send mail with defined transport object
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) return done(error);
+            
+            done(null, mailOptions);
+            console.log('Message %s sent: %s', info.messageId, info.response);
+        });
+    },
+
 
     // route: /login
     login : function (req, res, next) {
@@ -497,7 +586,6 @@ module.exports = api = {
 
             // if no user 
             if (!user) {
-                console.log('No such user:', email);
                 return res.send({
                     access_token : null,
                     error : 'Feil kombinasjon av email og passord. Vennligst prøv igjen.'
@@ -506,7 +594,6 @@ module.exports = api = {
 
             // if password matches
             if (user.password === password) {
-                console.log('Login successful', user);
 
                 // create access token
                 var access_token = generator.generate({
@@ -521,7 +608,6 @@ module.exports = api = {
                     privilege : 'admin',
                     access_token : access_token
                 }), function (err) {
-                    console.log('saved access_token', err);
                     res.send({
                         access_token : access_token,
                         error : null
@@ -531,7 +617,6 @@ module.exports = api = {
 
             // if wrong password
             } else {
-                console.log('No such user:', email);
                 return res.send({
                     access_token : null,
                     error : 'Feil kombinasjon av email og passord. Vennligst prøv igjen.'

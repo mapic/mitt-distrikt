@@ -318,15 +318,17 @@ L.Admin = L.Class.extend({
 
 
         // run dynatable
-        this._dt = $('#notes-table').dynatable({
-          dataset: {
-            records: table_json,
-            perPageDefault: 100,
-          },
-          inputs : {
-            // live search with keyup
-            queryEvent : 'keyup change blur'
-          }
+        this._dt = $('#notes-table').bind('dynatable:init', function(e, dynatable) {
+                dynatable.sorts.add('timestamp', -1);
+            }).dynatable({
+            dataset: {
+                records: table_json,
+                perPageDefault: 100,
+            },
+            inputs : {
+                // live search with keyup
+                queryEvent : 'keyup change blur'
+            }
         });
 
     },
@@ -528,13 +530,14 @@ L.Admin = L.Class.extend({
         // create container
         this._preview.container = L.DomUtil.create('div', 'admin-image-preview', this._content.map);
         
+        // insert image
+        this._preview.container.innerHTML = '<img src="' + image_url + '">';
+
         // create close btn
         var closeBtn = this._preview.close = L.DomUtil.create('div', 'map-note-container-close', this._preview.container);
         closeBtn.innerHTML = this.locale.table.closeBtn;
         L.DomEvent.on(this._preview.close, 'click', this._closePreview, this);
 
-        // insert image
-        this._preview.container.innerHTML = '<img src="' + image_url + '">';
     },
 
     _getEntry : function (id) {

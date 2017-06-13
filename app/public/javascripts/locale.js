@@ -42,7 +42,7 @@ locale.NO = {
 
     close : 'Lukk',
 
-    addNoteHelp : 'Flytt kartet til ønsket sted. <br> Trykk så Ok!',
+    addNoteHelp : 'Flytt kartet til ønsket sted. <br> Trykk Ok for å gi innspill.<br>',
     uploadHelpText : 'Last opp bilde...',
 
     table : {

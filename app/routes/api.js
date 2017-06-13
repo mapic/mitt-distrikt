@@ -352,15 +352,13 @@ module.exports = api = {
         api._saveFeature(options.feature, function (err, result) {
             if (err) return res.send({error : err});
 
-            console.log('_safeFeature', options.feature);
-
+            // send email notification
             api._sendEmail({
                 props : options.feature.properties
             }, function (err) {
-                console.log('email sent', err);
+                if (err) console.log(err);
             });
 
-            // debug
             res.send({
                 error : err, 
                 feature : options.feature,
@@ -553,13 +551,10 @@ module.exports = api = {
             html: html // html body
         };
 
-
         // send mail with defined transport object
         transporter.sendMail(mailOptions, (error, info) => {
             if (error) return done(error);
-            
             done(null, mailOptions);
-            console.log('Message %s sent: %s', info.messageId, info.response);
         });
     },
 

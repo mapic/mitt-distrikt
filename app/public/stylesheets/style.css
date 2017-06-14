@@ -522,7 +522,7 @@ _____     __| _/_____ |__| ____
     background-image: url(https://mittlier.no/stylesheets/stor-blomst.png);
     background-size: 130px 130px;
     background-repeat: no-repeat;
-    background-position: 89px 31px;
+    background-position: 50%;
     background-color: rgb(231, 69, 73);
 }
 .notes-image img {
@@ -608,20 +608,18 @@ i.fa.fa-map-marker {
      \/                 \/     \/ 
 */
 .add-button {
-    width: 100px;
-    height: 60px;
+    width: 90px;
+    height: 90px;
     position: fixed;
     bottom: 50px;
     left: calc(50% - 27px);
-    -webkit-mask: url(noun_733202_cc.svg) no-repeat;
-    -webkit-mask-size: 60px;
-    mask: url(noun_733202_cc.svg) no-repeat;
-    mask-size: 60px;
+    background-image: url(https://mittlier.no/stylesheets/mappin.png);
     cursor: pointer;
-    background: white;
-    border-radius: 100px;
-    z-index: 4;
+    background-position: 10px 31px;
+    z-index: 11;
     transition: bottom 0.5s ease-in-out 0s;
+    background-size: 35px;
+    background-repeat: no-repeat;
 }
 .add-button.center-of-map {
   pointer-events: none;
@@ -650,7 +648,7 @@ i.fa.fa-map-marker {
     background: rgba(255, 255, 255, 0.8);
 }
 .red-button:hover {
-  background: #e74549;
+    background-image: url(https://mittlier.no/stylesheets/mappin-red.png);
 
 }
 
@@ -755,9 +753,11 @@ i.fa.fa-map-marker {
     margin-left: 25%;
     margin-top: 10%;
     margin-bottom: 10%;
-    height: 80%;
     margin-right: 25%;
     background: white;
+    height: auto;
+    padding-bottom: 10px;
+
 }
 
 .write-note-title {
@@ -1004,10 +1004,10 @@ img.photo-upload-preview-shadow-img {
     background: none !important;
 }
 
-
+/*
 img.photo-upload-preview-shadow-img:after {
   content : 'Last opp bilde';
-}
+}*/
 .preview-label {
   color: blue;
 }

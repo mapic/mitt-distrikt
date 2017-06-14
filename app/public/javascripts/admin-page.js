@@ -198,6 +198,8 @@ L.Admin = L.Class.extend({
             // set config
             this._config = result.config;
 
+            console.log('config: ', this._config);
+
             // create container
             var container = L.DomUtil.create('div', 'admin-media-container', this._content.media);
 

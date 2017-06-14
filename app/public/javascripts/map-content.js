@@ -432,6 +432,10 @@ L.MapContent = L.Evented.extend({
             map.fire('click', { lngLat: lngLat , e : {}})
         }, 1000);
 
+        // set cookie, works!
+        Cookies.set('created_notes', '["id-1", "id-2"]');
+        var cookie = Cookies.get('created_notes');
+        // alert(cookie);
     },
 
     _cancelNote : function () {

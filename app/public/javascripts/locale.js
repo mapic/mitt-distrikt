@@ -14,7 +14,6 @@ locale.NO = {
     portraitWarning : 'Denne siden kan kun vises i portrettformat. Vennligst snu mobilen eller nettbrettet ditt.',
 
     footer : {
-
         login   : 'Logg inn',
         text    : '© Lier kommune 2017. ',
     },
@@ -41,7 +40,6 @@ locale.NO = {
     },
 
     close : 'Lukk',
-
     addNoteHelp : 'Flytt kartet til ønsket sted. <br> Trykk Ok for å gi innspill.<br>',
     uploadHelpText : 'Last opp bilde...',
     pleaseFillIn : 'Vennligst fyll inn',
@@ -54,6 +52,7 @@ locale.NO = {
     writeSearchWord : 'Skriv inn ditt søkeord, uten #',
     save : 'Lagre',
     export : 'Eksportér',
+    edit : 'Redigér innlegg',
 
     table : {
         address     : 'Adresse',

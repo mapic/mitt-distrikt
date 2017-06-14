@@ -549,6 +549,22 @@ _____     __| _/_____ |__| ____
     padding-bottom: 12px;
     padding-top: 6px;
     font-size: 13px;
+    cursor: pointer;
+}
+.edit-own-note-btn {
+    border: 1px solid white;
+    width: auto;
+    position: absolute;
+    padding: 8px;
+    top: 10px;
+    right: 50px;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.edit-own-note-btn:hover {
+    background: white;
+    color: #e74549;
 }
 .notes-read-more:hover {
     background: #e74549;

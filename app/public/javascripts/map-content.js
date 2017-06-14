@@ -363,6 +363,8 @@ L.MapContent = L.Evented.extend({
         // reset counter
         this._u = 0;
 
+        var user_id = this._getUserId();
+
         // create geojson feature
         var feature = {
             "type": "Feature",
@@ -371,6 +373,7 @@ L.MapContent = L.Evented.extend({
                 text : text,
                 address : address,
                 username : username,
+                user_id : user_id,
                 tags : tags,
                 image : image,
                 zoom : zoom,
@@ -405,6 +408,15 @@ L.MapContent = L.Evented.extend({
 
     },
 
+    _getUserId : function () {
+        var user_id = Cookies.get('user_id');
+        if (!user_id) {
+            var user_id = Math.random().toString(36).substring(5);
+            Cookies.set('user_id', user_id);
+        }
+        return user_id;
+    },
+
     _onNoteSent : function (err) {
 
         // close note window
@@ -433,8 +445,9 @@ L.MapContent = L.Evented.extend({
         }, 1000);
 
         // set cookie, works!
-        Cookies.set('created_notes', '["id-1", "id-2"]');
-        var cookie = Cookies.get('created_notes');
+        // Cookies.set('my-notes', '["id-1", "id-2"]');
+        // var cookie = Cookies.get('my-notes');
+        // console.log('this._createdFeature', this._createdFeature);
         // alert(cookie);
     },
 
@@ -556,42 +569,71 @@ L.MapContent = L.Evented.extend({
             // add image
             map.addImage('blomst', image);
 
-            // set data url
-            var data_url = window.location.origin + '/v1/notes';
+            map.loadImage(window.location.origin + '/stylesheets/blomst-yellow.png', function (err, image2) {
 
-            map.addSource("earthquakes", {
-                type: "geojson",
-                data: data_url, 
-            });
 
-            // unclustedered points
-            var notes_layer = {
-                id: "notes",
-                type: "symbol",
-                source: "earthquakes",
-                filter: ["!has", "point_count"],
-                layout : {
-                    "icon-image": "blomst",
-                    "icon-size" : 0.4,
-                    "icon-allow-overlap" : true
+                // add image
+                map.addImage('blomst2', image2);
+
+                // set data url
+                var data_url = window.location.origin + '/v1/notes';
+
+                map.addSource("earthquakes", {
+                    type: "geojson",
+                    data: data_url, 
+                });
+
+                console.log('data_url', data_url);
+
+                // get user id
+                var user_id = this._getUserId();
+
+                // all points except own
+                var notes_layer = {
+                    id: "notes",
+                    type: "symbol",
+                    source: "earthquakes",
+                    filter: ["!=", "user_id", user_id],
+                    layout : {
+                        "icon-image": "blomst",
+                        "icon-size" : 0.4,
+                        "icon-allow-overlap" : true
+                    }
                 }
-            }
 
-            // add layers
-            map.addLayer(notes_layer);
+                // add layers
+                map.addLayer(notes_layer);
 
-            this._layers = {
-                notes_layer : notes_layer
-            }
+                 // own points
+                var own_notes_layer = {
+                    id: "own-notes",
+                    type: "symbol",
+                    source: "earthquakes",
+                    filter: ["==", "user_id", user_id],
+                    layout : {
+                        "icon-image": "blomst2",
+                        "icon-size" : 0.4,
+                        "icon-allow-overlap" : true
+                    }
+                }
 
-            // when map moves
-            map.on('moveend', this._onMoveEnd.bind(this));
+                // add layers
+                map.addLayer(own_notes_layer);
 
-            // add popups
-            this._addPopups();
+                this._layers = {
+                    notes_layer : notes_layer
+                }
 
-            // debug
-            window.map = map;
+                // when map moves
+                map.on('moveend', this._onMoveEnd.bind(this));
+
+                // add popups
+                this._addPopups();
+
+                // debug
+                window.map = map;
+
+            }.bind(this));
 
         }.bind(this));
 
@@ -672,17 +714,26 @@ L.MapContent = L.Evented.extend({
         map.on('mouseleave', 'notes', function () {
             map.getCanvas().style.cursor = '';
         });
+        map.on('mouseenter', 'own-notes', function (e) {
+            map.getCanvas().style.cursor = 'pointer';
+        });
+        map.on('mouseleave', 'own-notes', function () {
+            map.getCanvas().style.cursor = '';
+        });
 
         // mouse: remove popup
         map.on('click', removePopup);
 
         // mouse: show popup (must be registered _after_ remove popup above)
         map.on('click', 'notes', showPopup);
+        map.on('click', 'own-notes', showPopup);
 
         map.on('mouseup', 'notes', fly);
+        map.on('mouseup', 'own-notes', fly);
 
         // touch: show popup
         map.on('touchstart', 'notes', showPopup);
+        map.on('touchstart', 'own-notes', showPopup);
 
     },  
 
@@ -704,7 +755,7 @@ L.MapContent = L.Evented.extend({
         var title = L.DomUtil.create('div', 'write-note-title capitalize', container);
         title.innerHTML = note.title;
 
-         // cancel button
+        // cancel button
         var cancelBtn = L.DomUtil.create('div', 'write-note-cancel-button close', container);
         L.DomEvent.on(cancelBtn, 'click', this._closeReadMore, this);
 
@@ -759,6 +810,21 @@ L.MapContent = L.Evented.extend({
         okBtn.innerHTML = app.locale.close;
         L.DomEvent.on(okBtn, 'click', this._closeReadMore, this);
 
+        // check if own note
+        var user_id = this._getUserId();
+        if (note.user_id == user_id) {
+            console.log('my note!');
+
+            var editBtn = L.DomUtil.create('div', 'edit-own-note-btn', container);
+            editBtn.innerHTML = app.locale.edit;
+
+            L.DomEvent.on(editBtn, 'click', this._editOwnNote, this);
+        }
+
+    },
+
+    _editOwnNote : function () {
+        console.log('edit own note');
     },
 
     _closeReadMore : function () {

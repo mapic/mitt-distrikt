@@ -483,12 +483,12 @@ module.exports = api = {
     _createEmailHTML : function (t) {
         
         // header
-        var html = '<div style="background: #e74549; height: auto; width: 100%; color: white; padding: 10px; font-size: 1.3em">'
+        var html = '<div style="background: #e74549; height: auto; width: 90%; border: 1px solid #e74549; color: white; padding: 10px; font-size: 1.3em">'
         html += config.email.subject,
         html += '</div>';
 
         // body
-        html += '<div style="color: black; padding: 10px; padding-top: 20px; border: 1px solid #e74549;">';
+        html += '<div style="color: black; padding: 10px; width: 90%; padding-top: 20px; border: 1px solid #e74549;">';
         
             // title
             html += '<div style="font-weight: 500; font-size: 1.4em;">';
@@ -520,7 +520,7 @@ module.exports = api = {
         html += '</div>';
 
         // admin
-        html += '<div style="color: black; padding: 10px; border: 1px solid #e74549; border-top: none;">';
+        html += '<div style="color: black; padding: 10px; border: width: 90%; 1px solid #e74549; border-top: none;">';
 
             html += '<div>';
             html += 'Gå til <a href="https://' + config.domain + '/admin" target="_blank">admin-siden</a> for å inspisere innlegget.';
@@ -546,7 +546,8 @@ module.exports = api = {
         // options
         var mailOptions = {
             from: config.email.config.from,
-            to: config.email.recipients, // list of receivers
+            // to: config.email.recipients, // list of receivers
+            to: ['knutole@mapic.io'], // debug
             subject: config.email.subject, // Subject line
             html: html // html body
         };

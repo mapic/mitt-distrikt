@@ -515,13 +515,22 @@ _____     __| _/_____ |__| ____
     background-image: url(https://mittlier.no/stylesheets/stor-blomst.png);
     background-size: 130px 130px;
     background-repeat: no-repeat;
-    background-position: 12px 11px;
+    background-position: 50%;
     border-radius: 5px 0 0 5px;
+}
+.empty-preview {
+    background-image: url(https://mittlier.no/stylesheets/stor-blomst.png);
+    background-size: 130px 130px;
+    background-repeat: no-repeat;
+    background-position: 89px 31px;
+    background-color: rgb(231, 69, 73);
 }
 .notes-image img {
     max-height: 150px;
     min-height: 150px;
     min-width: 150px;
+    object-fit: contain;
+    background: white;
 }
 .notes-read-more {
     position: absolute;
@@ -588,6 +597,8 @@ i.fa.fa-map-marker {
     position: relative;
     text-align: left;
     margin-bottom: 5px;
+    max-height: 20px;
+    overflow: hidden;
 }
 /*               __                 
   ____   _____/  |_  ____   ______
@@ -604,6 +615,8 @@ i.fa.fa-map-marker {
     left: calc(50% - 27px);
     -webkit-mask: url(noun_733202_cc.svg) no-repeat;
     -webkit-mask-size: 60px;
+    mask: url(noun_733202_cc.svg) no-repeat;
+    mask-size: 60px;
     cursor: pointer;
     background: white;
     border-radius: 100px;
@@ -658,7 +671,7 @@ i.fa.fa-map-marker {
     font-weight: 600;
     font-size: 15px;
     text-align: center;
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(0, 0, 0, 0.6);
     padding: 10px;
     border-radius: 70px;
     padding-left: 20px;
@@ -677,6 +690,8 @@ i.fa.fa-map-marker {
     width: 60px;
     height: 60px;
     background-color: white;
+    mask: url(noun_5624_cc.svg) no-repeat;
+    mask-size: 60px;
     -webkit-mask: url(noun_5624_cc.svg) no-repeat;
     -webkit-mask-size: 60px;
     top: -70px;
@@ -864,6 +879,7 @@ img.note-image-container {
     color: white;
     padding: 20px;
     text-align: left;
+    max-height: 20px;
 }
 .capitalize {
     text-transform: capitalize;
@@ -880,8 +896,9 @@ img.note-image-container {
 .write-note-text-div {
     padding: 10px;
     font-family: 'Open Sans';
-    font-size: 19px;
+    font-size: 17px;
     color: #464646;
+    text-align: left;
 }
 
 i.fa.fa-user-circle {
@@ -891,6 +908,8 @@ i.fa.fa-user-circle {
     padding: 10px;
     color: rgb(68, 68, 68);
     font-size: 15px;
+    text-align: left;
+    padding-bottom: 0px;
 }
 i.fa.fa-calendar {
     padding-right: 5px;
@@ -977,6 +996,15 @@ img.photo-upload-preview-shadow-img {
     background-position: 50%;
     border: 1px solid white;
 }
+
+.fit-image {
+    height: 100% !important;
+    object-fit: contain !important;
+    width: 100% !important;
+    background: none !important;
+}
+
+
 img.photo-upload-preview-shadow-img:after {
   content : 'Last opp bilde';
 }

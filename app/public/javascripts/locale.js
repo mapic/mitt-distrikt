@@ -44,6 +44,16 @@ locale.NO = {
 
     addNoteHelp : 'Flytt kartet til ønsket sted. <br> Trykk Ok for å gi innspill.<br>',
     uploadHelpText : 'Last opp bilde...',
+    pleaseFillIn : 'Vennligst fyll inn',
+    ok : 'Ok',
+    title : 'Overskrift',
+    writeYourSuggestion : 'Skriv ditt forslag til #MittLier',
+    yourName : 'Ditt navn',
+    somethingWrong : 'Noe gikk galt. Vennligst prøv igjen.',
+    fatalError : 'Noe veldig galt skjedde. Vennligst kontakt knutole@mapic.io',
+    writeSearchWord : 'Skriv inn ditt søkeord, uten #',
+    save : 'Lagre',
+    export : 'Eksportér',
 
     table : {
         address     : 'Adresse',

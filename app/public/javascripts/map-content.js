@@ -33,7 +33,7 @@ L.MapContent = L.Evented.extend({
         // create button
         this._addButton = L.DomUtil.create('div', 'add-button red-button', this._container);
         this._shadowButton = L.DomUtil.create('div', 'shadow-button white-button', this._container);
-        this._shadowButton.innerHTML = 'Ok';
+        this._shadowButton.innerHTML = app.locale.ok;
 
         // add event
         L.DomEvent.on(this._addButton, 'click', this.addNote, this);
@@ -121,7 +121,7 @@ L.MapContent = L.Evented.extend({
             var results = safeParse(res);
 
             var features = results ? results.features : [];
-            if (!_.size(features)) console.error('no result');
+            if (!_.size(features)) return console.error('no result');
 
             // get address
             var address = features[0] ? features[0].place_name : '';
@@ -134,8 +134,6 @@ L.MapContent = L.Evented.extend({
 
         }.bind(this));
 
-        // todo: fix short address
-
     },
 
     _onReverseLookup : function (options) {
@@ -145,10 +143,16 @@ L.MapContent = L.Evented.extend({
 
         // get div
         var div = this._reverseLookupAddressDiv;
-        if (!div) return console.error('div not ready');
+        if (!div) {
+            setTimeout(function () {
+                var div = this._reverseLookupAddressDiv;
+                if (div) div.value = this.note.address;
+            }.bind(this), 1000);
+        } else {
 
-        // set address
-        div.value = this.note.address;
+            // set address
+            div.value = this.note.address;
+        }
     },
 
     note : {},
@@ -217,17 +221,17 @@ L.MapContent = L.Evented.extend({
 
         // text input
         var textBox1 = this.note.textboxTitle = L.DomUtil.create('input', 'write-note-text', container);
-        textBox1.setAttribute('placeholder', 'Overskrift');
+        textBox1.setAttribute('placeholder', app.locale.title);
         textBox1.setAttribute('type', 'text');
 
         // text input
         var textBox = this.note.textboxText = L.DomUtil.create('input', 'write-note-text', container);
-        textBox.setAttribute('placeholder', 'Skriv ditt forslag til #MittLier');
+        textBox.setAttribute('placeholder', app.locale.writeYourSuggestion);
         textBox.setAttribute('type', 'text');
 
          // text input
         var nameBox = this.note.nameText = L.DomUtil.create('input', 'write-note-text', container);
-        nameBox.setAttribute('placeholder', 'Ditt navn');
+        nameBox.setAttribute('placeholder', app.locale.yourName);
         nameBox.setAttribute('type', 'text');
        
         // ok button
@@ -276,6 +280,8 @@ L.MapContent = L.Evented.extend({
                 // dummy
                 img.src = _URL.createObjectURL(file);
 
+                L.DomUtil.addClass(note.imageContainer, 'fit-image');
+
             } else {
                 alert(app.locale.notes.invalidImage);
             }
@@ -322,7 +328,7 @@ L.MapContent = L.Evented.extend({
 
     _missingField : function (field) {
         field.style.border = '1px solid red';
-        field.setAttribute('placeholder', 'Vennligst fyll inn');
+        field.setAttribute('placeholder', app.locale.pleaseFillIn);
     },
 
     _sendNote : function () {
@@ -334,7 +340,7 @@ L.MapContent = L.Evented.extend({
         var address = this.note.address;
         var zoom = this.note.zoom;
         var username = this.note.nameText.value || app.locale.notes.anon;
-        var tags = ["ok", "lier"]; // todo: 
+        var tags = ["mittlier"]; // todo: 
         var portal_tag = 'mittlier'; // todo: from config
         var image = this.note.image;
 
@@ -708,7 +714,7 @@ L.MapContent = L.Evented.extend({
         var imgContainer = L.DomUtil.create('div', 'preview-image-container read-more', container);
         if (image && image.original) {
 
-            var shadowImg = L.DomUtil.create('img', 'photo-upload-preview-shadow-img-div', imgContainer);
+            var shadowImg = L.DomUtil.create('img', 'photo-upload-preview-shadow-img-div fit-image', imgContainer);
             shadowImg.setAttribute('src', image_url);
 
             var w = image.width;
@@ -718,20 +724,22 @@ L.MapContent = L.Evented.extend({
             shadowImg.style.height = (h <= w) ? '100%' : 'auto';
             shadowImg.style.width = (w < h) ? '100%' : 'auto';
 
+        } else {
+            L.DomUtil.addClass(imgContainer, 'empty-preview');
         }
 
         // user
         var userBox = L.DomUtil.create('div', 'write-note-user-div', container);
         userBox.innerHTML = '<i class="fa fa-user-circle" aria-hidden="true"></i>' + note.username;
-        
-        // text 
-        var textBox = L.DomUtil.create('div', 'write-note-text-div min-height-100', container);
-        textBox.innerHTML = note.text;
 
         // time
         var timeBox = L.DomUtil.create('div', 'write-note-user-div', container);
         var d = new Date(note.timestamp);
         timeBox.innerHTML = '<i class="fa fa-calendar" aria-hidden="true"></i>' + d.getDate() + '.' + d.getMonth() + '.' + d.getFullYear();
+ 
+        // text 
+        var textBox = L.DomUtil.create('div', 'write-note-text-div min-height-100', container);
+        textBox.innerHTML = note.text;
 
         // like button
         var like_container = L.DomUtil.create('div', 'like-container', container);

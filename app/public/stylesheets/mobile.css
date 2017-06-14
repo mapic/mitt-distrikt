@@ -250,6 +250,9 @@ and (orientation : portrait) {
       width: 53%;
       left: 126px;
     }
+    .notes-text {
+      max-height: 30px;
+    }
 
     .write-note-address-text-div {
         position: absolute;
@@ -257,7 +260,7 @@ and (orientation : portrait) {
         top: 80px;
         color: #5d5d5d;
         font-size: 14px;
-        max-height: 15px;
+        max-height: 18px;
         overflow: hidden;
     }
 }

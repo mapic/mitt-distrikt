@@ -6,7 +6,7 @@ if [ ! -d "node_modules" ]; then
 fi
 
 # dev
-# nodemon app.js
+nodemon app.js
 
 # prod
-forever app.js
+# forever app.js

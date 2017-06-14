@@ -58,7 +58,7 @@ L.Admin = L.Class.extend({
             if (err) return this._failedLogin(err);
             var res = JSON.parse(response);
             if (res.error) return this._failedLogin(res.error);
-            if (!res.access_token) return this._failedLogin('Something went wrong. Please try again.')
+            if (!res.access_token) return this._failedLogin(app.locale.somethingWrong)
 
             // login ok
             app.access_token = res.access_token;
@@ -193,7 +193,7 @@ L.Admin = L.Class.extend({
             var result = safeParse(json);
 
             /// check
-            if (!result || err || result.error) return alert('There was an error retriving the config. Please contact knutole@mapic.io');
+            if (!result || err || result.error) return alert(app.locale.fatalError);
 
             // set config
             this._config = result.config;
@@ -211,11 +211,11 @@ L.Admin = L.Class.extend({
             input.setAttribute('type', 'text');
             input.id = 'hashtag-input';
             input.value = this._config.hashtag;
-            input.setAttribute('placeholder', 'Skriv inn ditt søkeord, uten #');
+            input.setAttribute('placeholder', app.locale.writeSearchWord);
 
             // save btn
             var btn = L.DomUtil.create('div', 'admin-media-save-btn', container);
-            btn.innerHTML = 'Lagre';
+            btn.innerHTML = app.locale.save;
             L.DomEvent.on(btn, 'click', this._saveAdminMedia, this);
 
         }.bind(this))
@@ -225,7 +225,7 @@ L.Admin = L.Class.extend({
         var value = this._hashtagInput.value;
         this._config.hashtag = value;
         app.api.setConfig(this._config, function (err, results) {
-            if (err) alert('There was an error saving config. Contact knutole@mapic.io');
+            if (err) alert(app.locale.fatalError);
         });
     },
 
@@ -253,8 +253,8 @@ L.Admin = L.Class.extend({
 
     _createExportButton : function () {
         var exportBtn = L.DomUtil.create('a', 'export-button', this._content.map);
-        exportBtn.href = 'https://mittlier.no/v1/export';
-        exportBtn.innerHTML = 'Eksportér';
+        exportBtn.href = window.location.origin + '/v1/export';
+        exportBtn.innerHTML = app.locale.export;
     },
 
     _refreshTable : function () {
@@ -302,8 +302,6 @@ L.Admin = L.Class.extend({
         table += '<th data-dynatable-column="timestamp" style="display:none;">     ' + this.locale.table.time + '</th>';
         table += '<th style="min-width:70px;" data-dynatable-column="tags">     ' + this.locale.table.tags + '</th>';
         table += '<th data-dynatable-column="latlng">   ' + this.locale.table.latlng + '</th>';
-        // table += '<th data-dynatable-column="zoom">     ' + this.locale.table.zoom + '</th>';
-        // table += '<th data-dynatable-column="domain">   ' + this.locale.table.domain + '</th>';
         table += '<th data-dynatable-column="image">   ' + this.locale.table.image + '</th>';
         table += '<th data-dynatable-column="delete">   ' + this.locale.table.delete + '</th>';
         table += '</thead>';
@@ -314,8 +312,6 @@ L.Admin = L.Class.extend({
 
         // format table entries 
         var table_json = this._parseTableJson(entries);
-
-
 
         // run dynatable
         this._dt = $('#notes-table').bind('dynatable:init', function(e, dynatable) {
@@ -551,6 +547,8 @@ L.Admin = L.Class.extend({
         var infoContent = L.DomUtil.create('div', 'admin-info-text', this._content.info);
         var loginText = this.locale.admin.info.loginLinkText;
         var text = this.locale.admin.info.loginText;
+
+        // todo: unhardcode url
         infoContent.innerHTML = '<a target="_blank" href="https://blog.mittlier.no/wp-admin/">' + loginText + '</a>' + ' ' + text;
     },
 

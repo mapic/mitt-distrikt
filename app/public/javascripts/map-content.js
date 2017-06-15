@@ -436,19 +436,25 @@ L.MapContent = L.Evented.extend({
         this.note = {};
 
         // show new note
-        var c = this._createdFeature.feature.geometry.coordinates;
-        var lngLat = new mapboxgl.LngLat(c[0], c[1]);
-        var mapCenter = this._map.getCenter();
-        var map = this._map;
-        setTimeout(function () {
-            map.fire('click', { lngLat: lngLat , e : {}})
-        }, 1000);
+        var feature = this._createdFeature.feature;
 
-        // set cookie, works!
-        // Cookies.set('my-notes', '["id-1", "id-2"]');
-        // var cookie = Cookies.get('my-notes');
-        // console.log('this._createdFeature', this._createdFeature);
-        // alert(cookie);
+        this._popup = new mapboxgl.Popup({
+            closeButton: true,
+            closeOnClick: false,
+            anchor : 'bottom',
+            offset : 10
+        })
+        .setLngLat(feature.geometry.coordinates)
+        .setHTML(this._createPopupHTML(feature.properties))
+        .addTo(this._map);
+        // save
+
+        // add "les mer" event
+        var readMore = L.DomUtil.get('note-read-more');
+        L.DomEvent.on(readMore, 'click', function () {
+            this._readMore(feature);
+        }, this);
+
     },
 
     _cancelNote : function () {
@@ -583,8 +589,6 @@ L.MapContent = L.Evented.extend({
                     data: data_url, 
                 });
 
-                console.log('data_url', data_url);
-
                 // get user id
                 var user_id = this._getUserId();
 
@@ -660,13 +664,13 @@ L.MapContent = L.Evented.extend({
             // stop mouse-events
             L.DomEvent.stop(e);
 
-
             // get feature id
             var f_id = this._createdFeature ? this._createdFeature.feature.properties.id : false;
            
             // feature
             var feature = f_id ? _.find(e.features, function (f) { return f.properties.id == f_id }) : e.features[0];
 
+            // fly
             map.flyTo({center: feature.geometry.coordinates});
 
         };
@@ -682,12 +686,20 @@ L.MapContent = L.Evented.extend({
 
             // get feature id
             var f_id = this._createdFeature ? this._createdFeature.feature.properties.id : false;
+            
+            // find feature
+            var feature = _.find(e.features, function (f) { return f.properties.id == f_id });
+            if (!feature) {
+                if (this._createdFeature) {
+                    feature = this._createdFeature.feature;
+                } else {
+                    feature = e.features[0];
+                }
+            }
            
-            // feature
-            var feature = f_id ? _.find(e.features, function (f) { return f.properties.id == f_id }) : e.features[0];
-
             // show popup
-            popup.setLngLat(feature.geometry.coordinates)
+            var geometry = feature.geometry || feature._geometry;
+            popup.setLngLat(geometry.coordinates)
             .setHTML(this._createPopupHTML(feature.properties))
             .addTo(map);
 
@@ -697,16 +709,15 @@ L.MapContent = L.Evented.extend({
                 this._readMore(feature);
             }, this);
 
+            // save
             this._popup = popup;
 
+            // clear
             this._createdFeature = null;
 
         }.bind(this);
 
-        var removePopup = function (e) {
-            map.getCanvas().style.cursor = '';
-            popup.remove();
-        };
+        this._popup = this._popup || popup;
 
         map.on('mouseenter', 'notes', function (e) {
             map.getCanvas().style.cursor = 'pointer';
@@ -722,7 +733,7 @@ L.MapContent = L.Evented.extend({
         });
 
         // mouse: remove popup
-        map.on('click', removePopup);
+        map.on('click', this._removePopup.bind(this));
 
         // mouse: show popup (must be registered _after_ remove popup above)
         map.on('click', 'notes', showPopup);
@@ -737,6 +748,10 @@ L.MapContent = L.Evented.extend({
 
     },  
 
+    _removePopup : function () {
+        this._map.getCanvas().style.cursor = '';
+        this._popup.remove();
+    },
 
     _readMore : function (feature) {
         

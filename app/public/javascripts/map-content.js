@@ -250,6 +250,7 @@ L.MapContent = L.Evented.extend({
         var note = this.note;
         var uploader = this._uploadFile.bind(this)
         var help = this.note.helpText;
+        var rotateFn = this._rotate.bind(this);
         
         if (file) {
             
@@ -260,10 +261,13 @@ L.MapContent = L.Evented.extend({
                 var file, img;
                 img = new Image();
                 img.onload = function (e) {
-                    
+
                     // set image
                     note.imageContainer.setAttribute('src', _URL.createObjectURL(file));
 
+                    // rotate image
+                    rotateFn(img, note.imageContainer);
+                    
                     // set width
                     var w = this.width;
                     var h = this.height;
@@ -275,17 +279,45 @@ L.MapContent = L.Evented.extend({
 
                     // start upload
                     uploader(file);
+
                 };
 
                 // dummy
                 img.src = _URL.createObjectURL(file);
 
+                // fit image
                 L.DomUtil.addClass(note.imageContainer, 'fit-image');
 
             } else {
                 alert(app.locale.notes.invalidImage);
             }
         }
+    },
+
+    _rotate : function (image, container) {
+        var exif = EXIF.getData(image, function () {
+            var allMetaData = EXIF.getAllTags(this);
+
+            // clear
+            L.DomUtil.removeClass(note.imageContainer, 'rotate90');
+            L.DomUtil.removeClass(note.imageContainer, 'rotate180');
+            L.DomUtil.removeClass(note.imageContainer, 'rotate270');
+
+            // set
+            switch(allMetaData.Orientation) {
+                case 8:
+                    L.DomUtil.addClass(note.imageContainer, 'rotate270');
+                    break;
+                case 3:
+                    L.DomUtil.addClass(note.imageContainer, 'rotate180');
+                    break;
+                case 6:
+                    L.DomUtil.addClass(note.imageContainer, 'rotate90');
+                    break;
+            }
+        });
+
+
     },
 
     _uploadFile : function (file) {
@@ -828,7 +860,6 @@ L.MapContent = L.Evented.extend({
         // check if own note
         var user_id = this._getUserId();
         if (note.user_id == user_id) {
-            console.log('my note!');
 
             var editBtn = L.DomUtil.create('div', 'edit-own-note-btn', container);
             editBtn.innerHTML = app.locale.deleteNote;
@@ -843,8 +874,6 @@ L.MapContent = L.Evented.extend({
     _undoOwnNote : function (id) {
         var ok = confirm(app.locale.confirmDelete);
         if (ok) {
-            console.log('delete!');
-
             app.api.undoRecord({id : id}, function (err, results) {
                 if (err) return alert(err);
 

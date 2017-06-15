@@ -29,13 +29,11 @@ L.Api = L.Class.extend({
 
     // post a feature
     note : function (options, callback) {
-        console.log('note post', options);
         this.post('/note', options, callback);
     },
 
     // upload image
     upload : function (file, callback, progressCallback) {
-        console.log('api.uupload args', arguments);
         var formData = new FormData();
         formData.append("file", file);
         var http = new XMLHttpRequest();
@@ -51,14 +49,11 @@ L.Api = L.Class.extend({
         http.open("POST", url);
         http.send(formData);
         http.onreadystatechange = function() {
-            console.log('onready', http);
             if (http.readyState == 4) {
-                console.log('readysteta 4');
                 if (http.status == 200) {
                     // all good!
                     callback && callback(null, http.responseText);
                 } else {
-                    console.log('err');
                     callback && callback(http.status, http.responseText);
                 }
             }

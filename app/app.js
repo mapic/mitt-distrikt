@@ -69,6 +69,9 @@ router.post('/v1/note', api.note);
 // route: delete note
 router.post('/v1/delete', api.checkAccess, api.deleteNote);
 
+// route: delete note
+router.post('/v1/undo', api.undoNote);
+
 // route: upload image
 router.post('/v1/upload', api.upload);
 

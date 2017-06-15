@@ -831,15 +831,33 @@ L.MapContent = L.Evented.extend({
             console.log('my note!');
 
             var editBtn = L.DomUtil.create('div', 'edit-own-note-btn', container);
-            editBtn.innerHTML = app.locale.edit;
+            editBtn.innerHTML = app.locale.deleteNote;
 
-            L.DomEvent.on(editBtn, 'click', this._editOwnNote, this);
+            L.DomEvent.on(editBtn, 'click', function () {
+                this._undoOwnNote(note.id);
+            }.bind(this), this);
         }
 
     },
 
-    _editOwnNote : function () {
-        console.log('edit own note');
+    _undoOwnNote : function (id) {
+        var ok = confirm(app.locale.confirmDelete);
+        if (ok) {
+            console.log('delete!');
+
+            app.api.undoRecord({id : id}, function (err, results) {
+                if (err) return alert(err);
+
+                // update data
+                var data_url = window.location.origin + '/v1/notes';
+                this._map.getSource('earthquakes').setData(data_url);
+
+                this._closeReadMore();
+                this._removePopup();
+
+            }.bind(this));
+
+        };
     },
 
     _closeReadMore : function () {

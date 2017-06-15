@@ -433,6 +433,16 @@ module.exports = api = {
 
     },
 
+    undoNote : function (req, res) {
+         // get note id
+        var note_id = req.body.id;
+
+        // delete. todo: only undo, since not admin
+        api._deleteNoteById(note_id, function (err, result) {
+            res.send({error : err});
+        });
+    },
+
     // rout: GET /v1/table
     getTable : function (req, res) {
 

@@ -23,6 +23,10 @@ L.Api = L.Class.extend({
         this.post('/delete', options, callback);
     },
 
+    undoRecord : function (options, callback) {
+        this.post('/undo', options, callback);
+    },
+
     // post a feature
     note : function (options, callback) {
         console.log('note post', options);

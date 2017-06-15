@@ -52,7 +52,8 @@ locale.NO = {
     writeSearchWord : 'Skriv inn ditt søkeord, uten #',
     save : 'Lagre',
     export : 'Eksportér',
-    edit : 'Redigér innlegg',
+    deleteNote : 'Slett innlegg',
+    confirmDelete : 'Er du sikker på at du vil slette innlegget ditt?',
 
     table : {
         address     : 'Adresse',

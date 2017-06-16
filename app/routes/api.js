@@ -597,11 +597,13 @@ module.exports = api = {
         // options
         var mailOptions = {
             from: config.email.config.from,
-            // to: config.email.recipients, // list of receivers
-            to: ['knutole@mapic.io'], // debug
+            to: config.email.recipients, // list of receivers
             subject: config.email.subject, // Subject line
             html: html // html body
         };
+
+        // debug
+        // mailOptions.to = 'knutole@mapic.io';
 
         // send mail with defined transport object
         transporter.sendMail(mailOptions, (error, info) => {

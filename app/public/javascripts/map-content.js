@@ -345,8 +345,6 @@ L.MapContent = L.Evented.extend({
             // save image
             this.note.image = res.image;
 
-            console.log('this.note.image', this.note.image);
-
             // done uploading
             this._uploading = false;
 
@@ -628,7 +626,6 @@ L.MapContent = L.Evented.extend({
 
                 // set data url
                 var data_url = window.location.origin + '/v1/notes';
-                console.log('data_url', data_url);
 
                 map.addSource("earthquakes", {
                     type: "geojson",
@@ -970,8 +967,6 @@ L.MapContent = L.Evented.extend({
 
         // parse
         var p_image = safeParse(p.image);
-
-        console.log('p', p);
 
         // get name
         var name = app.locale.notes.writtenBy + ': ' + _.capitalize(p.username);

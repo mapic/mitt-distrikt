@@ -1111,6 +1111,7 @@ img.photo-upload-preview-shadow-img-div {
   position: initial;
   border: 1px solid gainsboro;
   width: calc(100% - 2px);
+  border: none;
 }
 
 /*

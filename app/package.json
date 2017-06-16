@@ -1,7 +1,7 @@
 {
   "name": "kart-og-medvirkning",
-  "version": "0.0.1",
-  "description": "Kart- og medvirkningsapp for Lier kommune",
+  "version": "0.2.0",
+  "description": "Kart- og medvirkningsapp",
   "main": "server.js",
   "scripts": {
     "test": "npm test",

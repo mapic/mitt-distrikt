@@ -22,6 +22,7 @@ L.MapContent = L.Evented.extend({
         // debug
         window.debug = window.debug || {};
         window.debug.map = this._map;
+
     },
 
     listen : function () {
@@ -351,6 +352,7 @@ L.MapContent = L.Evented.extend({
                 return;
             }
 
+            // set progress
             this.note.progressBar.style.width = progress + '%';
 
         }.bind(this));
@@ -431,6 +433,7 @@ L.MapContent = L.Evented.extend({
         app.api.note(data, function (err, result) {
             if (err) console.error(err);
 
+            // parse
             this._createdFeature = safeParse(result);
 
             // note sent ok
@@ -469,7 +472,13 @@ L.MapContent = L.Evented.extend({
 
         // show new note
         var feature = this._createdFeature.feature;
+        this._showNote(feature);
 
+    },
+
+    _showNote : function (feature) {
+
+        // create and open popup
         this._popup = new mapboxgl.Popup({
             closeButton: true,
             closeOnClick: false,
@@ -479,14 +488,12 @@ L.MapContent = L.Evented.extend({
         .setLngLat(feature.geometry.coordinates)
         .setHTML(this._createPopupHTML(feature.properties))
         .addTo(this._map);
-        // save
 
         // add "les mer" event
         var readMore = L.DomUtil.get('note-read-more');
         L.DomEvent.on(readMore, 'click', function () {
             this._readMore(feature);
         }, this);
-
     },
 
     _cancelNote : function () {
@@ -539,7 +546,6 @@ L.MapContent = L.Evented.extend({
     },
 
     _createToggleControl : function () {
-
         var div = L.DomUtil.create('div', 'background-toggle-control', this._container);
         div.innerHTML = '<i class="fa fa-map" aria-hidden="true"></i>';
         L.DomEvent.on(div, 'click', this._toggleBackground, this);
@@ -607,14 +613,15 @@ L.MapContent = L.Evented.extend({
             // add image
             map.addImage('blomst', image);
 
+            // load second image
             map.loadImage(window.location.origin + '/stylesheets/blomst-yellow.png', function (err, image2) {
-
 
                 // add image
                 map.addImage('blomst2', image2);
 
                 // set data url
                 var data_url = window.location.origin + '/v1/notes';
+                console.log('data_url', data_url);
 
                 map.addSource("earthquakes", {
                     type: "geojson",
@@ -669,12 +676,45 @@ L.MapContent = L.Evented.extend({
                 // debug
                 window.map = map;
 
+                // check link redirect
+                this._checkLinkRedirect();
+
+
             }.bind(this));
 
         }.bind(this));
 
 
     },
+
+    _checkLinkRedirect : function (feature) {
+
+        // get url link
+        var link = window.location.pathname;
+        
+        // return if no link
+        if (!_.includes(link, '/direct/')) return;
+        
+        // need to wait for map ready
+        setTimeout(function () {
+
+            // get link id
+            var link_id = link.split('/direct/').reverse()[0];
+            this._link_id = link_id;
+
+            // get feature
+            var map = this._map;
+            var features = map.queryRenderedFeatures({ layers: ['notes', 'own-notes'] });
+            var link_note = _.find(features, function (f) {
+                return f.properties.id == link_id;
+            });
+
+            // show and center
+            this._showNote(link_note);
+            map.flyTo({center: link_note.geometry.coordinates});
+        
+        }.bind(this), 200);
+    },  
 
     _onMoveEnd : function () {
     },
@@ -749,8 +789,10 @@ L.MapContent = L.Evented.extend({
 
         }.bind(this);
 
+        // save
         this._popup = this._popup || popup;
 
+        // cursors
         map.on('mouseenter', 'notes', function (e) {
             map.getCanvas().style.cursor = 'pointer';
         });
@@ -816,13 +858,13 @@ L.MapContent = L.Evented.extend({
         var imgContainer = L.DomUtil.create('div', 'preview-image-container read-more', container);
         if (image && image.original) {
 
+            // image container
             var shadowImg = L.DomUtil.create('img', 'photo-upload-preview-shadow-img-div fit-image', imgContainer);
             shadowImg.setAttribute('src', image_url);
 
+            // set width
             var w = image.width;
             var h = image.height;
-
-            // set width
             shadowImg.style.height = (h <= w) ? '100%' : 'auto';
             shadowImg.style.width = (w < h) ? '100%' : 'auto';
 
@@ -861,9 +903,11 @@ L.MapContent = L.Evented.extend({
         var user_id = this._getUserId();
         if (note.user_id == user_id) {
 
+            // create edit button
             var editBtn = L.DomUtil.create('div', 'edit-own-note-btn', container);
             editBtn.innerHTML = app.locale.deleteNote;
 
+            // event
             L.DomEvent.on(editBtn, 'click', function () {
                 this._undoOwnNote(note.id);
             }.bind(this), this);
@@ -872,8 +916,12 @@ L.MapContent = L.Evented.extend({
     },
 
     _undoOwnNote : function (id) {
+
+        // confirm delete
         var ok = confirm(app.locale.confirmDelete);
         if (ok) {
+
+            // undo record
             app.api.undoRecord({id : id}, function (err, results) {
                 if (err) return alert(err);
 
@@ -881,11 +929,11 @@ L.MapContent = L.Evented.extend({
                 var data_url = window.location.origin + '/v1/notes';
                 this._map.getSource('earthquakes').setData(data_url);
 
+                // clean up screen
                 this._closeReadMore();
                 this._removePopup();
 
             }.bind(this));
-
         };
     },
 
@@ -903,6 +951,7 @@ L.MapContent = L.Evented.extend({
             niceTags += v 
         });
 
+        // parse
         var p_image = safeParse(p.image);
 
         // get name

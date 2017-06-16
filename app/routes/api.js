@@ -11,6 +11,7 @@ redis.auth(config.redis.auth);
 var sizeOf = require('image-size');
 var json2csv = require('json2csv');
 var nodemailer = require('nodemailer');
+var ExifImage = require('exif').ExifImage;
 
 // storage handler
 var multer = require('multer');
@@ -226,22 +227,62 @@ module.exports = api = {
                     var image_url = 'https://' + config.domain + '/v1/image/' + file.filename;
                     var watermark_url = 'https://' + config.domain + '/v1/image/' + watermark_filename;
 
-                    // return to client
-                    res.send({
-                        error : null,
-                        endpoint : '/v1/upload',
-                        image : {
-                            original : image_url,
-                            watermark : image_url,
-                            // watermark : watermark_url,
-                            type : dimensions.type,
-                            width : dimensions.width,
-                            height : dimensions.height,
-                        }
-                    });
+                    api._getEXIF({
+                        image : disk_path,
+                    }, function (err, results) {
+                        var rotate = err ? 0 : results.rotate;
+
+                        // return to client
+                        res.send({
+                            error : null,
+                            endpoint : '/v1/upload',
+                            image : {
+                                original : image_url,
+                                watermark : image_url,
+                                // watermark : watermark_url,
+                                type : dimensions.type,
+                                width : dimensions.width,
+                                height : dimensions.height,
+                                rotate : rotate
+                            }
+                        });
+
+                    })
+
                 });
             });
         });
+    },
+
+    _getEXIF : function (options, done) {
+        var image = options.image;
+
+        try {
+            new ExifImage({ image : image }, function (err, exifData) {
+                if (err) return done(err);
+                
+                // set
+                var rotate = 0;
+                switch(exifData.image.Orientation) {
+                    case 8:
+                        rotate = 270;
+                        break;
+                    case 3:
+                        rotate = 180;
+                        break;
+                    case 6:
+                        rotate = 90;
+                        break;
+                }
+
+                done(null, {
+                    rotate : rotate, 
+                    exif : exifData
+                });
+            });
+        } catch (e) {
+            return done(e);
+        }
     },
 
     _addWatermark : function (options, done) {

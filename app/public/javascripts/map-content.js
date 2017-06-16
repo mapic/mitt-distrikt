@@ -1,4 +1,3 @@
-
 L.MapContent = L.Evented.extend({
 
     options : {
@@ -23,6 +22,7 @@ L.MapContent = L.Evented.extend({
         window.debug = window.debug || {};
         window.debug.map = this._map;
 
+       
     },
 
     listen : function () {
@@ -267,7 +267,7 @@ L.MapContent = L.Evented.extend({
                     note.imageContainer.setAttribute('src', _URL.createObjectURL(file));
 
                     // rotate image
-                    rotateFn(img, note.imageContainer);
+                    rotateFn(file, note.imageContainer);
                     
                     // set width
                     var w = this.width;
@@ -296,24 +296,29 @@ L.MapContent = L.Evented.extend({
     },
 
     _rotate : function (image, container) {
-        var exif = EXIF.getData(image, function () {
+
+        // get data
+        EXIF.getData(image, function () {
+
+            // get tags
             var allMetaData = EXIF.getAllTags(this);
+            if (!allMetaData) return;
 
             // clear
-            L.DomUtil.removeClass(note.imageContainer, 'rotate90');
-            L.DomUtil.removeClass(note.imageContainer, 'rotate180');
-            L.DomUtil.removeClass(note.imageContainer, 'rotate270');
+            L.DomUtil.removeClass(container, 'rotate90');
+            L.DomUtil.removeClass(container, 'rotate180');
+            L.DomUtil.removeClass(container, 'rotate270');
 
             // set
             switch(allMetaData.Orientation) {
                 case 8:
-                    L.DomUtil.addClass(note.imageContainer, 'rotate270');
+                    L.DomUtil.addClass(container, 'rotate270');
                     break;
                 case 3:
-                    L.DomUtil.addClass(note.imageContainer, 'rotate180');
+                    L.DomUtil.addClass(container, 'rotate180');
                     break;
                 case 6:
-                    L.DomUtil.addClass(note.imageContainer, 'rotate90');
+                    L.DomUtil.addClass(container, 'rotate90');
                     break;
             }
         });
@@ -339,6 +344,8 @@ L.MapContent = L.Evented.extend({
             
             // save image
             this.note.image = res.image;
+
+            console.log('this.note.image', this.note.image);
 
             // done uploading
             this._uploading = false;
@@ -679,7 +686,6 @@ L.MapContent = L.Evented.extend({
                 // check link redirect
                 this._checkLinkRedirect();
 
-
             }.bind(this));
 
         }.bind(this));
@@ -713,7 +719,7 @@ L.MapContent = L.Evented.extend({
             this._showNote(link_note);
             map.flyTo({center: link_note.geometry.coordinates});
         
-        }.bind(this), 200);
+        }.bind(this), 500);
     },  
 
     _onMoveEnd : function () {
@@ -769,6 +775,7 @@ L.MapContent = L.Evented.extend({
                 }
             }
            
+            // this._showNote(feature);
             // show popup
             var geometry = feature.geometry || feature._geometry;
             popup.setLngLat(geometry.coordinates)
@@ -780,6 +787,13 @@ L.MapContent = L.Evented.extend({
             L.DomEvent.on(readMore, 'click', function () {
                 this._readMore(feature);
             }, this);
+
+            // var f_id = feature.properties.f_id;
+            // var img = L.DomUtil.get('image-' + f_id);
+            // if (img) {
+            //     var rotateClass = 'rotate' + feature.properties.image.rotate;
+            //     L.DomUtil.addClass(shadowImg, rotateClass);
+            // }
 
             // save
             this._popup = popup;
@@ -868,6 +882,9 @@ L.MapContent = L.Evented.extend({
             shadowImg.style.height = (h <= w) ? '100%' : 'auto';
             shadowImg.style.width = (w < h) ? '100%' : 'auto';
 
+            var rotateClass = 'rotate' + image.rotate;
+            L.DomUtil.addClass(shadowImg, rotateClass);
+
         } else {
             L.DomUtil.addClass(imgContainer, 'empty-preview');
         }
@@ -954,6 +971,8 @@ L.MapContent = L.Evented.extend({
         // parse
         var p_image = safeParse(p.image);
 
+        console.log('p', p);
+
         // get name
         var name = app.locale.notes.writtenBy + ': ' + _.capitalize(p.username);
 
@@ -964,10 +983,13 @@ L.MapContent = L.Evented.extend({
         var html = '<div class="notes-popup">';
         
         // image
-        var notesImgClass = image ? 'notes-image background-red' : 'notes-image';
+        var rotateClass = 'rotate';
+        rotateClass += p_image.rotate || 0;
+        var notesImgClass = image ? 'notes-image background-none ' + rotateClass : 'notes-image';
         html    += '    <div class="' + notesImgClass + '">'
         if (image) {
-        html    += '        <img src="' + image + '">'
+        
+        html    += '        <img id="image-' + p.id + '" src="' + image + '">'
         } 
         html    += '    </div>'
 
@@ -991,7 +1013,8 @@ L.MapContent = L.Evented.extend({
            
             // les mer...
             html    += '    <div id="note-read-more" class="notes-read-more">'
-            html    += '    Les mer...'
+            // html    += '    Les mer...'
+            html    += app.locale.readMore;
             html    += '    </div>'
 
         html    += '    </div>'

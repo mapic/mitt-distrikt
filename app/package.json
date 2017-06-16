@@ -23,6 +23,7 @@
     "compression": "^1.6.2",
     "cookie-parser": "^1.4.3",
     "debug": "^2.6.4",
+    "exif": "^0.6.0",
     "express": "^4.15.2",
     "forever": "^0.15.3",
     "fs-extra": "^3.0.1",

@@ -54,6 +54,7 @@ locale.NO = {
     export : 'Eksportér',
     deleteNote : 'Slett innlegg',
     confirmDelete : 'Er du sikker på at du vil slette innlegget ditt?',
+    readMore : 'Les mer...',
 
     table : {
         address     : 'Adresse',

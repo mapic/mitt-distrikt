@@ -127,14 +127,22 @@ module.exports = api = {
         });
     },
 
-    twitter : function (req, res, next) {
+    twitter : function (options, done) {
 
-        // debug
-        var Twit = require('twit')
-        var T = new Twit(config.twitter);
-        T.get('search/tweets', { q: 'oslo filter:images filter:safe', result_type: 'recent', count: 3 }, function(err, data, response) {
-            console.log(data)
-        });
+        // var Twitter = require('twitter');
+        // var twitterClient = new Twitter({
+        //     consumer_key: config.twitter.consumer_key,
+        //     consumer_secret: config.twitter.consumer_secret,
+        //     access_token_key: config.twitter.access_token_key,
+        //     access_token_secret: config.twitter.access_token_secret,
+        // });
+
+
+        // twitterClient.get('search/tweets', {q: 'mittlier'}, function(error, tweets, response) {
+        //     console.log(tweets);
+        //     done && done();
+        // });
+
     },
 
     checkAccess : function (req, res, next) {

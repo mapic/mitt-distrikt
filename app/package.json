@@ -1,6 +1,6 @@
 {
-  "name": "kart-og-medvirkning",
-  "version": "0.2.0",
+  "name": "mitt-distrikt",
+  "version": "0.3.0",
   "description": "Kart- og medvirkningsapp",
   "main": "server.js",
   "scripts": {
@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mapic/kart-og-medvirkning.git"
+    "url": "git+https://github.com/mapic/mitt-distrikt.git"
   },
   "author": "knutole@mapic.io",
   "license": "AGPL-3.0",
   "bugs": {
-    "url": "https://github.com/mapic/kart-og-medvirkning/issues"
+    "url": "https://github.com/mapic/mitt-distrikt/issues"
   },
-  "homepage": "https://github.com/mapic/kart-og-medvirkning#readme",
+  "homepage": "https://github.com/mapic/mitt-distrikt#readme",
   "dependencies": {
     "async": "^2.3.0",
     "body-parser": "^1.17.1",

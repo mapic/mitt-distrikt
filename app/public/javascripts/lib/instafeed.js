@@ -68,7 +68,6 @@
                         f = "", d = "", w = "", D = document.createElement("div");
                         for (c = 0, N = m.length; c < N; c++) {
                             h = m[c], p = h.images[this.options.resolution];
-                            console.log('h_>', h);
                             if (typeof p != "object") throw o = "No image found for resolution: " + this.options.resolution + ".", new Error(o);
                             E = p.width, y = p.height, b = "square", E > y && (b = "landscape"), E < y && (b = "portrait"), v = p.url, l = window.location.protocol.indexOf("http") >= 0, l && !this.options.useHttp && (v = v.replace(/https?:\/\//, "//")), d = this._makeTemplate(this.options.template, {
                                 model: h,

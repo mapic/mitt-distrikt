@@ -2,6 +2,26 @@ module.exports = function(grunt) {
 
   // Project configuration.
   grunt.initConfig({
+
+    cssmin: {
+      options: {
+        mergeIntoShorthands: false,
+        roundingPrecision: -1
+      },
+      target: {
+        files: {
+          'public/output.css': [
+            'public/stylesheets/mapbox-gl.css',
+            // 'public/stylesheets/font-awesome/css/font-awesome.css',
+            'public/stylesheets/normalize.css',
+            'public/stylesheets/style.css',
+            'public/stylesheets/mobile.css',
+            'public/stylesheets/jquery.dynatable.css'
+          ]
+        }
+      }
+    },
+
     concat: {
       basic_and_extras: {
         files: {
@@ -46,9 +66,10 @@ module.exports = function(grunt) {
   // Load the plugin that provides the "uglify" task.
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadNpmTasks('grunt-contrib-cssmin');
 
   // Default task(s).
-  grunt.registerTask('default', ['concat', 'uglify']);
+  grunt.registerTask('default', ['concat', 'uglify', 'cssmin']);
 
 };
 

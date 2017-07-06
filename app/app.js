@@ -84,8 +84,17 @@ router.get('/v1/export', api.exportNotes);
 // config
 router.get('/v1/config', api.getConfig);
 
+// debug
+router.get('/v1/debug', api.debugFeed);
+
+// social media
+router.get('/v1/social', api.socialMediaFeed);
+
 // set config
 router.post('/v1/config', api.checkAccess, api.setConfig);
+
+// filter post
+router.post('/v1/filterPost', api.checkAccess, api.filterPost);
 
 // set routes
 app.use('/', router);

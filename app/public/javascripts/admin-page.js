@@ -251,6 +251,8 @@ L.Admin = L.Class.extend({
 
     _createPost : function (post, container) {
 
+        console.log('post', post);
+
         // create single post
         var wrapper = L.DomUtil.create('div', 'admin-post-wrapper', container);
 

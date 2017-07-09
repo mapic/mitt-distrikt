@@ -78,8 +78,23 @@ L.Api = L.Class.extend({
         this.post('/config', config, callback);
     },
 
+    filterPost : function (options, callback) {
+        this.post('/filterPost', options, callback);
+    },
 
+    // get all notes
+    getSocialMediaFeedAdmin : function (callback) {
+        var url = window.location.origin + '/v1/social';
+        url += '?access_token=' + app.access_token;
+        url += '&filter=all';
+        this.get(url, callback);
+    },
 
+     // get all notes
+    getSocialMediaFeed : function (callback) {
+        var url = window.location.origin + '/v1/social';
+        this.get(url, callback);
+    },
 
 
 

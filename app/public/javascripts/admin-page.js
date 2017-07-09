@@ -220,7 +220,90 @@ L.Admin = L.Class.extend({
             btn.innerHTML = app.locale.save;
             L.DomEvent.on(btn, 'click', this._saveAdminMedia, this);
 
+
+            // social media feed
+            this._createSocialMediaFeed();
+
         }.bind(this))
+    },
+
+    _createSocialMediaFeed : function () {
+
+        var container = L.DomUtil.create('div', 'social-media-admin-feed', this._content.media);
+
+        var header = L.DomUtil.create('div', 'social-media-admin-header', container);
+        header.innerHTML = 'Filtrér poster fra sosial medier:'
+
+        app.api.getSocialMediaFeedAdmin(function (err, json) {
+
+            var result = this._safeParse(json);
+
+            _.each(result.posts, function (p) {
+
+                // create DOM
+                this._createPost(p, container);
+            }.bind(this));
+
+
+        }.bind(this));
+
+    },
+
+    _createPost : function (post, container) {
+
+        console.log('post', post);
+
+        // create single post
+        var wrapper = L.DomUtil.create('div', 'admin-post-wrapper', container);
+
+        // filter
+        var filter = L.DomUtil.create('div', 'admin-post-filter', wrapper);
+        var checkbox = L.DomUtil.create('input', 'admin-post-checkbox', filter);
+        checkbox.id = post.id;
+        checkbox.type = 'checkbox';
+        if (post.filtered) {
+            checkbox.setAttribute('checked', '');
+            L.DomUtil.addClass(wrapper, 'filtered-post');
+        }
+        // image
+        var image = L.DomUtil.create('div', 'admin-post-image', wrapper);
+        var img = L.DomUtil.create('img', 'admin-post-image-img', image);
+        img.src = post.image.low_resolution.url;
+
+        // text 
+        var text = L.DomUtil.create('div', 'admin-post-text', wrapper);
+        text.innerHTML = post.text;
+
+        // user
+        var user = L.DomUtil.create('div', 'admin-post-user', wrapper);
+        user.innerHTML = post.full_name;
+
+        // event
+        L.DomEvent.on(checkbox, 'change', function () {
+            if (checkbox.checked) {
+                // filter turned on!
+                L.DomUtil.addClass(wrapper, 'filtered-post');
+            } else {
+                L.DomUtil.removeClass(wrapper, 'filtered-post');
+            }
+
+            // send to server
+            app.api.filterPost({
+                post_id : post.id,
+                filtered : checkbox.checked
+            });
+        })
+
+    },
+
+    _safeParse : function (json) {
+        try {
+            var parsed = JSON.parse(json);
+            return parsed;
+        } catch (e) {
+            console.log('parse error', e, json);
+            return false;
+        }
     },
 
     _saveAdminMedia : function () {

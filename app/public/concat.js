@@ -38989,8 +38989,23 @@ L.Api = L.Class.extend({
         this.post('/config', config, callback);
     },
 
+    filterPost : function (options, callback) {
+        this.post('/filterPost', options, callback);
+    },
 
+    // get all notes
+    getSocialMediaFeedAdmin : function (callback) {
+        var url = window.location.origin + '/v1/social';
+        url += '?access_token=' + app.access_token;
+        url += '&filter=all';
+        this.get(url, callback);
+    },
 
+     // get all notes
+    getSocialMediaFeed : function (callback) {
+        var url = window.location.origin + '/v1/social';
+        this.get(url, callback);
+    },
 
 
 
@@ -39304,7 +39319,90 @@ L.Admin = L.Class.extend({
             btn.innerHTML = app.locale.save;
             L.DomEvent.on(btn, 'click', this._saveAdminMedia, this);
 
+
+            // social media feed
+            this._createSocialMediaFeed();
+
         }.bind(this))
+    },
+
+    _createSocialMediaFeed : function () {
+
+        var container = L.DomUtil.create('div', 'social-media-admin-feed', this._content.media);
+
+        var header = L.DomUtil.create('div', 'social-media-admin-header', container);
+        header.innerHTML = 'Filtrér poster fra sosial medier:'
+
+        app.api.getSocialMediaFeedAdmin(function (err, json) {
+
+            var result = this._safeParse(json);
+
+            _.each(result.posts, function (p) {
+
+                // create DOM
+                this._createPost(p, container);
+            }.bind(this));
+
+
+        }.bind(this));
+
+    },
+
+    _createPost : function (post, container) {
+
+        console.log('post', post);
+
+        // create single post
+        var wrapper = L.DomUtil.create('div', 'admin-post-wrapper', container);
+
+        // filter
+        var filter = L.DomUtil.create('div', 'admin-post-filter', wrapper);
+        var checkbox = L.DomUtil.create('input', 'admin-post-checkbox', filter);
+        checkbox.id = post.id;
+        checkbox.type = 'checkbox';
+        if (post.filtered) {
+            checkbox.setAttribute('checked', '');
+            L.DomUtil.addClass(wrapper, 'filtered-post');
+        }
+        // image
+        var image = L.DomUtil.create('div', 'admin-post-image', wrapper);
+        var img = L.DomUtil.create('img', 'admin-post-image-img', image);
+        img.src = post.image.low_resolution.url;
+
+        // text 
+        var text = L.DomUtil.create('div', 'admin-post-text', wrapper);
+        text.innerHTML = post.text;
+
+        // user
+        var user = L.DomUtil.create('div', 'admin-post-user', wrapper);
+        user.innerHTML = post.full_name;
+
+        // event
+        L.DomEvent.on(checkbox, 'change', function () {
+            if (checkbox.checked) {
+                // filter turned on!
+                L.DomUtil.addClass(wrapper, 'filtered-post');
+            } else {
+                L.DomUtil.removeClass(wrapper, 'filtered-post');
+            }
+
+            // send to server
+            app.api.filterPost({
+                post_id : post.id,
+                filtered : checkbox.checked
+            });
+        })
+
+    },
+
+    _safeParse : function (json) {
+        try {
+            var parsed = JSON.parse(json);
+            return parsed;
+        } catch (e) {
+            console.log('parse error', e, json);
+            return false;
+        }
     },
 
     _saveAdminMedia : function () {
@@ -40952,56 +41050,82 @@ L.Media = L.Class.extend({
         this._content = L.DomUtil.create('div', 'instagram-content', this._container);
         this._content.id = 'instagram-content';
 
-        // get instagram template
-        var template = this._instagramTemplate();
+        // get feed from server
+        app.api.getSocialMediaFeedAdmin(function (err, json) {
 
-        // low res on small mobiles
-        var resolution = app.isJustMobile() ? 'low_resolution' : 'standard_resolution';
+            var result = this._safeParse(json);
 
-        // debug
-        // return;
+            var sorted = _.sortBy(result.posts, function (rp) {
+                return parseInt(rp.created_time);
+            });
 
-        // init feed
-        this._feed = new Instafeed({
-            get: 'tagged',
-            tagName: 'mittlier',
-            // access token, see: https://github.com/stevenschobert/instafeed.js/issues/408#issuecomment-297696860
-            accessToken: '21416541.ba4c844.8efa3e551006456fb59330eadb7f2c41',
-            target : 'instagram-content',
-            resolution: resolution,
-            template : template,
-            links: false,
-        });
-        
-        // start feed
-        this._feed.run();
+            var reversed = sorted.reverse();
+
+            _.each(reversed, function (p) {
+
+                // create DOM
+                if (!p.filtered) this._createPost(p);
+
+            }.bind(this));
+
+        }.bind(this));
+
     },
 
-    _instagramTemplate : function () {
-        // template for instagram feed
-        // see http://instafeedjs.com/#templating
-        // https://gist.github.com/knutole/9673b07ef26f038a5d7ea0e38e0311c6
-        var html =  '<div class="i-wrapper">';
-        html +=         '<div class="i-avatar">'
-        html +=             '<div class="i-avatar-img">';
-        html +=                 '<img src="{{model.user.profile_picture}}" />';
-        html +=             '</div>';
-        html +=             '<div class="i-user">'
-        html +=                 '{{model.user.full_name}}';
-        html +=             '</div>';
-        html +=         '</div>';
-        html +=         '<div class="i-image">'
-        html +=             '<img src="{{image}}" />';
-        html +=         '</div>';
-        html +=         '<div class="i-caption">'
-        html +=             '{{caption}}';
-        html +=         '</div>';
-        html +=         '<div class="i-likes">'
-        html +=             '<i class="fa fa-heart float-left" aria-hidden="true"></i>';
-        html +=             '<div class="i-likes-count">{{likes}}</div>';
-        html +=         '</div>';
-        html +=     '</div>';
-        return html;
+
+    _formatDate : function (timestamp) {
+        var date = new Date(timestamp * 1000);
+        var monthNames = [
+            "January", "February", "March",
+            "April", "May", "June", "July",
+            "August", "September", "October",
+            "November", "December"
+        ];
+
+        var day = date.getDate();
+        var monthIndex = date.getMonth();
+        var year = date.getFullYear();
+
+        return day + ' ' + monthNames[monthIndex] + ' ' + year;
+    },
+
+    _createPost : function (post) {
+
+        var wrapper = L.DomUtil.create('div', 'i-wrapper', this._content);
+        var html = '<div class="i-avatar">'
+        html +=        '<div class="i-avatar-img">';
+        html +=            '<img src="' + post.avatar + '" />';
+        html +=        '</div>';
+        html +=        '<div class="i-user">'
+        html +=            post.full_name;
+        html +=        '</div>';
+        html +=    '</div>';
+        html +=    '<div class="i-image">'
+        html +=        '<img src="' + post.image.low_resolution.url + '" />';
+        html +=    '</div>';
+        html +=    '<div class="i-caption i-date">'
+        // html +=        new Date(parseInt(post.created_time) * 1000).toDateString();
+        html +=        this._formatDate(post.created_time);
+        html +=    '</div>';
+        html +=    '<div class="i-caption">'
+        html +=        post.text;
+        html +=    '</div>';
+        html +=    '<div class="i-likes">'
+        html +=        '<i class="fa fa-heart float-left" aria-hidden="true"></i>';
+        html +=        '<div class="i-likes-count">' + post.likes.count + '</div>';
+        html +=    '</div>';
+        wrapper.innerHTML = html;
+
+    },
+
+    _safeParse : function (json) {
+        try {
+            var parsed = JSON.parse(json);
+            return parsed;
+        } catch (e) {
+            console.log('parse error', e, json);
+            return false;
+        }
     },
 
 

@@ -12,9 +12,20 @@ var sizeOf = require('image-size');
 var json2csv = require('json2csv');
 var nodemailer = require('nodemailer');
 var ExifImage = require('exif').ExifImage;
+var ig = require('instagram-node').instagram();
+ig.use({ access_token: '21416541.ba4c844.8efa3e551006456fb59330eadb7f2c41' });
+var async = require('async');
+
 
 // storage handler
 var multer = require('multer');
+
+// instagram schedule
+var schedule = require('node-schedule');
+var j = schedule.scheduleJob('*/5 * * * *', function(){
+  console.log('The answer to life, the universe, and everything!');
+  api.schedule();
+});
 
 // helpers
 safeStringify = function (o) {try {var s = JSON.stringify(o);return s;} catch (e) {return false;}}
@@ -22,6 +33,153 @@ safeParse = function (s) {try { var o = JSON.parse(s); return o; } catch (e) {re
 
 // module
 module.exports = api = {
+
+    schedule : function () {
+
+        // pull insta
+        api.pullLatestInstagram();
+    },
+
+    debugFeed : function (req, res, next) {
+        res.send({
+            debugFeed : true
+        })
+    },
+
+    filterPost : function (req, res, next) {
+
+        var post_id = req.body.post_id;
+        var filtered = req.body.filtered;
+
+        if (!post_id) return res.send({err : 'Missing post_id'});
+
+        var key = 'social-media-' + post_id;
+        redis.get(key, function (err, post) {
+            if (err) {
+                return res.send({err : 'Missing post_id'});
+            };
+
+            var parsed = safeParse(post);
+
+            parsed.filtered = filtered;
+
+            redis.set(key, safeStringify(parsed), function (err) {
+
+                if (err) return res.send({err : 'Missing post_id'});
+                res.send({
+                    err : null
+                });
+            });
+
+        }.bind(this));
+
+    },
+
+    socialMediaFeed : function (req, res, next) {
+
+        var show_filter = req.query.filter;
+
+        // - get posts
+        // - filter 
+        redis.keys('social-media-*', function (err, keys) {
+
+            // return null if no keys
+            if (!_.size(keys)) {
+                return res.send({
+                    posts : []
+                });
+            };
+
+            var posts = [];
+
+            async.each(keys, function (key, callback) {
+
+                redis.get(key, function (err, post) {
+                    if (err) {
+                        return callback();
+                    }
+
+                    posts.push(safeParse(post));
+                    callback();
+                });
+
+            }, function (err) {
+
+                var filtered_posts = _.filter(posts, function (p) {
+                    return p.filtered == false;
+                });
+
+                if (show_filter == 'all') {
+                    filtered_posts = posts;
+                }
+
+                res.send({
+                    posts : filtered_posts
+                });
+
+
+            });
+
+
+        });
+    },
+    
+    pullLatestInstagram : function () {
+
+        // 1. get data from insta
+        // 2. put into ordered format
+        // 3. save to redis, one by one
+        // 4. maintain list in redis of active posts
+        // 5. filter out from list any unwanted posts
+
+
+        // get data from insta
+        ig.tag_media_recent('mittlier', function(err, medias, pagination, remaining, limit) {
+
+            // clean up
+            var instagram_posts = [];
+            _.each(medias, function (m) {
+    
+                var post = {
+                    source : 'instagram',
+                    id : m.id,
+                    username : m.user.username,
+                    full_name : m.user.full_name,
+                    avatar : m.user.profile_picture,
+                    created_time : m.created_time,
+                    text : m.caption.text,
+                    type : m.type,
+                    image : m.images,
+                    video : m.video,
+                    link : m.link,
+                    location : m.location,
+                    likes : m.likes,
+                    tags : m.tags,
+                    filtered : false // key for filtering out posts, false by default
+                }
+
+                // check for existing key in redis
+                var social_key = 'social-media-' + m.id;
+                redis.get(social_key, function (err, result) {
+                    if (err || !result) {
+                    
+                        // new post
+                        redis.set(social_key, safeStringify(post), function (err) {
+                            if (err) {
+                                // console.log('failed to save to redis!');
+                            } else {
+                                console.log('saved', social_key, ' to redis!');
+                            }
+                        })
+
+                    } 
+                });
+
+            })
+
+        });
+
+    },
 
     createDefaultConfig : function (done) {
         var defaultConfig = {

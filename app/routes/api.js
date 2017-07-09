@@ -35,13 +35,10 @@ safeParse = function (s) {try { var o = JSON.parse(s); return o; } catch (e) {re
 module.exports = api = {
 
     schedule : function () {
-        console.log('testSchedule fired!');
 
         // pull insta
         api.pullLatestInstagram();
     },
-
-
 
     debugFeed : function (req, res, next) {
         res.send({
@@ -50,7 +47,6 @@ module.exports = api = {
     },
 
     filterPost : function (req, res, next) {
-        console.log('filterPost', req.body);
 
         var post_id = req.body.post_id;
         var filtered = req.body.filtered;
@@ -58,10 +54,8 @@ module.exports = api = {
         if (!post_id) return res.send({err : 'Missing post_id'});
 
         var key = 'social-media-' + post_id;
-        console.log('keuy:', key);
         redis.get(key, function (err, post) {
             if (err) {
-                console.log('err getting key', key, err);
                 return res.send({err : 'Missing post_id'});
             };
 
@@ -69,11 +63,7 @@ module.exports = api = {
 
             parsed.filtered = filtered;
 
-            console.log('filtered:::', filtered);
-            console.log('parsed -->', parsed);
-
             redis.set(key, safeStringify(parsed), function (err) {
-                console.log('savaed key:', key);
 
                 if (err) return res.send({err : 'Missing post_id'});
                 res.send({
@@ -83,27 +73,15 @@ module.exports = api = {
 
         }.bind(this));
 
-
-        // res.send({
-        //     err : null
-        // })
     },
 
     socialMediaFeed : function (req, res, next) {
-
-        console.log('socialMediaFeed');
-
-        console.log('req.query', req.query);
-        // console.log('req', req);
 
         var show_filter = req.query.filter;
 
         // - get posts
         // - filter 
-        console.time('redis-keys');
         redis.keys('social-media-*', function (err, keys) {
-            console.log('found these keys:', keys);
-            console.timeEnd('redis-keys');
 
             // return null if no keys
             if (!_.size(keys)) {
@@ -114,14 +92,10 @@ module.exports = api = {
 
             var posts = [];
 
-            console.log('lookung up keys');
             async.each(keys, function (key, callback) {
-
-                console.log('async each key', key);
 
                 redis.get(key, function (err, post) {
                     if (err) {
-                        console.log('err getting key', key, err);
                         return callback();
                     }
 
@@ -130,8 +104,6 @@ module.exports = api = {
                 });
 
             }, function (err) {
-                console.log('all keys found', err);
-
 
                 var filtered_posts = _.filter(posts, function (p) {
                     return p.filtered == false;
@@ -140,8 +112,6 @@ module.exports = api = {
                 if (show_filter == 'all') {
                     filtered_posts = posts;
                 }
-
-                console.log('filtered_posts', _.size(filtered_posts));
 
                 res.send({
                     posts : filtered_posts
@@ -152,15 +122,9 @@ module.exports = api = {
 
 
         });
-
-        // res.send({
-        //     debugFeed : true
-        // })
-
     },
     
     pullLatestInstagram : function () {
-        console.log('debugFeed');
 
         // 1. get data from insta
         // 2. put into ordered format
@@ -171,9 +135,6 @@ module.exports = api = {
 
         // get data from insta
         ig.tag_media_recent('mittlier', function(err, medias, pagination, remaining, limit) {
-            console.log('ig.tag_search');
-            console.log('err:', err);
-           
 
             // clean up
             var instagram_posts = [];
@@ -205,39 +166,19 @@ module.exports = api = {
                         // new post
                         redis.set(social_key, safeStringify(post), function (err) {
                             if (err) {
-                                console.log('failed to save to redis!');
+                                // console.log('failed to save to redis!');
                             } else {
                                 console.log('saved', social_key, ' to redis!');
                             }
                         })
 
-                    } else {
-                        // already exists, no need to overwrite
-                        console.log('post already exists:', social_key);
-                    }
+                    } 
                 });
-
-                // instagram_posts.push(post);
 
             })
 
-            // console.log('+_----------------- instagram_posts');
-            // console.log(instagram_posts);
         });
 
-        // ig.tag('mittlier', function(err, result, remaining, limit) {
-        //     console.log('ig.tag');
-        //     console.log('err:', err);
-        //     console.log('result: ', result);
-        //     console.log('remainign: ', remaining);
-        //     console.log('limit:', limit);
-        // });
- 
- 
-
-        // res.send({
-        //     debugFeed : true
-        // })
     },
 
     createDefaultConfig : function (done) {

@@ -39337,7 +39337,13 @@ L.Admin = L.Class.extend({
 
             var result = this._safeParse(json);
 
-            _.each(result.posts, function (p) {
+            var sorted = _.sortBy(result.posts, function (rp) {
+                return parseInt(rp.created_time);
+            });
+
+            var reversed = sorted.reverse();
+
+            _.each(reversed, function (p) {
 
                 // create DOM
                 this._createPost(p, container);

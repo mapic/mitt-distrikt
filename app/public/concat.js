@@ -39297,8 +39297,6 @@ L.Admin = L.Class.extend({
             // set config
             this._config = result.config;
 
-            console.log('config: ', this._config);
-
             // create container
             var container = L.DomUtil.create('div', 'admin-media-container', this._content.media);
 
@@ -39355,8 +39353,6 @@ L.Admin = L.Class.extend({
     },
 
     _createPost : function (post, container) {
-
-        console.log('post', post);
 
         // create single post
         var wrapper = L.DomUtil.create('div', 'admin-post-wrapper', container);

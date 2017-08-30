@@ -38857,7 +38857,9 @@ locale.NO = {
         info : {
             loginLinkText   : 'Logg inn',
             loginText       : 'til Wordpress for å redigere bloggposter.'
-        }
+        },
+        tags : 'Tags',
+        tagTooltip : 'Sett hvilke tags som skal være aktive. F.eks. "mittlier".'
     },
 
     notes : {
@@ -38976,6 +38978,17 @@ L.Api = L.Class.extend({
         var url = window.location.origin + '/v1/table';
         url += '?access_token=' + app.access_token;
         this.get(url, callback);
+    },
+
+    // get tags
+    getTags : function (callback) {
+        var url = window.location.origin + '/v1/tags';
+        url += '?access_token=' + app.access_token;
+        this.get(url, callback);
+    },
+
+    setTags : function (options, callback) {
+        this.post('/tags', options, callback);
     },
 
     // get all notes
@@ -39417,6 +39430,26 @@ L.Admin = L.Class.extend({
 
     _fillMapContent : function () {
 
+        // get tags
+        app.api.getTags(function (err, tagstring) {
+            if (err) return console.error(err);
+
+            var tagstring = safeParse(tagstring);
+
+            var tags = _.isArray(tagstring) ? tagstring.join(',') : 'mittlier'; // default, todo: move to config
+
+            // create tag input
+            var wrapper = L.DomUtil.create('div', 'tag-wrapper', this._content.map);
+            var tag_title = L.DomUtil.create('div', 'tag-title', wrapper);
+            tag_title.innerHTML = app.locale.admin.tags;
+            this._tagInput = L.DomUtil.create('input', 'tag-input', wrapper);
+            this._tagInput.value = tags;
+            this._tagInput.setAttribute('title', app.locale.admin.tagTooltip);
+
+            L.DomEvent.on(this._tagInput, 'blur', this._saveTags, this);
+
+        }.bind(this));
+
         // get geojson
         app.api.getTable(function (err, json) {
             if (err) return console.error(err);
@@ -39435,6 +39468,13 @@ L.Admin = L.Class.extend({
        
         }.bind(this));
 
+    },
+
+    _saveTags : function () {
+        var tagstring = this._tagInput.value;
+        app.api.setTags({tagstring : tagstring}, function (err) {
+            if (err) console.error('Error saving tags!');
+        })
     },
 
     _createExportButton : function () {
@@ -40018,6 +40058,9 @@ L.MapContent = L.Evented.extend({
         // set options
         L.setOptions(this, options);
 
+        // get tag
+        this._getTag();
+
         // set container
         this._container = options.container;
 
@@ -40030,8 +40073,26 @@ L.MapContent = L.Evented.extend({
         // debug
         window.debug = window.debug || {};
         window.debug.map = this._map;
-
+        window.debug.mapContent = this;
        
+    },
+
+    _getTag : function () {
+
+        // default
+        this._tag = ['mittlier'];
+        
+        // get url
+        var pathname = window.location.pathname;
+        if (!_.includes(pathname, '/tag/')) return;
+        
+        // check for tag
+        var arr = _.split(pathname, '/');
+        if (_.size(arr) != 3) return;
+        
+        // get tag
+        var tag = arr[2];
+        this._tag = [tag];
     },
 
     listen : function () {
@@ -40331,8 +40392,6 @@ L.MapContent = L.Evented.extend({
                     break;
             }
         });
-
-
     },
 
     _uploadFile : function (file) {
@@ -40388,7 +40447,9 @@ L.MapContent = L.Evented.extend({
         var address = this.note.address;
         var zoom = this.note.zoom;
         var username = this.note.nameText.value || app.locale.notes.anon;
-        var tags = ["mittlier"]; // todo: 
+        // var tags = ["mittlier"]; // todo: 
+        // var tags = [this._tag || 'mittlier'];
+        var tags = this._tag;
         var portal_tag = 'mittlier'; // todo: from config
         var image = this.note.image;
 
@@ -40466,14 +40527,20 @@ L.MapContent = L.Evented.extend({
         return user_id;
     },
 
+    _updateData : function () {
+        var data_url = window.location.origin + '/v1/notes/' + this._tag[0];
+        console.log('data_url:', data_url);
+
+        this._map.getSource('earthquakes').setData(data_url);
+    },
+
     _onNoteSent : function (err) {
 
         // close note window
         L.DomUtil.remove(this.note.container);
        
         // update data
-        var data_url = window.location.origin + '/v1/notes';
-        this._map.getSource('earthquakes').setData(data_url);
+        this._updateData();
 
         // show markers
         this._showMarkers();
@@ -40557,12 +40624,71 @@ L.MapContent = L.Evented.extend({
 
         // create background layer toggle control
         this._createToggleControl();
+
+        // create tag toggle control
+        this._createTagToggleControl();
     },
 
     _createToggleControl : function () {
         var div = L.DomUtil.create('div', 'background-toggle-control', this._container);
         div.innerHTML = '<i class="fa fa-map" aria-hidden="true"></i>';
         L.DomEvent.on(div, 'click', this._toggleBackground, this);
+    },
+
+    _createTagToggleControl : function () {
+        var div = L.DomUtil.create('div', 'background-toggle-control tags-toggle', this._container);
+        div.innerHTML = '<i class="fa fa-tags" aria-hidden="true"></i>';
+        L.DomEvent.on(div, 'click', this._showTagList, this);
+
+        // get tags
+        app.api.getTags(function (err, tagstring) {
+            this._tags = safeParse(tagstring);
+        }.bind(this));
+    },
+
+    _showTagList : function () {
+
+        // remove if exists
+        if (this._tag_wrapper) {
+            L.DomUtil.remove(this._tag_wrapper);
+            delete this._tag_wrapper;
+            return;
+        }
+
+        // create wrapper
+        this._tag_wrapper = L.DomUtil.create('div', 'tag-list', this._container);
+        
+        // app.api.getTags(function (err, tagstring) {
+
+            // parse
+            // var tags = safeParse(tagstring);
+        var tags = this._tags;
+
+        _.each(tags, function (t) {
+
+            // create list item
+            var t_div = L.DomUtil.create('div', 'tag-list-item', this._tag_wrapper);
+            t_div.innerHTML = t;
+
+            // add event
+            L.DomEvent.on(t_div, 'click', this._onTagClick, this);
+
+        }.bind(this));
+
+        // }.bind(this))
+
+    },
+
+    _onTagClick : function (e) {
+
+        // get tag
+        var tag = e.target.innerHTML;
+
+        // lowercase
+        var tag = tag.toLowerCase();
+
+        // go to tag
+        window.location.href = 'https://mittlier.no/tag/' + tag;
     },
 
     _toggled : false,
@@ -40634,7 +40760,7 @@ L.MapContent = L.Evented.extend({
                 map.addImage('blomst2', image2);
 
                 // set data url
-                var data_url = window.location.origin + '/v1/notes';
+                var data_url = window.location.origin + '/v1/notes/' + this._tag[0];
 
                 map.addSource("earthquakes", {
                     type: "geojson",
@@ -40949,8 +41075,9 @@ L.MapContent = L.Evented.extend({
                 if (err) return alert(err);
 
                 // update data
-                var data_url = window.location.origin + '/v1/notes';
-                this._map.getSource('earthquakes').setData(data_url);
+                // var data_url = window.location.origin + '/v1/notes';
+                // this._map.getSource('earthquakes').setData(data_url);
+                this._updateData();
 
                 // clean up screen
                 this._closeReadMore();

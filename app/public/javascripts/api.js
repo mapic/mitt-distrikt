@@ -67,6 +67,17 @@ L.Api = L.Class.extend({
         this.get(url, callback);
     },
 
+    // get tags
+    getTags : function (callback) {
+        var url = window.location.origin + '/v1/tags';
+        url += '?access_token=' + app.access_token;
+        this.get(url, callback);
+    },
+
+    setTags : function (options, callback) {
+        this.post('/tags', options, callback);
+    },
+
     // get all notes
     getConfig : function (callback) {
         var url = window.location.origin + '/v1/config';

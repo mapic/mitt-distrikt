@@ -318,6 +318,26 @@ L.Admin = L.Class.extend({
 
     _fillMapContent : function () {
 
+        // get tags
+        app.api.getTags(function (err, tagstring) {
+            if (err) return console.error(err);
+
+            var tagstring = safeParse(tagstring);
+
+            var tags = _.isArray(tagstring) ? tagstring.join(',') : 'mittlier'; // default, todo: move to config
+
+            // create tag input
+            var wrapper = L.DomUtil.create('div', 'tag-wrapper', this._content.map);
+            var tag_title = L.DomUtil.create('div', 'tag-title', wrapper);
+            tag_title.innerHTML = app.locale.admin.tags;
+            this._tagInput = L.DomUtil.create('input', 'tag-input', wrapper);
+            this._tagInput.value = tags;
+            this._tagInput.setAttribute('title', app.locale.admin.tagTooltip);
+
+            L.DomEvent.on(this._tagInput, 'blur', this._saveTags, this);
+
+        }.bind(this));
+
         // get geojson
         app.api.getTable(function (err, json) {
             if (err) return console.error(err);
@@ -336,6 +356,13 @@ L.Admin = L.Class.extend({
        
         }.bind(this));
 
+    },
+
+    _saveTags : function () {
+        var tagstring = this._tagInput.value;
+        app.api.setTags({tagstring : tagstring}, function (err) {
+            if (err) console.error('Error saving tags!');
+        })
     },
 
     _createExportButton : function () {

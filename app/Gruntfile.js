@@ -12,7 +12,6 @@ module.exports = function(grunt) {
         files: {
           'public/output.css': [
             'public/stylesheets/mapbox-gl.css',
-            // 'public/stylesheets/font-awesome/css/font-awesome.css',
             'public/stylesheets/normalize.css',
             'public/stylesheets/style.css',
             'public/stylesheets/mobile.css',

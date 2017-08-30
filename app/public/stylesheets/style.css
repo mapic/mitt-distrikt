@@ -1311,7 +1311,6 @@ i.fa.fa-globe:hover {
     overflow: hidden;
 }
 
-
 .background-toggle-control {
     position: absolute;
     bottom: 30px;
@@ -1323,7 +1322,7 @@ i.fa.fa-globe:hover {
     color: #e74549;
     font-size: 20px;
     text-align: center;
-    line-height: 47px;
+    line-height: 50px;
 }
 .background-toggle-control:hover {
     background: rgba(255, 255, 255, 1);
@@ -1331,6 +1330,48 @@ i.fa.fa-globe:hover {
 }
 .background-toggle-control:active {
     background: rgb(231, 69, 73);
+    color: white;
+}
+.tags-toggle {
+  left: 30px !important;
+}
+.tag-wrapper {
+    margin: 50px;
+    width: auto;
+    top: 75px;
+    position: relative;
+    z-index: 10;
+}
+.tag-title {
+    float: left;
+    padding-right: 10px;
+}
+input.tag-input {
+    float: left;
+    width: 300px;
+}
+.tag-list {
+    position: absolute;
+    border: 100px;
+    background: rgba(255,255,255,1);
+    bottom: 0px;
+    padding-top: 10px;
+    color: rgba(231,69,73,.83);
+    line-height: 22px;
+    width: 100px;
+    text-align: left;
+    border-radius: 5px;
+    margin-left: 10px;
+    bottom: 90px;
+    padding-bottom: 10px;
+}
+.tag-list-item {
+    padding-left: 10px;
+    padding-right: 10px;
+    cursor: pointer;
+}
+.tag-list-item:hover {
+    background: rgba(231,69,73,1);
     color: white;
 }
 

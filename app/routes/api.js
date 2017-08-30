@@ -23,7 +23,6 @@ var multer = require('multer');
 // instagram schedule
 var schedule = require('node-schedule');
 var j = schedule.scheduleJob('*/5 * * * *', function(){
-  console.log('The answer to life, the universe, and everything!');
   api.schedule();
 });
 
@@ -286,21 +285,7 @@ module.exports = api = {
     },
 
     twitter : function (options, done) {
-
-        // var Twitter = require('twitter');
-        // var twitterClient = new Twitter({
-        //     consumer_key: config.twitter.consumer_key,
-        //     consumer_secret: config.twitter.consumer_secret,
-        //     access_token_key: config.twitter.access_token_key,
-        //     access_token_secret: config.twitter.access_token_secret,
-        // });
-
-
-        // twitterClient.get('search/tweets', {q: 'mittlier'}, function(error, tweets, response) {
-        //     console.log(tweets);
-        //     done && done();
-        // });
-
+        // todo
     },
 
     checkAccess : function (req, res, next) {
@@ -547,6 +532,49 @@ module.exports = api = {
         redis.set(key, safeStringify(feature), done);
     },
 
+    getTags : function (req, res) {
+        api._getTags(function (err, tags) {
+            if (err) return res.send({error : "Couldn't retrieve tags"});
+            res.send(tags);
+        })
+    },
+
+    setTags : function (req, res) {
+        var tagstring = req.body.tagstring;
+
+        api._saveTags(tagstring, function (err) {
+            if (err) return res.send({error : "Couldn't save tags."});
+            res.send({
+                error : null,
+                success : true,
+                route : '/saveTags'
+            });
+        })
+    },
+
+    _getTags : function (done) {
+        var key = config.redis.key + ':' + 'tags';
+        redis.get(key, done);
+    },
+    _saveTags : function (tagstring, done) {
+
+        // lint tags
+        var tags = api._lintTags(tagstring);
+
+        var key = config.redis.key + ':' + 'tags';
+        redis.set(key, safeStringify(tags), done); 
+       
+    },
+
+    _lintTags : function (tagstring) {
+        var t = tagstring.split(',');
+        var tags = [];
+        _.each(t, function (tag) {
+            if (!_.isEmpty(tag)) tags.push(_.trim(tag));
+        });
+        return tags;
+    },
+
     // route: POST /v1/note
     note : function (req, res) {
 
@@ -616,10 +644,33 @@ module.exports = api = {
 
     // route: GET /v1/notes
     getNotes : function (req, res) {
-       api._getAllNotesAsGeoJSON(function (err, geojson) {
+
+        // get tag
+        var tag = req.params.tag;
+
+        api._getAllNotesAsGeoJSON(function (err, geojson) {
             if (err) return res.send({error : err});
-            res.send(geojson);
-       });
+
+            // filter geojson by tag
+            var filtered_geojson = api._filterByTag(geojson, tag);
+
+            // send to client
+            res.send(filtered_geojson);
+        });
+    },
+
+    _filterByTag : function (geojson, tag) {
+
+        var filtered_features = _.filter(geojson.features, function (f) {
+            return f.properties.tags[0] == tag;
+        });
+
+        var filtered_geojson = {
+          "type": "FeatureCollection",
+          "features": filtered_features
+        };
+
+        return filtered_geojson;
     },
 
     _deleteNoteById : function (id, done) {
@@ -698,6 +749,8 @@ module.exports = api = {
     },
 
     _createEmailHTML : function (t) {
+
+        // todo: localisation of email text
         
         // header
         var html = '<div style="background: #e74549; height: auto; width: 90%; border: 1px solid #e74549; color: white; padding: 10px; font-size: 1.3em">'
@@ -740,7 +793,7 @@ module.exports = api = {
         html += '<div style="color: black; padding: 10px; border: width: 90%; 1px solid #e74549; border-top: none;">';
 
             html += '<div>';
-            html += 'Gå til <a href="https://' + config.domain + '/admin" target="_blank">admin-siden</a> for å inspisere innlegget.';
+            html += 'Gå til <a href="https://' + config.domain + '/admin" target="_blank">admin-siden</a> for å se innlegget.';
             html += '</div>';
 
         html += '</div>';
@@ -769,7 +822,7 @@ module.exports = api = {
         };
 
         // debug
-        // mailOptions.to = 'knutole@mapic.io';
+        mailOptions.to = 'knutole@mapic.io';
 
         // send mail with defined transport object
         transporter.sendMail(mailOptions, (error, info) => {

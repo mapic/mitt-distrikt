@@ -48,6 +48,8 @@ app.disable('x-powered-by');
 // route: home
 router.get('/', api.index);
 
+router.get('/tag/:tag', api.index);
+
 // route: admin
 router.get('/admin', api.admin);
 
@@ -55,7 +57,7 @@ router.get('/admin', api.admin);
 router.get('/v1/image/:filename', api.image);
 
 // route: get geojson
-router.get('/v1/notes', api.getNotes);
+router.get('/v1/notes/:tag', api.getNotes);
 
 // route: get geojson
 router.get('/v1/table', api.getTable); // todo: check access_token
@@ -86,6 +88,10 @@ router.get('/v1/config', api.getConfig);
 
 // debug
 router.get('/v1/debug', api.debugFeed);
+
+// tags
+router.get('/v1/tags', api.getTags);
+router.post('/v1/tags', api.checkAccess, api.setTags);
 
 // social media
 router.get('/v1/social', api.socialMediaFeed);

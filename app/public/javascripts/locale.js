@@ -22,7 +22,9 @@ locale.NO = {
         info : {
             loginLinkText   : 'Logg inn',
             loginText       : 'til Wordpress for å redigere bloggposter.'
-        }
+        },
+        tags : 'Tags',
+        tagTooltip : 'Sett hvilke tags som skal være aktive. F.eks. "mittlier".'
     },
 
     notes : {

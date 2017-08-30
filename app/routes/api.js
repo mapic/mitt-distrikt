@@ -662,7 +662,10 @@ module.exports = api = {
     _filterByTag : function (geojson, tag) {
 
         var filtered_features = _.filter(geojson.features, function (f) {
-            return f.properties.tags[0] == tag;
+            var a = f.properties.tags[0].toLowerCase();
+            var b = tag.toLowerCase();
+            // return f.properties.tags[0] == tag;
+            return a == b;
         });
 
         var filtered_geojson = {

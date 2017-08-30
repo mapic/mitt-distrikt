@@ -324,7 +324,7 @@ L.Admin = L.Class.extend({
 
             var tagstring = safeParse(tagstring);
 
-            var tags = _.isArray(tagstring) ? tagstring.join(',') : 'mittlier'; // default, todo: move to config
+            var tags = _.isArray(tagstring) ? tagstring.join(', ') : 'mittlier'; // default, todo: move to config
 
             // create tag input
             var wrapper = L.DomUtil.create('div', 'tag-wrapper', this._content.map);

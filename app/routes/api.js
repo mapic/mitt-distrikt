@@ -825,7 +825,7 @@ module.exports = api = {
         };
 
         // debug
-        mailOptions.to = 'knutole@mapic.io';
+        // mailOptions.to = 'knutole@mapic.io';
 
         // send mail with defined transport object
         transporter.sendMail(mailOptions, (error, info) => {

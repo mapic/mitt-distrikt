@@ -17,7 +17,7 @@ RUN apt-get install -y nmap curl wget fish
 EXPOSE 80 443
 ENV TERM xterm
 
-# add certs
-ADD dhparams.pem /tmp
-ADD ssl_certificate.pem /tmp
-ADD ssl_certificate.key /tmp
+# # add certs
+# ADD dhparams.pem /tmp
+# ADD ssl_certificate.pem /tmp
+# ADD ssl_certificate.key /tmp

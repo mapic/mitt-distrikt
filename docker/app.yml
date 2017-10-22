@@ -57,5 +57,8 @@ services:
       - 443:443
     volumes:
       - ../config/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ../config/ssl_certificate.pem:/etc/nginx/ssl_certificate.pem
+      - ../config/ssl_certificate.key:/etc/nginx/ssl_certificate.key
+      - ../config/dhparams.pem:/etc/nginx/dhparams.pem
     command: nginx
 

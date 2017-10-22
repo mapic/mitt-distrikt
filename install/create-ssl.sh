@@ -25,7 +25,8 @@ certbot certonly \
     --domain "$DOMAIN" \
     --domain "$SUBDOMAIN" || exit 1
 
-cd ../docker/build/nginx
+# cd ../docker/build/nginx
+cd ../config
 cp /etc/letsencrypt/live/$DOMAIN/privkey.pem ssl_certificate.key
 cp /etc/letsencrypt/live/$DOMAIN/fullchain.pem ssl_certificate.pem
 

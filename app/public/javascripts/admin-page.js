@@ -455,21 +455,23 @@ L.Admin = L.Class.extend({
 
             // add entries
             t.address = e.address || '';
-            t.tags = e.tags.join(', ');
             t.text = e.text || '';
             // t.zoom = parseInt(e.zoom) || '';
             t.username = e.username || '';
             t.time = new Date(e.timestamp).toDateString() || '';
             t.timestamp = e.timestamp;
             // t.domain = e.portal_tag || '';
-           
+
+            // create tags input
+            t.tags = '<input class="tags-input" onblur="mapnotectx.onTagsInputBlur(\'' + e.id + '\', this)" value="' + e.tags.join(',') + '">';
+
             // create preview map link
             t.latlng = '<i class="fa fa-globe" aria-hidden="true" onclick="mapnotectx.onMapNoteClick(\'' + e.id + '\', this)"></i>';
             
             // create preview image link
-            if (e.image && e.image.original)
-            t.image = '<i class="fa fa-picture-o" aria-hidden="true" onclick="mapnotectx.onMapNoteImageClick(\'' + e.image.original + '\')"></i>'
-            else {
+            if (e.image && e.image.original) {
+                t.image = '<i class="fa fa-picture-o" aria-hidden="true" onclick="mapnotectx.onMapNoteImageClick(\'' + e.image.original + '\')"></i>'
+            } else {
                 t.image = '';
             }
 
@@ -481,6 +483,30 @@ L.Admin = L.Class.extend({
 
         }.bind(this));
         return table;
+    },
+
+    onTagsInputBlur : function (id, e) {
+
+        // get tags
+        var tags = e.value;
+
+        // save to server
+        app.api.updateTags({
+            id : id,
+            tags : tags
+        }, function (err, results) {
+            if (err) return alert(err);
+
+            // // parse
+            var res = safeParse(results);
+
+            // catch error
+            if (res.error) return alert(res.error);
+
+            // refresh
+            this._refreshTable();
+
+        }.bind(this));
     },
 
     onMapNoteClick : function (id) {

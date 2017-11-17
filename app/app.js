@@ -92,6 +92,7 @@ router.get('/v1/debug', api.debugFeed);
 // tags
 router.get('/v1/tags', api.getTags);
 router.post('/v1/tags', api.checkAccess, api.setTags);
+router.post('/v1/updateTags', api.checkAccess, api.updateTags);
 
 // social media
 router.get('/v1/social', api.socialMediaFeed);

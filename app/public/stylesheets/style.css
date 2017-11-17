@@ -1392,7 +1392,12 @@ input.tag-input {
 }
 
 
-
+input.tags-input {
+    background: inherit;
+    border: 0px;
+    font-size: 1em;
+    text-align: center;
+}
 
 
 

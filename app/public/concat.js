@@ -38991,6 +38991,11 @@ L.Api = L.Class.extend({
         this.post('/tags', options, callback);
     },
 
+    // update tag on a note
+    updateTags : function (options, callback) {
+        this.post('/updateTags', options, callback);
+    },
+
     // get all notes
     getConfig : function (callback) {
         var url = window.location.origin + '/v1/config';
@@ -39436,7 +39441,7 @@ L.Admin = L.Class.extend({
 
             var tagstring = safeParse(tagstring);
 
-            var tags = _.isArray(tagstring) ? tagstring.join(',') : 'mittlier'; // default, todo: move to config
+            var tags = _.isArray(tagstring) ? tagstring.join(', ') : 'mittlier'; // default, todo: move to config
 
             // create tag input
             var wrapper = L.DomUtil.create('div', 'tag-wrapper', this._content.map);
@@ -39567,14 +39572,20 @@ L.Admin = L.Class.extend({
 
             // add entries
             t.address = e.address || '';
-            t.tags = e.tags.join(', ');
             t.text = e.text || '';
             // t.zoom = parseInt(e.zoom) || '';
             t.username = e.username || '';
             t.time = new Date(e.timestamp).toDateString() || '';
             t.timestamp = e.timestamp;
             // t.domain = e.portal_tag || '';
+
+            // create tags input
+            // t.tags = e.tags.join(', ');
            
+            var tags_input = '<input class="tags-input" onblur="mapnotectx.onTagsInputBlur(\'' + e.id + '\', this)" value="' + e.tags.join(',') + '">';
+            t.tags = tags_input;
+            console.log(tags_input);
+
             // create preview map link
             t.latlng = '<i class="fa fa-globe" aria-hidden="true" onclick="mapnotectx.onMapNoteClick(\'' + e.id + '\', this)"></i>';
             
@@ -39593,6 +39604,30 @@ L.Admin = L.Class.extend({
 
         }.bind(this));
         return table;
+    },
+
+    onTagsInputBlur : function (id, e) {
+
+        // get tags
+        var tags = e.value;
+
+        // save to server
+        app.api.updateTags({
+            id : id,
+            tags : tags
+        }, function (err, results) {
+            if (err) return alert(err);
+
+            // // parse
+            var res = safeParse(results);
+
+            // catch error
+            if (res.error) return alert(res.error);
+
+            // refresh
+            this._refreshTable();
+
+        }.bind(this));
     },
 
     onMapNoteClick : function (id) {

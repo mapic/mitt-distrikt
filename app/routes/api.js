@@ -561,6 +561,7 @@ module.exports = api = {
         // lint tags
         var tags = api._lintTags(tagstring);
 
+        // save to redis
         var key = config.redis.key + ':' + 'tags';
         redis.set(key, safeStringify(tags), done); 
        
@@ -573,6 +574,40 @@ module.exports = api = {
             if (!_.isEmpty(tag)) tags.push(_.trim(tag));
         });
         return tags;
+    },
+
+    updateTags : function (req, res) {
+
+        // get params
+        var tag_string = req.body.tags;
+        var id = req.body.id;
+
+        // clean tags
+        var tags = _.map(_.split(tag_string, ','), _.trim);
+
+        // get note
+        api._getFeature(id, function (err, featureJSON) {
+            if (err) return res.send({error : err});
+
+            // parse
+            var feature = safeParse(featureJSON);
+
+            // check
+            if (!feature) return res.send({error : 'no feature'});
+
+            // set tags
+            feature.properties.tags = tags;
+
+            // save note 
+            api._saveFeature(feature, function (err) {
+                res.send({
+                    error : err, 
+                    tags : tags,
+                    id : id,
+                });
+            });
+        });
+
     },
 
     // route: POST /v1/note

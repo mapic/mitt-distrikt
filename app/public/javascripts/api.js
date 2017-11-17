@@ -78,6 +78,11 @@ L.Api = L.Class.extend({
         this.post('/tags', options, callback);
     },
 
+    // update tag on a note
+    updateTags : function (options, callback) {
+        this.post('/updateTags', options, callback);
+    },
+
     // get all notes
     getConfig : function (callback) {
         var url = window.location.origin + '/v1/config';

@@ -131,9 +131,10 @@ module.exports = api = {
         // 4. maintain list in redis of active posts
         // 5. filter out from list any unwanted posts
 
+        var tag = config.instragram_tag;
 
         // get data from insta
-        ig.tag_media_recent('mittlier', function(err, medias, pagination, remaining, limit) {
+        ig.tag_media_recent(tag, function(err, medias, pagination, remaining, limit) {
 
             // clean up
             var instagram_posts = [];
@@ -182,7 +183,10 @@ module.exports = api = {
 
     createDefaultConfig : function (done) {
         var defaultConfig = {
-            hashtag : 'MittLier'
+            hashtag : config.hashtag,
+            default_tag : config.default_tag,
+            domain : config.domain,
+            wordpress_domain : config.wordpress_domain
         };
 
         api._setConfig(defaultConfig, function (err) {
@@ -274,7 +278,7 @@ module.exports = api = {
             try {
                 var result = json2csv({ data: data, fields: fields });
             } catch (err) {
-                var result = 'Det oppstod en feil ved eksportering. Vennligst prøv igjen, eller kontakt webansvarlig på knutole@mapic.io.';
+                var result = 'Det oppstod en feil ved eksportering. Vennligst prøv igjen, eller kontakt webansvarlig på knutole@mitt-distrikt.no.';
             }
 
             // return as file download
@@ -837,7 +841,7 @@ module.exports = api = {
         html += '</div>';
 
         // support email
-        html += '<div style="color:gray; padding-top:10px;font-size:0.9em;font-style:italic;">Dette er en automatisk generert email. Kontakt <a style="color: gray;" href="mailto:hello@mapic.io?subject=Support for MittLier.no">Mapic</a> hvis du trenger support.</div>';
+        html += '<div style="color:gray; padding-top:10px;font-size:0.9em;font-style:italic;">Dette er en automatisk generert email. Kontakt <a style="color: gray;" href="mailto:' + config.email.support_mailto + '?subject=' + config.email.support_subject + '">Mitt Distrikt</a> hvis du trenger support.</div>';
 
         return html;
 

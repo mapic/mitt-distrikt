@@ -34,9 +34,15 @@ check_ubuntu
 DOMAIN=$1
 SUBDOMAIN=$2
 EMAIL=$3
+WORKDIR=$PWD
 
 # install requirements
 ./install-requirements.sh || abort "Couldn't install requirements."
+
+# build images
+cd ../docker/build
+bash build-all.sh
+cd $WORKDIR
 
 # create ssl
 ./create-ssl.sh $DOMAIN $SUBDOMAIN $EMAIL || abort "Couldn't create SSL certificates."

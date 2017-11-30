@@ -38850,7 +38850,7 @@ locale.NO = {
 
     footer : {
         login   : 'Logg inn',
-        text    : '© Lier kommune 2017. ',
+        text    : '© Mitt Distrikt 2017. ',
     },
 
     admin : {
@@ -38859,7 +38859,7 @@ locale.NO = {
             loginText       : 'til Wordpress for å redigere bloggposter.'
         },
         tags : 'Tags',
-        tagTooltip : 'Sett hvilke tags som skal være aktive. F.eks. "mittlier".'
+        tagTooltip : 'Sett hvilke tags som skal være aktive. F.eks. "mittdistrikt".'
     },
 
     notes : {
@@ -38882,10 +38882,10 @@ locale.NO = {
     pleaseFillIn : 'Vennligst fyll inn',
     ok : 'Ok',
     title : 'Overskrift',
-    writeYourSuggestion : 'Skriv ditt forslag til #MittLier',
+    writeYourSuggestion : 'Skriv ditt forslag til #MittDistrikt',
     yourName : 'Ditt navn',
     somethingWrong : 'Noe gikk galt. Vennligst prøv igjen.',
-    fatalError : 'Noe veldig galt skjedde. Vennligst kontakt knutole@mapic.io',
+    fatalError : 'Noe veldig galt skjedde. Vennligst kontakt knutole@mitt-distrikt.no',
     writeSearchWord : 'Skriv inn ditt søkeord, uten #',
     save : 'Lagre',
     export : 'Eksportér',
@@ -39136,6 +39136,19 @@ L.Admin = L.Class.extend({
    
         // create api
         this.api = new L.Api();
+
+        app.api.getConfig(function (err, json) {
+            
+            // parse
+            var result = safeParse(json);
+
+            /// check
+            if (!result || err || result.error) return alert(app.locale.fatalError);
+
+            // set config
+            this._config = result.config;
+
+        }.bind(this));
    
         // google analytics
         app.ga();
@@ -39304,17 +39317,6 @@ L.Admin = L.Class.extend({
 
     _fillMediaContent : function () {
 
-        app.api.getConfig(function (err, json) {
-            
-            // parse
-            var result = safeParse(json);
-
-            /// check
-            if (!result || err || result.error) return alert(app.locale.fatalError);
-
-            // set config
-            this._config = result.config;
-
             // create container
             var container = L.DomUtil.create('div', 'admin-media-container', this._content.media);
 
@@ -39335,11 +39337,9 @@ L.Admin = L.Class.extend({
             btn.innerHTML = app.locale.save;
             L.DomEvent.on(btn, 'click', this._saveAdminMedia, this);
 
-
             // social media feed
             this._createSocialMediaFeed();
 
-        }.bind(this))
     },
 
     _createSocialMediaFeed : function () {
@@ -39427,8 +39427,10 @@ L.Admin = L.Class.extend({
 
     _saveAdminMedia : function () {
         var value = this._hashtagInput.value;
-        this._config.hashtag = value;
-        app.api.setConfig(this._config, function (err, results) {
+        // this._config.hashtag = value;
+        app.api.setConfig({
+            hashtag : value
+        }, function (err, results) {
             if (err) alert(app.locale.fatalError);
         });
     },
@@ -39440,8 +39442,7 @@ L.Admin = L.Class.extend({
             if (err) return console.error(err);
 
             var tagstring = safeParse(tagstring);
-
-            var tags = _.isArray(tagstring) ? tagstring.join(', ') : 'mittlier'; // default, todo: move to config
+            var tags = _.isArray(tagstring) ? tagstring.join(', ') : this._config.default_tag; // default, todo: move to config
 
             // create tag input
             var wrapper = L.DomUtil.create('div', 'tag-wrapper', this._content.map);
@@ -39479,7 +39480,7 @@ L.Admin = L.Class.extend({
         var tagstring = this._tagInput.value;
         app.api.setTags({tagstring : tagstring}, function (err) {
             if (err) console.error('Error saving tags!');
-        })
+        });
     },
 
     _createExportButton : function () {
@@ -39580,19 +39581,15 @@ L.Admin = L.Class.extend({
             // t.domain = e.portal_tag || '';
 
             // create tags input
-            // t.tags = e.tags.join(', ');
-           
-            var tags_input = '<input class="tags-input" onblur="mapnotectx.onTagsInputBlur(\'' + e.id + '\', this)" value="' + e.tags.join(',') + '">';
-            t.tags = tags_input;
-            console.log(tags_input);
+            t.tags = '<input class="tags-input" onblur="mapnotectx.onTagsInputBlur(\'' + e.id + '\', this)" value="' + e.tags.join(',') + '">';
 
             // create preview map link
             t.latlng = '<i class="fa fa-globe" aria-hidden="true" onclick="mapnotectx.onMapNoteClick(\'' + e.id + '\', this)"></i>';
             
             // create preview image link
-            if (e.image && e.image.original)
-            t.image = '<i class="fa fa-picture-o" aria-hidden="true" onclick="mapnotectx.onMapNoteImageClick(\'' + e.image.original + '\')"></i>'
-            else {
+            if (e.image && e.image.original) {
+                t.image = '<i class="fa fa-picture-o" aria-hidden="true" onclick="mapnotectx.onMapNoteImageClick(\'' + e.image.original + '\')"></i>'
+            } else {
                 t.image = '';
             }
 
@@ -39810,7 +39807,7 @@ L.Admin = L.Class.extend({
         var text = this.locale.admin.info.loginText;
 
         // todo: unhardcode url
-        infoContent.innerHTML = '<a target="_blank" href="https://blog.mittlier.no/wp-admin/">' + loginText + '</a>' + ' ' + text;
+        infoContent.innerHTML = '<a target="_blank" href="https://' + this._config.wordpress_domain + '/wp-admin/">' + loginText + '</a>' + ' ' + text;
     },
 
     // helper fn to show/hide the three tabs
@@ -39893,29 +39890,43 @@ L.App = L.Class.extend({
         // set options
         L.setOptions(this, options);
 
-        // google analytics
-        app.ga();
-
         // create api
-        this.api = new L.Api();
+        app.api = new L.Api();
 
-        // get browser
-        this._detectDevice();
+        // get config
+        app.api.getConfig(function (err, json) {
 
-        // set locale
-        this.locale = window.locale[options.locale || 'NO'];
+            // parse
+            var result = safeParse(json);
 
-        // get html
-        this._initContent();
+            /// check
+            if (!result || err || result.error) return alert(app.locale.fatalError);
 
-        // set events
-        this._setEvents();
+            // set config
+            app.config = result.config;
 
-        // fill content
-        this._fillContent();
+            // google analytics
+            app.ga();
 
-        // set default pane
-        this._show('map');
+            // get browser
+            this._detectDevice();
+
+            // set locale
+            this.locale = window.locale[options.locale || 'NO'];
+
+            // get html
+            this._initContent();
+
+            // set events
+            this._setEvents();
+
+            // fill content
+            this._fillContent();
+
+            // set default pane
+            this._show('map');
+
+        }.bind(this));
 
     },
 
@@ -40074,8 +40085,8 @@ L.Info = L.Class.extend({
     _initContent : function () {
 
         // get blog url for iframe
-        var blogSource = 'https://blog.mittlier.no';
-
+        var blogSource = 'https://' + app.config.wordpress_domain;
+        
         // create iframe
         this._container.innerHTML = '<iframe id="info-iframe" src="' + blogSource + '"></iframe>'
     },
@@ -40115,7 +40126,7 @@ L.MapContent = L.Evented.extend({
     _getTag : function () {
 
         // default
-        this._tag = ['mittlier'];
+        this._tag = [app.config.default_tag];
         
         // get url
         var pathname = window.location.pathname;
@@ -40482,10 +40493,8 @@ L.MapContent = L.Evented.extend({
         var address = this.note.address;
         var zoom = this.note.zoom;
         var username = this.note.nameText.value || app.locale.notes.anon;
-        // var tags = ["mittlier"]; // todo: 
-        // var tags = [this._tag || 'mittlier'];
         var tags = this._tag;
-        var portal_tag = 'mittlier'; // todo: from config
+        var portal_tag = app.config.default_tag; // todo: from config
         var image = this.note.image;
 
         // check values
@@ -40723,7 +40732,7 @@ L.MapContent = L.Evented.extend({
         var tag = tag.toLowerCase();
 
         // go to tag
-        window.location.href = 'https://mittlier.no/tag/' + tag;
+        window.location.href = 'https://' + app.config.domain + '/tag/' + tag;
     },
 
     _toggled : false,

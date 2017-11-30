@@ -1,2 +1,2 @@
 #!/bin/bash
-docker build -t lier/web:latest .
+docker build -t mitt-distrikt/web:latest .

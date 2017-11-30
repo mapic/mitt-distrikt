@@ -12,3 +12,4 @@ build () {
 build nginx
 build web
 build wordpress
+build redis

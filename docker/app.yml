@@ -13,8 +13,7 @@ volumes:
 services:
 
   web:
-    build: build/web
-    image: lier/web:latest
+    image: mitt-distrikt/web:latest
     volumes:
       - ../app:/entrypoint
       - ../config/app-config.js:/entrypoint/app-config.js:ro
@@ -24,31 +23,28 @@ services:
     command: sh start-server.sh
       
   wordpress:
-    build: build/wordpress
-    image: lier/wordpress:latest
+    image: mitt-distrikt/wordpress:latest
     environment:
-      WORDPRESS_DB_PASSWORD: example
+      WORDPRESS_DB_PASSWORD: mmdNargzcoXMctLwdzdL
     volumes:
       - wordpress_storage:/var/www/html/wp-content/uploads
   
   mysql:
     image: mariadb
     environment:
-      MYSQL_ROOT_PASSWORD: example
+      MYSQL_ROOT_PASSWORD: mmdNargzcoXMctLwdzdL
     volumes:
       - mariadb_storage:/var/lib/mysql
 
   redis:
-    build: build/redis
-    image: lier/redis:latest
+    image: mitt-distrikt/redis:latest
     volumes:
       - ../config/redis.conf:/tmp/redis.conf:ro
       - redis_storage:/redis_storage
     command: redis-server /tmp/redis.conf
   
   nginx:
-    build: build/nginx
-    image: lier/nginx:latest
+    image: mitt-distrikt/nginx:latest
     links:
       - web
       - wordpress

@@ -10,4 +10,4 @@ fi
 
 # build
 echo 'Building image'
-docker build -t lier/nginx:latest . || exit 1
+docker build -t mitt-distrikt/nginx:latest . || exit 1

@@ -4,4 +4,4 @@
 docker pull wordpress:latest
 
 # build
-docker build -t lier/wordpress:latest .
+docker build -t mitt-distrikt/wordpress:latest .

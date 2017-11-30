@@ -1,2 +1,2 @@
 #!/bin/bash
-docker build -t lier/redis:latest .
+docker build -t mitt-distrikt/redis:latest .

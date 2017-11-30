@@ -31,7 +31,7 @@ L.MapContent = L.Evented.extend({
     _getTag : function () {
 
         // default
-        this._tag = ['mittlier'];
+        this._tag = [app.config.default_tag];
         
         // get url
         var pathname = window.location.pathname;
@@ -398,10 +398,8 @@ L.MapContent = L.Evented.extend({
         var address = this.note.address;
         var zoom = this.note.zoom;
         var username = this.note.nameText.value || app.locale.notes.anon;
-        // var tags = ["mittlier"]; // todo: 
-        // var tags = [this._tag || 'mittlier'];
         var tags = this._tag;
-        var portal_tag = 'mittlier'; // todo: from config
+        var portal_tag = app.config.default_tag; // todo: from config
         var image = this.note.image;
 
         // check values
@@ -639,7 +637,7 @@ L.MapContent = L.Evented.extend({
         var tag = tag.toLowerCase();
 
         // go to tag
-        window.location.href = 'https://mittlier.no/tag/' + tag;
+        window.location.href = 'https://' + app.config.domain + '/tag/' + tag;
     },
 
     _toggled : false,

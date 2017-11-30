@@ -19,29 +19,43 @@ L.App = L.Class.extend({
         // set options
         L.setOptions(this, options);
 
-        // google analytics
-        app.ga();
-
         // create api
-        this.api = new L.Api();
+        app.api = new L.Api();
 
-        // get browser
-        this._detectDevice();
+        // get config
+        app.api.getConfig(function (err, json) {
 
-        // set locale
-        this.locale = window.locale[options.locale || 'NO'];
+            // parse
+            var result = safeParse(json);
 
-        // get html
-        this._initContent();
+            /// check
+            if (!result || err || result.error) return alert(app.locale.fatalError);
 
-        // set events
-        this._setEvents();
+            // set config
+            app.config = result.config;
 
-        // fill content
-        this._fillContent();
+            // google analytics
+            app.ga();
 
-        // set default pane
-        this._show('map');
+            // get browser
+            this._detectDevice();
+
+            // set locale
+            this.locale = window.locale[options.locale || 'NO'];
+
+            // get html
+            this._initContent();
+
+            // set events
+            this._setEvents();
+
+            // fill content
+            this._fillContent();
+
+            // set default pane
+            this._show('map');
+
+        }.bind(this));
 
     },
 

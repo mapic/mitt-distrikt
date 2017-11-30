@@ -19,12 +19,26 @@ L.Admin = L.Class.extend({
    
         // create api
         this.api = new L.Api();
-   
-        // google analytics
-        app.ga();
 
-        // login first
-        this._initLogin();
+        app.api.getConfig(function (err, json) {
+            
+            // parse
+            var result = safeParse(json);
+
+            /// check
+            if (!result || err || result.error) return alert(app.locale.fatalError);
+
+            // set config
+            this._config = result.config;
+
+            // google analytics
+            app.ga();
+
+            // login first
+            this._initLogin();
+
+        }.bind(this));
+        
     },
 
     ga : function (event) {
@@ -187,17 +201,6 @@ L.Admin = L.Class.extend({
 
     _fillMediaContent : function () {
 
-        app.api.getConfig(function (err, json) {
-            
-            // parse
-            var result = safeParse(json);
-
-            /// check
-            if (!result || err || result.error) return alert(app.locale.fatalError);
-
-            // set config
-            this._config = result.config;
-
             // create container
             var container = L.DomUtil.create('div', 'admin-media-container', this._content.media);
 
@@ -218,11 +221,9 @@ L.Admin = L.Class.extend({
             btn.innerHTML = app.locale.save;
             L.DomEvent.on(btn, 'click', this._saveAdminMedia, this);
 
-
             // social media feed
             this._createSocialMediaFeed();
 
-        }.bind(this))
     },
 
     _createSocialMediaFeed : function () {
@@ -310,8 +311,10 @@ L.Admin = L.Class.extend({
 
     _saveAdminMedia : function () {
         var value = this._hashtagInput.value;
-        this._config.hashtag = value;
-        app.api.setConfig(this._config, function (err, results) {
+        // this._config.hashtag = value;
+        app.api.setConfig({
+            hashtag : value
+        }, function (err, results) {
             if (err) alert(app.locale.fatalError);
         });
     },
@@ -323,8 +326,7 @@ L.Admin = L.Class.extend({
             if (err) return console.error(err);
 
             var tagstring = safeParse(tagstring);
-
-            var tags = _.isArray(tagstring) ? tagstring.join(', ') : 'mittlier'; // default, todo: move to config
+            var tags = _.isArray(tagstring) ? tagstring.join(', ') : this._config.default_tag; // default, todo: move to config
 
             // create tag input
             var wrapper = L.DomUtil.create('div', 'tag-wrapper', this._content.map);
@@ -362,7 +364,7 @@ L.Admin = L.Class.extend({
         var tagstring = this._tagInput.value;
         app.api.setTags({tagstring : tagstring}, function (err) {
             if (err) console.error('Error saving tags!');
-        })
+        });
     },
 
     _createExportButton : function () {
@@ -689,7 +691,7 @@ L.Admin = L.Class.extend({
         var text = this.locale.admin.info.loginText;
 
         // todo: unhardcode url
-        infoContent.innerHTML = '<a target="_blank" href="https://blog.mittlier.no/wp-admin/">' + loginText + '</a>' + ' ' + text;
+        infoContent.innerHTML = '<a target="_blank" href="https://' + this._config.wordpress_domain + '/wp-admin/">' + loginText + '</a>' + ' ' + text;
     },
 
     // helper fn to show/hide the three tabs

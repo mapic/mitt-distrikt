@@ -315,6 +315,7 @@ L.Admin = L.Class.extend({
         app.api.setConfig({
             hashtag : value
         }, function (err, results) {
+            console.log('hashtag saved', value);
             if (err) alert(app.locale.fatalError);
         });
     },

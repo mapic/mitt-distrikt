@@ -591,6 +591,7 @@ L.MapContent = L.Evented.extend({
 
         // get tags
         app.api.getTags(function (err, tagstring) {
+            console.log('err, tags', err, tagstring);
             this._tags = safeParse(tagstring);
         }.bind(this));
     },
@@ -607,10 +608,7 @@ L.MapContent = L.Evented.extend({
         // create wrapper
         this._tag_wrapper = L.DomUtil.create('div', 'tag-list', this._container);
         
-        // app.api.getTags(function (err, tagstring) {
-
-            // parse
-            // var tags = safeParse(tagstring);
+        // get tags
         var tags = this._tags;
 
         _.each(tags, function (t) {
@@ -623,8 +621,6 @@ L.MapContent = L.Evented.extend({
             L.DomEvent.on(t_div, 'click', this._onTagClick, this);
 
         }.bind(this));
-
-        // }.bind(this))
 
     },
 
@@ -646,11 +642,11 @@ L.MapContent = L.Evented.extend({
         var map = this._map;
         this._toggled = !this._toggled;
         if (this._toggled) {
-            map.setLayoutProperty('norkart', 'visibility', 'none');
-            map.setLayoutProperty('mapbox', 'visibility', 'visible');
+            map.setLayoutProperty('satellite', 'visibility', 'none');
+            map.setLayoutProperty('streets', 'visibility', 'visible');
         } else {
-            map.setLayoutProperty('norkart', 'visibility', 'visible');
-            map.setLayoutProperty('mapbox', 'visibility', 'none');
+            map.setLayoutProperty('satellite', 'visibility', 'visible');
+            map.setLayoutProperty('streets', 'visibility', 'none');
         }
     },
 
@@ -659,41 +655,50 @@ L.MapContent = L.Evented.extend({
         // shortcut
         var map = this._map;
 
-        // mapbox streets raster tiles
-        map.addSource('mapbox-tiles', {
-            "type": "raster",
-            "tiles": ['https://api.mapbox.com/styles/v1/mapbox/outdoors-v10/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwaWMiLCJhIjoiY2l2MmE1ZW4wMDAwZTJvcnhtZGI4YXdlcyJ9.rD_-Ou1OdKQsHqEqL6FJLg'],
-            "tileSize": 256
-        });
+        // streets raster tiles
+        // map.addSource('mapbox-tiles', {
+        //     "type": "raster",
+        //     "tiles": ['https://api.mapbox.com/styles/v1/mapbox/outdoors-v10/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwaWMiLCJhIjoiY2l2MmE1ZW4wMDAwZTJvcnhtZGI4YXdlcyJ9.rD_-Ou1OdKQsHqEqL6FJLg'],
+        //     "tileSize": 256
+        // });
+        console.log('config', app.config);
 
+        console.log('app.config.mapbox.streets.tiles', app.config.mapbox.streets.tiles);
+       
+        // streets raster tiles
+        map.addSource('streets-source', {
+            "type" : app.config.mapbox.streets.type,
+            "tiles" : [app.config.mapbox.streets.tiles],
+            "tileSize" : 256
+        });
         map.addLayer({
-            "id": "mapbox",
-            "type": "raster",
-            "source": "mapbox-tiles",
+            "id": "streets",
+            "type": app.config.mapbox.streets.type,
+            "source": "streets-source",
             "minzoom": 0,
             "maxzoom": 22,
             "source-layer" : "background"
         });
+        
         // hide by default
-        map.setLayoutProperty('mapbox', 'visibility', 'none');
+        map.setLayoutProperty('streets', 'visibility', 'none');
 
-        // norkart raster tiles
-        map.addSource('norkart-tiles', {
-            "type": "raster",
-            "tiles": ['https://www.webatlas.no/maptiles/tiles/webatlas-orto-newup/wa_grid/{z}/{x}/{y}.jpeg'],
+        // satellite raster tiles
+        map.addSource('satellite-source', {
+            "type": app.config.mapbox.satellite.type,
+            "tiles": [app.config.mapbox.satellite.tiles + app.config.mapbox.satellite.access_token],
             "tileSize": 256
         });
-
         map.addLayer({
-            "id": "norkart",
-            "type": "raster",
-            "source": "norkart-tiles",
+            "id": "satellite",
+            "type": app.config.mapbox.satellite.type,
+            "source": "satellite-source",
             "minzoom": 0,
             "maxzoom": 22
         });
 
         // move order
-        map.moveLayer('norkart', 'background');
+        map.moveLayer('satellite', 'background');
 
         // load custom marker
         map.loadImage(window.location.origin + '/stylesheets/blomst-red.png', function (err, image) {
@@ -1024,8 +1029,6 @@ L.MapContent = L.Evented.extend({
                 if (err) return alert(err);
 
                 // update data
-                // var data_url = window.location.origin + '/v1/notes';
-                // this._map.getSource('earthquakes').setData(data_url);
                 this._updateData();
 
                 // clean up screen

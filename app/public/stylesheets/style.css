@@ -170,6 +170,7 @@ input.hashtag-input {
     font-weight: 600;
     text-decoration: none;
     margin-left: 20px;
+    cursor: pointer;
 }
 .admin-media-save-btn:hover {
   background: white;

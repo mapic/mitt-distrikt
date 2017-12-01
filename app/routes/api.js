@@ -131,7 +131,8 @@ module.exports = api = {
         // 4. maintain list in redis of active posts
         // 5. filter out from list any unwanted posts
 
-        var tag = config.instragram_tag;
+        var tag = config.hashtag;
+        console.log('pullLatestInstagram tag', tag);
 
         // get data from insta
         ig.tag_media_recent(tag, function(err, medias, pagination, remaining, limit) {
@@ -170,13 +171,10 @@ module.exports = api = {
                             } else {
                                 console.log('saved', social_key, ' to redis!');
                             }
-                        })
-
-                    } 
+                        });
+                    };
                 });
-
-            })
-
+            });
         });
 
     },
@@ -186,7 +184,8 @@ module.exports = api = {
             hashtag : config.hashtag,
             default_tag : config.default_tag,
             domain : config.domain,
-            wordpress_domain : config.wordpress_domain
+            wordpress_domain : config.wordpress_domain,
+            mapbox : config.mapbox,
         };
 
         api._setConfig(defaultConfig, function (err) {

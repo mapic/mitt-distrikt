@@ -1,30 +1,64 @@
 module.exports = {
 
     // title
-    portal_title : '',
-    domain : 'example.com',
-    wordpress_domain : 'blog.example.no',
+    domain : 'demo.mitt-distrikt.no.',
+    wordpress_domain : 'blog.mitt-distrikt.no',
+    portal_title : 'Mitt Distrikt',
+    default_tag : 'mittdistrikt',
+    hashtag : 'MittDistrikt',
+    instagram_tag : 'mittdistrikt',
 
     redis : {
+
         // key for geojson
-        key : 'any-unique-key',
-        auth : 'redis-key-must-match-redis-config',
+        key : 'demo-v1',
+
+        // redis auth
+        auth : '',
 
         // key for config
-        config : 'any-unique-key',
+        config : 'demo-config-v1',
     },
 
     twitter : {
         consumer_key : '',
         consumer_secret : '',
-        access_token : '',
+        access_token_key : '',
         access_token_secret : '',
-        timeout_ms : 60*1000,  
+        timeout_ms : 60*1000,
     },
 
-     facebook : {
+    facebook : {
         app_id : '',
-        title : 'Default Facebook post title',
+        title : '',
+    },
+
+    email : {
+
+        // subject header
+        subject : 'Nytt innlegg på MittDistrikt.no',        
+
+        // emails that will receive notifications
+        recipients : ['knutole@mitt-distrikt.no'],
+
+        // support mailto
+        support_mailto : 'knutole@mitt-distrikt.no',
+
+        // support subject
+        support_subject : 'Support for Mitt Distrikt',
+
+        // config for email
+        config : {
+            service : 'gmail',
+            auth : {
+                user : 'knutole@mitt-distrikt.no',
+                pass : ''
+            },
+            port: 465,
+            secure : true,
+            bcc : ['knutole@mitt-distrikt.no'],
+            from : 'Mitt Distrikt <knutole@mitt-distrikt.no>'
+        },
     }
 
 }

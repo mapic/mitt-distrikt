@@ -39957,6 +39957,13 @@ L.App = L.Class.extend({
         this._buttons.map.div.innerHTML = this.locale.buttons.map;
         this._buttons.media.div.innerHTML = this.locale.buttons.media;
 
+        // set colors
+        var theme_color = app.config.theme.color;
+        console.log('theme_color', theme_color);
+        this._buttons.info.div.style.backgroundColor = theme_color;
+        this._buttons.map.div.style.backgroundColor = theme_color;
+        this._buttons.media.div.style.backgroundColor = theme_color;
+
         // logo and admin link on desktop
         this._logo = L.DomUtil.get('site-logo');
         this._footer = L.DomUtil.get('site-footer');
@@ -40647,20 +40654,24 @@ L.MapContent = L.Evented.extend({
             streets : 'mapbox://styles/mapbox/streets-v9',
         }
 
+        console.log('mapbox', app.config.mapbox);
+
         var mapOptions = {
             container: 'map',
-            // style: 'mapbox://styles/mapbox/streets-v9',
-            // style: 'mapbox://styles/mapbox/satellite-v9',
-            // style: 'mapbox://styles/mapic/cj3lgc596000p2sp0ma8z1km0',
-            style: this._styles.satellite,
-            center: [10.24333427476904, 59.78323674962704],
-            zoom : 12,
+            // style: this._styles.satellite,
+            style: this._styles.streets,
+            // center: [10.24333427476904, 59.78323674962704],
+            // zoom : 12,
+            center: app.config.mapbox.center,
+            zoom : app.config.mapbox.zoom || 10,
+            pitch : app.config.mapbox.pitch || 0,
+            bearing : app.config.mapbox.bearing || 0,
             attributionControl : false,
         };
 
         // initialize mapboxgl
         mapboxgl.accessToken = 'pk.eyJ1IjoibWFwaWMiLCJhIjoiY2ozbW53bjk5MDAwYjMzcHRiemFwNmhyaiJ9.R6p5sEuc0oSTjkcKxOSX1w';
-        var map = this._map = new mapboxgl.Map(mapOptions);
+        var map = app._map = this._map = new mapboxgl.Map(mapOptions);
 
         // map ready event
         map.on('load', this._onMapLoad.bind(this));
@@ -40783,7 +40794,7 @@ L.MapContent = L.Evented.extend({
         // satellite raster tiles
         map.addSource('satellite-source', {
             "type": app.config.mapbox.satellite.type,
-            "tiles": [app.config.mapbox.satellite.tiles + app.config.mapbox.satellite.access_token],
+            "tiles": [app.config.mapbox.satellite.tiles],
             "tileSize": 256
         });
         map.addLayer({
@@ -40805,7 +40816,8 @@ L.MapContent = L.Evented.extend({
             map.addImage('blomst', image);
 
             // load second image
-            map.loadImage(window.location.origin + '/stylesheets/blomst-yellow.png', function (err, image2) {
+            // map.loadImage(window.location.origin + '/stylesheets/blomst-yellow.png', function (err, image2) {
+            map.loadImage(window.location.origin + '/stylesheets/blomst-omriss.png', function (err, image2) {
 
                 // add image
                 map.addImage('blomst2', image2);
@@ -40872,6 +40884,41 @@ L.MapContent = L.Evented.extend({
             }.bind(this));
 
         }.bind(this));
+
+        // add geojson buildings
+        map.addLayer({
+            'id': 'room-extrusion',
+            'type': 'fill-extrusion',
+            'source': {
+                // Geojson Data source used in vector tiles, documented at
+                // https://gist.github.com/ryanbaumann/a7d970386ce59d11c16278b90dde094d
+                'type': 'geojson',
+                'data': 'https://gist.githubusercontent.com/anonymous/acaca9aa7a105466116a9771069ba6e9/raw/4a28508e5d1016b28e9134f7adcd6a31e8ae8353/map.geojson'
+            },
+            'paint': {
+                // See the Mapbox Style Spec for details on property functions
+                // https://www.mapbox.com/mapbox-gl-style-spec/#types-function
+                'fill-extrusion-color': {
+                    // Get the fill-extrusion-color from the source 'color' property.
+                    'property': 'color',
+                    'type': 'identity'
+                },
+                // 'fill-extrusion-color': '#ff9800',
+                'fill-extrusion-height': {
+                    // Get fill-extrusion-height from the source 'height' property.
+                    'property': 'height',
+                    'type': 'identity'
+                },
+                // 'fill-extrusion-base': {
+                //     // Get fill-extrusion-base from the source 'base_height' property.
+                //     'property': 'base_height',
+                //     'type': 'identity'
+                // },
+                // Make extrusions slightly opaque for see through indoor walls.
+                'fill-extrusion-opacity': 0.5
+            }
+        });
+
 
 
     },

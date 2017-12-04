@@ -3,27 +3,48 @@ html
     head
         <meta name='viewport' content='width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no' />
 
+        //- both modes
         link(rel='stylesheet', href='https://fonts.googleapis.com/css?family=Open+Sans:300,400,700,800')
         link(rel='stylesheet', href='/stylesheets/font-awesome/css/font-awesome.css')
-        link(rel='stylesheet', href='/output.css')
-        //- link(rel='stylesheet', href='/stylesheets/mapbox-gl.css')
-        //- link(rel='stylesheet', href='/stylesheets/normalize.css')
-        //- link(rel='stylesheet', href='/stylesheets/style.css')
-        //- link(rel='stylesheet', href='/stylesheets/mobile.css')
-    
-        script(src='/output.min.js')  
 
-        //- script(src='/javascripts/lib/mapbox-gl.js')    
-        //- script(src='/javascripts/lib/mobile-detect.js')
-        //- script(src='/javascripts/lib/hammer.js')
-        //- script(src='/javascripts/lib/hammer-time.js')
-        //- script(src='/javascripts/lib/lodash.js')
-        //- script(src='/javascripts/lib/js.cookie.js')
-        //- script(src='/javascripts/lib/exif.js')
-        
-        //- script(src='/javascripts/class.js')
-        //- script(src='/javascripts/locale.js')
-        //- script(src='/javascripts/api.js')
+        //- prod mode
+        //- link(rel='stylesheet', href='/output.css')
+        //- script(src='/output.min.js')  
+        //- prod mode end
+
+
+        //- dev mode
+        link(rel='stylesheet', href='stylesheets/mapbox-gl.css')
+        link(rel='stylesheet', href='stylesheets/normalize.css')
+        link(rel='stylesheet', href='stylesheets/style.css')
+        link(rel='stylesheet', href='stylesheets/mobile.css')
+        link(rel='stylesheet', href='stylesheets/jquery.dynatable.css')
+        link(rel='stylesheet', href='stylesheets/theme.css')
+        script(src='javascripts/lib/bowser.js')
+        script(src='javascripts/lib/cookies.js')
+        script(src='javascripts/lib/exif.js')
+        script(src='javascripts/lib/hammer.js')
+        script(src='javascripts/lib/hammer-time.js')
+        script(src='javascripts/lib/instafeed.js')
+        script(src='javascripts/lib/jquery-3.2.1.slim.js')
+        script(src='javascripts/lib/jquery.dynatable.js')
+        script(src='javascripts/lib/js.cookie.js')
+        script(src='javascripts/lib/lodash.js')
+        script(src='javascripts/lib/mapbox-sdk.js')
+        script(src='javascripts/lib/mapbox-gl.js')
+        script(src='javascripts/lib/mobile-detect.js')
+        script(src='javascripts/class.js')
+        script(src='javascripts/locale.js')
+        script(src='javascripts/api.js')
+        script(src='javascripts/admin-page.js')
+        script(src='javascripts/front-page.js')
+        script(src='javascripts/info-content.js')
+        script(src='javascripts/map-content.js')
+        script(src='javascripts/media-content.js')
+        //- dev mode end
+    
+
+      
 
         //- google analytics
         script.

@@ -1,0 +1,96 @@
+/*skanska*/
+
+/*main color: blue*/
+
+.btn-group .button {
+    background-color: #293e66 !important;
+}
+
+.button.highlighted {
+    background-color: white !important;
+    color: #293e65 !important;
+}
+
+.button:hover {
+    background-color: white !important;
+    border: 1px solid #293e66;
+    color: #293e66;
+}
+#site-logo img {
+    height: 60px;
+    margin: 20px;
+}
+.shadow-button {
+    background-color: rgb(41, 62, 101);
+    box-shadow: 10px 10px 21px 0px rgba(0,0,0,0.75);
+}
+.red-button:hover + .white-button {
+    background-color: rgba(41, 62, 101, 0.5);
+    box-shadow: 10px 10px 21px -10px rgba(0,0,0,0.75);
+
+}
+.shadow-button.color-white:hover {
+    color: #293e65;
+    box-shadow: 10px 10px 21px -2px rgba(0,0,0,0.75);
+}
+.background-toggle-control { 
+    color: #293e65;
+}
+.background-toggle-control:active { 
+    background-color: rgb(41, 62, 101);
+}
+.write-note-title { 
+    background: rgb(41, 62, 101);
+}
+.empty-preview {
+    background: rgb(41, 62, 100);
+}
+i.fa.fa-map-marker {
+    color: #293e65;
+}
+.notes-image { 
+    background-color: #293e65;
+}
+.notes-right-wrapper { 
+    color: #293e65;
+}
+.notes-read-more:hover {
+    background: #293e65;
+    border: 1px solid #293e65;
+}
+button.mapboxgl-popup-close-button:hover {
+    background: #293e65;
+    border: 1px solid #293e65;
+}
+button.mapboxgl-popup-close-button {
+    color: #293e65;
+}
+#login-container {
+    background: white;
+}
+.form input.button {
+    background: #293e66;
+}
+input#login-button:hover {
+    color: #293e66 !important;
+}
+#site-logo-admin img {
+    height: 60px;
+    margin: 20px;
+}
+.export-button {
+    background: #293e66;
+}
+.export-button:hover {
+    background: white;
+    color: #293e66;
+    border: 1px solid #293e66;
+}
+.admin-media-save-btn {
+    background: #293e66;
+}
+.admin-media-save-btn:hover {
+    background: white;
+    color: #293e66;
+    border: 1px solid #293e66;
+}

@@ -53,7 +53,7 @@ L.App = L.Class.extend({
             this._fillContent();
 
             // set default pane
-            this._show('map');
+            this._show(app.config.theme.pane || 'map');
 
         }.bind(this));
 
@@ -83,6 +83,13 @@ L.App = L.Class.extend({
         this._buttons.info.div.innerHTML = this.locale.buttons.info;
         this._buttons.map.div.innerHTML = this.locale.buttons.map;
         this._buttons.media.div.innerHTML = this.locale.buttons.media;
+
+        // set colors
+        var theme_color = app.config.theme.color;
+        console.log('theme_color', theme_color);
+        this._buttons.info.div.style.backgroundColor = theme_color;
+        this._buttons.map.div.style.backgroundColor = theme_color;
+        this._buttons.media.div.style.backgroundColor = theme_color;
 
         // logo and admin link on desktop
         this._logo = L.DomUtil.get('site-logo');

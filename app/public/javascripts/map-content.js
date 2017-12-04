@@ -550,20 +550,28 @@ L.MapContent = L.Evented.extend({
             streets : 'mapbox://styles/mapbox/streets-v9',
         }
 
+        console.log('mapbox', app.config.mapbox);
+
         var mapOptions = {
             container: 'map',
-            // style: 'mapbox://styles/mapbox/streets-v9',
-            // style: 'mapbox://styles/mapbox/satellite-v9',
-            // style: 'mapbox://styles/mapic/cj3lgc596000p2sp0ma8z1km0',
-            style: this._styles.satellite,
-            center: [10.24333427476904, 59.78323674962704],
-            zoom : 12,
+            // style: this._styles.satellite,
+            style: this._styles.streets,
+            // center: [10.24333427476904, 59.78323674962704],
+            // zoom : 12,
+            center: app.config.mapbox.center,
+            zoom : app.config.mapbox.zoom || 10,
+            pitch : app.config.mapbox.pitch || 0,
+            bearing : app.config.mapbox.bearing || 0,
             attributionControl : false,
+            // navigationControl : true
         };
 
         // initialize mapboxgl
         mapboxgl.accessToken = 'pk.eyJ1IjoibWFwaWMiLCJhIjoiY2ozbW53bjk5MDAwYjMzcHRiemFwNmhyaiJ9.R6p5sEuc0oSTjkcKxOSX1w';
-        var map = this._map = new mapboxgl.Map(mapOptions);
+        var map = app._map = this._map = new mapboxgl.Map(mapOptions);
+
+        var nav = new mapboxgl.NavigationControl();
+        map.addControl(nav, 'top-right');
 
         // map ready event
         map.on('load', this._onMapLoad.bind(this));
@@ -686,7 +694,7 @@ L.MapContent = L.Evented.extend({
         // satellite raster tiles
         map.addSource('satellite-source', {
             "type": app.config.mapbox.satellite.type,
-            "tiles": [app.config.mapbox.satellite.tiles + app.config.mapbox.satellite.access_token],
+            "tiles": [app.config.mapbox.satellite.tiles],
             "tileSize": 256
         });
         map.addLayer({
@@ -701,14 +709,15 @@ L.MapContent = L.Evented.extend({
         map.moveLayer('satellite', 'background');
 
         // load custom marker
-        map.loadImage(window.location.origin + '/stylesheets/blomst-red.png', function (err, image) {
+        map.loadImage(window.location.origin + '/stylesheets/blomst-omriss.png', function (err, image) {
             if (err) console.log(err);
 
             // add image
             map.addImage('blomst', image);
 
             // load second image
-            map.loadImage(window.location.origin + '/stylesheets/blomst-yellow.png', function (err, image2) {
+            // map.loadImage(window.location.origin + '/stylesheets/blomst-yellow.png', function (err, image2) {
+            map.loadImage(window.location.origin + '/stylesheets/blomst-omriss.png', function (err, image2) {
 
                 // add image
                 map.addImage('blomst2', image2);
@@ -775,6 +784,42 @@ L.MapContent = L.Evented.extend({
             }.bind(this));
 
         }.bind(this));
+
+        // add geojson buildings
+        map.addLayer({
+            'id': 'room-extrusion',
+            'type': 'fill-extrusion',
+            'source': {
+                // Geojson Data source used in vector tiles, documented at
+                // https://gist.github.com/ryanbaumann/a7d970386ce59d11c16278b90dde094d
+                'type': 'geojson',
+                // 'data': 'https://gist.githubusercontent.com/anonymous/d5679f90d76a185d2aeed04c10d5890b/raw/96aad4c02d5d9aa6c5f592ce245bca52c5159b9a/map.geojson'
+                'data': app.config.mapbox.buildings.geojson
+            },
+            'paint': {
+                // See the Mapbox Style Spec for details on property functions
+                // https://www.mapbox.com/mapbox-gl-style-spec/#types-function
+                'fill-extrusion-color': {
+                    // Get the fill-extrusion-color from the source 'color' property.
+                    'property': 'color',
+                    'type': 'identity'
+                },
+                // 'fill-extrusion-color': '#6eba42',
+                'fill-extrusion-height': {
+                    // Get fill-extrusion-height from the source 'height' property.
+                    'property': 'height',
+                    'type': 'identity'
+                },
+                // 'fill-extrusion-base': {
+                //     // Get fill-extrusion-base from the source 'base_height' property.
+                //     'property': 'base_height',
+                //     'type': 'identity'
+                // },
+                // Make extrusions slightly opaque for see through indoor walls.
+                'fill-extrusion-opacity': 0.5
+            }
+        });
+
 
 
     },

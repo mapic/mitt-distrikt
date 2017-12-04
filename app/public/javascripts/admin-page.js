@@ -458,7 +458,7 @@ L.Admin = L.Class.extend({
 
             // add entries
             t.address = e.address || '';
-            t.text = e.text || '';
+            t.text = e.title + ': ' + e.text || '';
             // t.zoom = parseInt(e.zoom) || '';
             t.username = e.username || '';
             t.time = new Date(e.timestamp).toDateString() || '';

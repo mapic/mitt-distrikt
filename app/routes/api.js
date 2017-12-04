@@ -186,8 +186,10 @@ module.exports = api = {
             domain : config.domain,
             wordpress_domain : config.wordpress_domain,
             mapbox : config.mapbox,
+            theme : config.theme,
         };
 
+        // save
         api._setConfig(defaultConfig, function (err) {
             done(err, defaultConfig);
         });

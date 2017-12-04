@@ -43,10 +43,10 @@ a {
     padding: 2px;
 }
 
-.btn-group .button:not(:last-child) {
+/*.btn-group .button:not(:last-child) {
     border-right: none;
 }
-
+*/
 /* Clear floats (clearfix hack) */
 .btn-group:after {
     content: "";
@@ -118,16 +118,16 @@ a {
 
 div#button-info:hover {
     background: white;
-    color: #e74549;
-    border: 1px solid #e74549;
+    /*color: #e74549;*/
+    /*border: 1px solid #e74549;*/
     padding: 1px;
 }
 div#button-kart:hover {
     /*background: #e74549;*/
     /*color: white;*/
-    background: white;
-    color: #e74549;
-    border: 1px solid #e74549;
+    /*background: white;*/
+    /*color: #e74549;*/
+    /*border: 1px solid #e74549;*/
     height: 46px;
     padding-left: 1px;
     padding-right: 1px;
@@ -135,8 +135,8 @@ div#button-kart:hover {
 }
 div#button-media:hover {
     background: white;
-    color: #e74549;
-    border: 1px solid #e74549;
+    /*color: #e74549;*/
+    /*border: 1px solid #e74549;*/
     padding: 1px;
 }
 
@@ -347,9 +347,9 @@ a.mapboxgl-ctrl-logo {
     position: fixed;
 }
 
-#site-logo img {
+/*#site-logo img {
     height: 110px;
-}
+}*/
 
 /*site footer*/
 #site-footer {
@@ -569,14 +569,14 @@ _____     __| _/_____ |__| ____
     height: 148px;
     overflow: hidden;
     background: #e74549;
-    background-image: url(https://mittlier.no/stylesheets/stor-blomst.png);
+    background-image: url(stor-blomst.png);
     background-size: 130px 130px;
     background-repeat: no-repeat;
     background-position: 50%;
     border-radius: 5px 0 0 5px;
 }
 .empty-preview {
-    background-image: url(https://mittlier.no/stylesheets/stor-blomst.png);
+    background-image: url(stor-blomst.png);
     background-size: 130px 130px;
     background-repeat: no-repeat;
     background-position: 50%;
@@ -594,7 +594,7 @@ _____     __| _/_____ |__| ____
     bottom: 5px;
     right: 70px;
     font-weight: 600;
-    color: #e74549;
+    /*color: #e74549;*/
     text-align: center;
     bottom: 0px;
     background: white;
@@ -663,7 +663,7 @@ i.fa.fa-map-marker {
 }
 .notes-title {
     font-size: 16px;
-    color: #e74549;
+    /*color: #e74549;*/
     font-weight: 600;
     text-transform: capitalize;
     margin-top: 5px;
@@ -686,7 +686,7 @@ i.fa.fa-map-marker {
     position: fixed;
     bottom: 50px;
     left: calc(50% - 27px);
-    background-image: url(https://mittlier.no/stylesheets/mappin.png);
+    background-image: url(mappin.png);
     cursor: pointer;
     background-position: 10px 31px;
     z-index: 11;
@@ -703,7 +703,7 @@ i.fa.fa-map-marker {
     position: fixed;
     bottom: 35px;
     left: calc(50% - 45px);
-    background: rgba(231, 69, 73, 0.83);
+    /*background: rgba(231, 69, 73, 0.83);*/
     z-index: 3;
     border-radius: 100px;
     text-align: center;
@@ -721,8 +721,8 @@ i.fa.fa-map-marker {
     background: rgba(255, 255, 255, 0.8);
 }
 .red-button:hover {
-    background-image: url(https://mittlier.no/stylesheets/mappin-red.png);
-
+    background-image: url(mappin.png);
+    color: yellow;
 }
 
 
